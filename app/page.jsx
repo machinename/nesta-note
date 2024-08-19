@@ -8,20 +8,19 @@ import NoteCreator from "./components/note_creator";
 
 export default function Home() {
   const { notes } = useContext(AppContext);
-  const newNote = {id: '', title: '', content:'', isPinned: false};
+  const newNote = { id: '', title: '', content: '', isPinned: false };
 
   return (
     <main className={styles.content}>
-      <NoteCreator/>
+      <NoteCreator />
       <div style={{
         marginBottom: '1rem'
       }} />
 
+      {notes.map((note, index) => (
+        <NoteContainer key={index} note={note} />
+      ))}
     </main>
   );
 }
 
-
-// {notes.map((note, index) => (
-//   <NoteContainer key={index} note={note} isNewNote={false} inputMode={false} isInputMode={false}/>
-// ))}

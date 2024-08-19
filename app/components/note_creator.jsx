@@ -1,7 +1,7 @@
 'use client';
 import { AlarmOutlined, ArchiveOutlined, Brush, ImageOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
 import { Box, Button, IconButton, TextField } from '@mui/material';
-import styles from "./note_creator.module.css";
+import styles from "./note.module.css";
 import { useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../context/app_provider';
 
@@ -10,37 +10,74 @@ export default function NoteCreator() {
     const [isPinned, setIsPinned] = useState(false);
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('');
+    const [contentArray, setContentArray] = useState([content]);
     const { createNote } = useContext(AppContext);
+    const index = useRef(0);
     const noteEditorRef = useRef(null);
+
+    const handleContentChange = (event) => {
+        const newValue = event.target.value;
+        setContent(newValue);
+        index.current = index.current + 1;
+        setContentArray(
+            [...contentArray.slice(0, index.current), newValue]
+        );
+    };
+
+    const handleTitleChange = (event) => {
+        const newValue = event.target.value;
+        setTitle(newValue);
+    };
+
+    const handleUndo = () => {
+        if (index.current > 0) {
+            index.current = index.current - 1;
+            setContent(contentArray[index.current]);
+        }
+    };
+
+    const handleRedo = () => {
+        if (index.current < contentArray.length - 1) {
+            index.current = index.current + 1;
+            setContent(contentArray[index.current]);
+        }
+    };
+
+    const handleResetNote = () => {
+        setTitle("");
+        setContent("");
+        setContentArray([""]);
+        setIsEditMode(false);
+        index.current = 0;
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        if(title.trim() !== '' || content.trim() !== ''){
-            console.log("Creating Note")
+        if (title.trim() !== '' || content.trim() !== '') {
+            const newNote = ({
+                title: title.trim(),
+                content: content.trim(), 
+                isPinned: isPinned
+            })
+
+            createNote(newNote);
         } else {
             console.log("Not Creating Note")
         }
-        
-        setTitle('');
-        setContent('');
-        setIsPinned(false);
-        setIsEditMode(false);
+
+        handleResetNote();
     };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (noteEditorRef.current && !noteEditorRef.current.contains(event.target)) {
-                if(title.trim() !== '' || content.trim() !== ''){
+                if (title.trim() !== '' || content.trim() !== '') {
                     console.log("Creating Note = True")
                 } else {
                     console.log("Creating Note = False")
                 }
-                
-                setTitle('');
-                setContent('');
-                setIsPinned(false);
-                setIsEditMode(false);
+                handleResetNote();
             }
         };
 
@@ -60,11 +97,7 @@ export default function NoteCreator() {
                         multiline={false}
                         name='textField'
                         value={title}
-                        onChange={(event) => {
-                            const newTitle = event.target.value;
-                            setTitle(newTitle);
-                            console.log("Current Title: " + newTitle);
-                        }}
+                        onChange={handleTitleChange}
                         sx={{
                             width: '100%',
                             '& .MuiOutlinedInput-root': {
@@ -76,8 +109,6 @@ export default function NoteCreator() {
                     />
                     <IconButton aria-label="Pin note" onClick={() => {
                         setIsPinned(!isPinned);
-                        console.log("Current isPinned: " + !isPinned);
-
                     }}>
                         {isPinned ? <PushPin /> : <PushPinOutlined />}
                     </IconButton>
@@ -89,11 +120,7 @@ export default function NoteCreator() {
                     placeholder='Take a note...'
                     multiline={true}
                     value={content}
-                    onChange={(event) => {
-                        const newContent = event.target.value;
-                        setContent(newContent);
-                        console.log("Current Content: " + newContent);
-                    }}
+                    onChange={handleContentChange}
                     onClick={() => setIsEditMode(true)}
                     sx={{
                         width: '100%',
@@ -120,12 +147,12 @@ export default function NoteCreator() {
                         <IconButton aria-label="Add Image">
                             <ImageOutlined />
                         </IconButton>
-                        {/* <IconButton aria-label="Undo" onClick={handleUndo} disabled={historyIndex <= 0}>
+                        <IconButton aria-label="Undo" onClick={handleUndo} disabled={index.current === 0}>
                             <UndoOutlined />
                         </IconButton>
-                        <IconButton aria-label="Redo" onClick={handleRedo} disabled={historyIndex >= history.length - 1}>
+                        <IconButton aria-label="Redo" onClick={handleRedo} disabled={index.current === contentArray.length - 1}>
                             <RedoOutlined />
-                        </IconButton> */}
+                        </IconButton>
                     </div>
                     <Button type="submit">
                         Close
