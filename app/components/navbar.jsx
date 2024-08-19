@@ -1,65 +1,87 @@
 'use client'
-import { AccountCircleOutlined, Close, Dashboard, GitHub, Menu, Search, Settings } from '@mui/icons-material';
-import { IconButton, Paper } from '@mui/material';
-import { usePathname } from 'next/navigation'
+import { AccountCircleOutlined, Close, GridViewOutlined, Menu, Refresh, Search } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import styles from "../page.module.css"
+import React, { useEffect, useRef, useState } from 'react';
+import styles from "./navbar.module.css";
+import CustomTooltip from './custom_tooltip';
+
 export function Navbar() {
   const [isLinkMenuOpen, setIsLinkMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-  // const [isMobile, setIsMobile] = useState(false);
-  const [linkTitle, setLinkTitle] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
-  const pathname = usePathname()
+  const [linkTitle, setLinkTitle] = useState('');
+  const [onSearchScreen, setOnSearchScreen] = useState(false);
+  const router = useRouter()
+  const pathname = usePathname();
+  const menuRef = useRef(null);
 
-  const email = 'support@machinename.dev';
-  const subject = 'Support Request';
-  const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsLinkMenuOpen(false);
+      }
+    };
 
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setIsMobile(window.innerWidth < 768);
-  //   };
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
 
-  //   // Initial check
-  //   handleResize();
-
-  //   // Add event listener
-  //   window.addEventListener('resize', handleResize);
-
-  //   // Cleanup event listener on component unmount
-  //   return () => {
-  //     window.removeEventListener('resize', handleResize);
-  //   };
-  // }, []);
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     switch (pathname) {
       case '/':
-        setLinkTitle('Notes');
+        setLinkTitle('Note File');
+        setOnSearchScreen(false);
         break;
       case '/reminders':
         setLinkTitle('Reminders');
+        setOnSearchScreen(false);
         break;
       case '/archive':
         setLinkTitle('Archive');
-        break;
-      case '/trash':
-        setLinkTitle('Trash');
-        break;
-      case '/settings':
-        setLinkTitle('Settings');
-        break;
-      case '/help':
-        setLinkTitle('Help');
+        setOnSearchScreen(false);
         break;
       case '/media':
         setLinkTitle('Media');
+        setOnSearchScreen(false);
+        break;
+      case '/settings':
+        setLinkTitle('Settings');
+        setOnSearchScreen(false);
+        break;
+      case '/search':
+        setLinkTitle('Note File');
+        setOnSearchScreen(true);
+        break;
+      case '/trash':
+        setLinkTitle('Trash');
+        setOnSearchScreen(false);
+        break;
+      case '/help':
+        setLinkTitle('Help');
+        setOnSearchScreen(false);
         break;
       default:
         setLinkTitle('');
+        setOnSearchScreen(false);
     }
   }, [pathname]);
 
@@ -73,78 +95,90 @@ export function Navbar() {
 
   return (
     <>
-      <nav>
+      <nav className={isScrolled ? styles.navBarScrolled : styles.navBar}>
         {/* Nav Leading */}
         <div
-          style={{
-            alignItems: 'center',
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '0.5rem',
-            paddingLeft: '0.5rem'
-          }}
+          className={styles.navBarLeading}
         >
           <IconButton onClick={toggleLinkMenu}>
             {isLinkMenuOpen ? <Close /> : <Menu />}
           </IconButton>
-          <div style={{
-            width: '100px'
-          }}>
-            <p id='inputTitle'>{linkTitle}</p>
+          <div>
+            <p>{linkTitle}</p>
           </div>
         </div>
         {/* Nav Input */}
-        <div id='searchInputContainer'>
+
+
+        <div className={styles.searchInputContainer}>
+          <CustomTooltip title="Search">
+       
           <IconButton>
             <Search />
           </IconButton>
+          </CustomTooltip>
           <input
-            id='searchInput'
+            className={styles.searchInput}
+            id='navbarInput'
             type="text"
             placeholder='Search'
+            onClick={onSearchScreen ? null : () => router.push('/search', { scroll: false })}
           />
-          <IconButton>
-            <Close />
-          </IconButton>
+          {/* <IconButton onClick={onSearchScreen ? () => router.push('/', { scroll: false }) : null}> */}
+          {
+            onSearchScreen ?
+            <CustomTooltip title="Close Search">
+              <IconButton onClick={() => router.push('/', { scroll: false })}>
+                <Close />
+              </IconButton>
+              </CustomTooltip>
+             : null
+          }
         </div>
+
         {/* Nav Trailing*/}
         <div
-          style={{
-            alignItems: 'center',
-            display: 'flex',
-            flexDirection: 'row',
-            paddingRight: '0.5rem'
-          }}>
-          <IconButton id='menuButton' onClick={toggleAccountMenu}>
-            <Dashboard />
-          </IconButton>
-          <IconButton id='menuButton' onClick={toggleAccountMenu}>
-            <AccountCircleOutlined />
-          </IconButton>
+          className={styles.navBarTrailing}>
+          <div>
+          <CustomTooltip title="Grid View">
+            <IconButton >
+              <GridViewOutlined />
+            </IconButton>
+            </CustomTooltip>
+            <CustomTooltip title="Refresh">
+            <IconButton>
+              <Refresh />
+            </IconButton>
+            </CustomTooltip >
+            <CustomTooltip title="Account">
+            <IconButton>
+              <AccountCircleOutlined />
+            </IconButton>
+            </CustomTooltip>
+          </div>
+          {/* <div>
+            <p>
+              Note File
+            </p >
+            <IconButton>
+              <AccountCircleOutlined />
+            </IconButton>
+          </div> */}
         </div>
       </nav>
       {isLinkMenuOpen && (
-        <div style={{
-          backgroundColor: 'white',
-          display: 'flex',
-          flexDirection: 'column',
-          top: '68px',
-          position: 'fixed',
-          left: '1rem',
-          zIndex: '100'
-        }}>
-          <Link id='navLink' style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.2)'
-          }} href='/'>Notes</Link>
-          <Link id='navLink' href='/reminders'>Reminders</Link>
-
-          <div id='navLink'
-          // onClick={onLabel} 
-          >Create Label</div>
-          <Link id='navLink' href='/archive'>Archive</Link>
-          <Link id='navLink' href='/trash'>Trash</Link>
-          <Link id='navLink' href='/settings'>Settings</Link>
-          <Link id='navLink' href='/help'>Help</Link>
+        <div
+          className={styles.menuContainer}
+          ref={menuRef}
+        >
+          <Link className={styles.navLink} href='/'>Notes</Link>
+          <Link className={styles.navLink} href='/reminders'>Reminders</Link>
+          <Link className={styles.navLink} href='/archive'>Archive</Link>
+          <div onClick={() => { }} className={styles.navLink}>Labels</div>
+          <Link className={styles.navLink} href='/media'>Media</Link>
+          <Link className={styles.navLink} href='/settings'>Settings</Link>
+          <Link className={styles.navLink} href='/trash'>Trash</Link>
+          <Link className={styles.navLink} href='/help'>Help</Link>
         </div>
       )}
     </>
