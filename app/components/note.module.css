@@ -1,47 +1,91 @@
 .note {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    max-width: 600px;
-    width: 100%;
-    padding-right: 0.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: white;
-    border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  max-height: 420px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+
 }
 
 @media screen and (max-width: 600px) {
-   .note {
-        max-width: 370px;
-   }
+  .note {
+    max-width: 380px;
+  }
+}
+
+.titleTextField,
+.contentTextField {
+  width: 100%;
+  outline: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+}
+
+
+.contentContainer,
+.footerContainer,
+.infoContainer,
+.titleContainer {
+  position: relative;
+}
+
+.infoContainer {
+  overflow-y: scroll;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .titleContainer,
-.contentContainer,
-.detailsContainer,
-.footerContainer {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    align-items: center;
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.detailsContainer {
+  height: 4rem;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+}
+
+.nestedNotesContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  justify-content: flex-start;
+}
+
+.footerWrapper,
+.footerWrapperShadow {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.footerWrapperShadow {
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .footerContainer {
-  height: 3rem;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
   justify-content: space-between;
 }
 
+.nestedNotesContainer div,
 .footerContainer div {
-    padding-left: 0.5rem;
-    width: 100%;
-}
-
-.titleTextField, 
-.contentTextField {
-    font-size: large;
-    width: 100%;
-    outline: none;
-    border: none;
-    background-color: transparent;
+  width: 100%;
 }
