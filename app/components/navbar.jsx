@@ -48,7 +48,7 @@ export function Navbar() {
   useEffect(() => {
     switch (pathname) {
       case '/':
-        setLinkTitle('Note File');
+        setLinkTitle('Nesta Note');
         setOnSearchScreen(false);
         break;
       case '/reminders':
@@ -109,10 +109,8 @@ export function Navbar() {
         </div>
         {/* Nav Input */}
 
-
-        <div className={styles.searchInputContainer}>
+        {/* <div className={styles.searchInputContainer}>
           <CustomTooltip title="Search">
-       
           <IconButton>
             <Search />
           </IconButton>
@@ -124,7 +122,6 @@ export function Navbar() {
             placeholder='Search'
             onClick={onSearchScreen ? null : () => router.push('/search', { scroll: false })}
           />
-          {/* <IconButton onClick={onSearchScreen ? () => router.push('/', { scroll: false }) : null}> */}
           {
             onSearchScreen ?
             <CustomTooltip title="Close Search">
@@ -134,13 +131,13 @@ export function Navbar() {
               </CustomTooltip>
              : null
           }
-        </div>
+        </div> */}
 
         {/* Nav Trailing*/}
         <div
           className={styles.navBarTrailing}>
           <div>
-          <CustomTooltip title="Grid View">
+          {/* <CustomTooltip title="Grid View">
             <IconButton >
               <GridViewOutlined />
             </IconButton>
@@ -154,7 +151,7 @@ export function Navbar() {
             <IconButton>
               <AccountCircleOutlined />
             </IconButton>
-            </CustomTooltip>
+            </CustomTooltip> */}
           </div>
           {/* <div>
             <p>
@@ -172,13 +169,13 @@ export function Navbar() {
           ref={menuRef}
         >
           <Link className={styles.navLink} href='/'>Notes</Link>
-          <Link className={styles.navLink} href='/reminders'>Reminders</Link>
+          {/* <Link className={styles.navLink} href='/reminders'>Reminders</Link>
           <Link className={styles.navLink} href='/archive'>Archive</Link>
           <div onClick={() => { }} className={styles.navLink}>Labels</div>
           <Link className={styles.navLink} href='/media'>Media</Link>
           <Link className={styles.navLink} href='/settings'>Settings</Link>
           <Link className={styles.navLink} href='/trash'>Trash</Link>
-          <Link className={styles.navLink} href='/help'>Help</Link>
+          <Link className={styles.navLink} href='/help'>Help</Link> */}
         </div>
       )}
     </>

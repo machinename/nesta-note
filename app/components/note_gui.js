@@ -8,6 +8,7 @@ import { AppContext } from '../context/app_provider';
 export default function NoteGUI(props) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isNestedMode, setIsNestedMode] = useState(false);
+    const [isNestedEdit, setIsNestedEdit] = useState(false);
     const [showShadow, setShowShadow] = useState(false);
 
     const [isPinned, setIsPinned] = useState(props.note.isPinned);
@@ -17,9 +18,9 @@ export default function NoteGUI(props) {
 
     const [contentArray, setContentArray] = useState([content]);
 
-    const [nestedNote, setNestedNote] = useState({ title: '', content: '' });
-    const [nestedTitle, setNestedTitle] = useState(nestedNote.title);
-    const [nestedContent, setNestedContent] = useState(nestedNote.content);
+    const [nestedNote, setNestedNote] = useState({ title: '', content: '', });
+    const [nestedTitle, setNestedTitle] = useState('');
+    const [nestedContent, setNestedContent] = useState('');
     const [nestedContentArray, setNestedContentArray] = useState([nestedContent]);
 
     const { createNote, updateNote, setInfoContent, setInfoTitle, setInfoGeneral } = useContext(AppContext);
@@ -91,24 +92,49 @@ export default function NoteGUI(props) {
         nestedIndex.current = 0;
     };
 
-    const handleNestedNote = () => {
-        if (nestedTitle.trim() !== nestedNote.title || nestedContent.trim() !== nestedNote.content) {
-            const nestedNote = ({
-                title: nestedTitle.trim(),
-                content: nestedContent.trim(),
-            })
-            setNestedNotes([...nestedNotes, nestedNote]);
-            console.log('Adding Nested Note')
-        } else {
-            console.log("Not Adding Nested Note")
-        }
+    const pushToNestedNote = (note) => { 
+        console.log(note.id);
+        setNestedNote(note);
+        setNestedTitle(note.title);
+        setNestedContent(note.content);
+        setIsNestedMode(true);
+        setIsNestedEdit(true);
+    }
 
+    const handleNestedNote = () => {
+        // Create a new note object with trimmed values
+        const newNestedNote = {
+            title: nestedTitle.trim(),
+            content: nestedContent.trim(),
+        };
+    
+        // Check if the note content has changed
+        if (newNestedNote.title !== nestedNote.title || newNestedNote.content !== nestedNote.content) {
+            if (isNestedEdit) {
+                // Update the existing nested note
+                const updatedNestedNotes = nestedNotes.map((note) => 
+                    note.id === nestedNote.id ? { ...note, ...newNestedNote } : note
+                );
+                setNestedNotes(updatedNestedNotes);
+                console.log('Updated Nested Note');
+            } else {
+                // Add a new nested note
+                newNestedNote.id = Date.now(); // Ensure id is added only for new notes
+                setNestedNotes([...nestedNotes, newNestedNote]);
+                console.log('Adding Nested Note');
+            }
+        } else {
+            console.log("Not Adding Nested Note");
+        }
+    
+        // Reset the nested note form
         setNestedTitle('');
         setNestedContent('');
         setNestedContentArray(['']);
         setIsNestedMode(false);
         nestedIndex.current = 0;
-    }
+    };
+    
 
     const handleUndo = () => {
         if (isNestedMode) {
@@ -150,6 +176,10 @@ export default function NoteGUI(props) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+
+        if(isNestedMode){
+            handleNestedNote();
+        }
 
         let note = ({
             title: title.trim(),
@@ -259,7 +289,6 @@ export default function NoteGUI(props) {
                                 autoComplete: 'off',
                                 style: { fontSize: 20 }
                             }}
-
                             className={styles.titleTextField}
                             placeholder={isNestedMode ? 'Nested - Title' : 'Title'}
                             multiline={true}
@@ -278,104 +307,109 @@ export default function NoteGUI(props) {
                         />
                     </div>
                 )}
-                <div className={styles.contentContainer}>
-                    <TextField
-                        inputProps={{
-                            autoComplete: 'off',
-                            style: { fontSize: 16 }
-                        }}
-                        className={styles.contentTextField}
-                        placeholder={isNestedMode ? 'Nested - Take a note...' : 'Take a note...'}
-                        multiline={true}
-                        value={isNestedMode ? nestedContent : content}
-                        onFocus={isNestedMode ? null : () => setIsEditMode(true)}
-                        onChange={handleContentChange}
-                        sx={{
-
-                            width: '100%',
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': { border: 'none' },
-                                '&:hover fieldset': { border: 'none' },
-                                '&.Mui-focused fieldset': { border: 'none' },
-                            },
-                        }}
-                    />
-                </div>
-            </div>
-            {isEditMode && (
-                <>
-                    {
-                        nestedNotes.length > 0 && !isNestedMode && (
-                            <div className={styles.nestedNotesWrapper}>
-                                <div className={styles.nestedNotesContainer}>
-                                    <div>
-                                        {nestedNotes.map((note, index) => (
-                                            <IconButton key={index}>
-                                                <NoteOutlined />
-                                            </IconButton>
-
-                                        ))}
-                                    </div>
-                                </div>
+                {
+                    (
+                        (props.mode === "create" || content.length > 0 || isEditMode) && (
+                            <div className={styles.contentContainer}>
+                                <TextField
+                                    inputProps={{
+                                        autoComplete: 'off',
+                                        style: { fontSize: 16 }
+                                    }}
+                                    className={styles.contentTextField}
+                                    placeholder={isNestedMode ? 'Nested - Take a note...' : 'Take a note...'}
+                                    multiline={true}
+                                    value={isNestedMode ? nestedContent : content}
+                                    onFocus={isNestedMode ? null : () => setIsEditMode(true)}
+                                    onChange={handleContentChange}
+                                    sx={{
+                                        width: '100%',
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': { border: 'none' },
+                                            '&:hover fieldset': { border: 'none' },
+                                            '&.Mui-focused fieldset': { border: 'none' },
+                                        },
+                                    }}
+                                />
                             </div>
                         )
-                    }
-                    <div className={showShadow ? styles.footerWrapperShadow : styles.footerWrapper}>
-                        <div className={styles.footerContainer}>
+                    )
+                }
+            </div>
+            {
+                nestedNotes.length > 0 && !isNestedMode && (
+                    <div className={styles.nestedNotesWrapper} onClick={() => setIsEditMode(true)}>
+                        <div className={styles.nestedNotesContainer}>
                             <div>
-                                {
-                                    isNestedMode ? (
-                                        <IconButton aria-label="Add Note" onClick={handleNestedNote} style={{
-                                        }}>
-                                            <ChevronLeft />
-                                        </IconButton>
-                                    ) : (
-                                        <IconButton aria-label="Set Nested Mode" onClick={() => { setIsNestedMode(true) }} style={{
-                                        }}>
-                                            <NoteAddOutlined />
-                                        </IconButton>
-                                    )
-                                }
-                                <IconButton aria-label="Add Reminder">
-                                    <AlarmOutlined />
-                                </IconButton>
-                                <IconButton aria-label="Background Color">
-                                    <Brush />
-                                </IconButton>
-                                <IconButton aria-label="Archive">
-                                    <ArchiveOutlined />
-                                </IconButton>
-                                <IconButton aria-label="Add Image">
-                                    <ImageOutlined />
-                                </IconButton>
-                                {
-                                    isNestedMode ? (
-                                        <>
-                                            <IconButton aria-label="Undo" onClick={handleUndo} disabled={nestedIndex.current === 0}>
-                                                <UndoOutlined />
-                                            </IconButton>
-                                            <IconButton aria-label="Redo" onClick={handleRedo} disabled={nestedIndex.current === nestedContentArray.length - 1}>
-                                                <RedoOutlined />
-                                            </IconButton>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IconButton aria-label="Undo" onClick={handleUndo} disabled={index.current === 0}>
-                                                <UndoOutlined />
-                                            </IconButton>
-                                            <IconButton aria-label="Redo" onClick={handleRedo} disabled={index.current === contentArray.length - 1}>
-                                                <RedoOutlined />
-                                            </IconButton>
-                                        </>
-                                    )
-                                }
+                                {nestedNotes.map((note, index) => (
+                                    <IconButton key={index} onClick={() =>
+                                        pushToNestedNote(note)
+                                    }>
+                                        <NoteOutlined />
+                                    </IconButton>
+
+                                ))}
                             </div>
-                            <Button type="submit">
-                                Close
-                            </Button>
                         </div>
                     </div>
-                </>
+                )
+            }
+            {isEditMode && (
+                <div className={showShadow ? styles.footerWrapperShadow : styles.footerWrapper}>
+                    <div className={styles.footerContainer}>
+                        <div>
+                            {
+                                isNestedMode ? (
+                                    <IconButton aria-label="Add Note" onClick={handleNestedNote} style={{
+                                    }}>
+                                        <ChevronLeft />
+                                    </IconButton>
+                                ) : (
+                                    <IconButton aria-label="Set Nested Mode" onClick={() => { setIsNestedMode(true) }} style={{
+                                    }}>
+                                        <NoteAddOutlined />
+                                    </IconButton>
+                                )
+                            }
+                            {/* <IconButton aria-label="Add Reminder">
+                                <AlarmOutlined />
+                            </IconButton>
+                            <IconButton aria-label="Background Color">
+                                <Brush />
+                            </IconButton>
+                            <IconButton aria-label="Archive">
+                                <ArchiveOutlined />
+                            </IconButton>
+                            <IconButton aria-label="Add Image">
+                                <ImageOutlined />
+                            </IconButton> */}
+                            {
+                                isNestedMode ? (
+                                    <>
+                                        <IconButton aria-label="Undo" onClick={handleUndo} disabled={nestedIndex.current === 0}>
+                                            <UndoOutlined />
+                                        </IconButton>
+                                        <IconButton aria-label="Redo" onClick={handleRedo} disabled={nestedIndex.current === nestedContentArray.length - 1}>
+                                            <RedoOutlined />
+                                        </IconButton>
+                                    </>
+                                ) : (
+                                    <>
+                                        <IconButton aria-label="Undo" onClick={handleUndo} disabled={index.current === 0}>
+                                            <UndoOutlined />
+                                        </IconButton>
+                                        <IconButton aria-label="Redo" onClick={handleRedo} disabled={index.current === contentArray.length - 1}>
+                                            <RedoOutlined />
+                                        </IconButton>
+                                    </>
+                                )
+                            }
+                        </div>
+                        <Button type="submit">
+                            Close
+                        </Button>
+                    </div>
+                </div>
             )}
         </Box >
     );
