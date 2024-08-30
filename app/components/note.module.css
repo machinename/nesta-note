@@ -1,0 +1,81 @@
+.note {
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  max-height: 420px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+
+}
+
+@media screen and (max-width: 600px) {
+  .note {
+    max-width: 380px;
+  }
+}
+
+.titleTextField,
+.contentTextField {
+  width: 100%;
+  outline: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+  font-size: large;
+}
+
+
+.infoContainer {
+  overflow-y: scroll;
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+
+.nestedNotesContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.nestedNotesWrapper,
+.footerWrapper,
+.footerWrapperShadow {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.footerWrapperShadow {
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.footerContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nestedNotesContainer div,
+.footerContainer div {
+  width: 100%;
+}

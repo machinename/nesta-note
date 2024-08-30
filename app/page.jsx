@@ -1,27 +1,36 @@
 'use client'
 
 import styles from "./page.module.css";
-import NoteContainer from "./components/note_container";
 import { useContext } from 'react';
 import { AppContext } from "./context/app_provider";
-import NoteCreator from "./components/note_creator";
+import NoteGUI from './components/note_gui';
+import NoteCreate from "./components/note_create";
+import NoteUpdate from "./components/note_update";
 
 export default function Home() {
   const { notes } = useContext(AppContext);
-  const newNote = {id: '', title: '', content:'', isPinned: false};
+  const newNote = ({
+    title: '',
+    content: '',
+    isPinned: false,
+    nestedNotes: []
+  });
 
   return (
     <main className={styles.content}>
-      <NoteCreator/>
+      <NoteGUI note={newNote} mode={'create'} />
       <div style={{
-        marginBottom: '1rem'
+        marginBottom: '2rem'
       }} />
-
+      <>
+        {notes.map((note, index) => (
+          <NoteGUI note={note} mode={'update'} key={index}  />
+        ))}
+      </>
+      <p>
+        Warning App Is Only 10% Complete. So Much Work To Be Done.
+      </p>
     </main>
   );
 }
 
-
-// {notes.map((note, index) => (
-//   <NoteContainer key={index} note={note} isNewNote={false} inputMode={false} isInputMode={false}/>
-// ))}

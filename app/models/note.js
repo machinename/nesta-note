@@ -1,12 +1,14 @@
 class Note {
-  constructor(id, title, content, isPinned, reminder, mediaContent) {
+  constructor(id, title, content, isPinned, reminder, mediaContent, nested) {
     this.title = title;
     this.id = id;
     this.isPinned = isPinned;
     this.content = content;
+
     this.mediaContent = mediaContent;
+    this.nested = nested;
     this.reminder = reminder;
-    this.linkedNotes = [];
+    this.nestedNotes = [];
   }
 
   static fromJSON(jsonString) {
@@ -22,31 +24,30 @@ class Note {
       isPinned: this.isPinned,
       reminder: this.reminder,
       mediaContent: this.mediaContent,
-      linkedNotes: this.linkedNotes.map(note => note.toJSON())
+      nestedNotes: this.nestedNotes.map(note => note.toJSON())
     });
   }
 
-  addNote(note) {
-    if (note instanceof Note) {
-      this.linkedNotes.push(note);
+  addNestedNote(note) {
+    if(this.nested === false){
+      if (note instanceof Note) {
+        this.nestedNotes.push(note);
+      } else {
+        throw new Error('Only instances of Note can be stored.');
+      }
     } else {
-      throw new Error('Only instances of Note can be linked.');
+      throw new Error('Nested notes can not add notes');
     }
   }
 
-  archiveNote() {
-    // Implementation here
-  }
-
-  deleteNote() {
-    // Implementation here
+  deleteNestedNote(id) {
+    const index = this.nestedNotes.findIndex(note => note.id === id);
+    if (index !== -1) {
+      this.nestedNotes.splice(index, 1);
+    } else {
+      throw new Error('Note not found.');
+    }
   }
 }
 
 export default Note;
-
-// Example usage:
-// const mainNote = new Note('Main Note', 'This is the main note content.');
-// const linkedNote = new Note('Nested Note', 'This is a nested note content.');
-// mainNote.addNote(linkedNote);
-// console.log(mainNote);

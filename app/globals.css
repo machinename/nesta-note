@@ -6,7 +6,6 @@ body {
   min-width: 400px;
 }
 
-@media (max-width: 768px) {}
 
 @media (prefers-color-scheme: dark) {
   html {
