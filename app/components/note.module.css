@@ -32,12 +32,17 @@
   overflow-y: scroll;
 }
 
-.titleContainer {
+.titleContainer
+.titleContainerScroll {
   display: flex;
   flex-direction: row;
   width: 100%;
+}
+
+.titleContainerScroll {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
+
 
 .contentContainer {
   display: flex;

@@ -4,8 +4,6 @@ import styles from "./page.module.css";
 import { useContext } from 'react';
 import { AppContext } from "./context/app_provider";
 import NoteGUI from './components/note_gui';
-import NoteCreate from "./components/note_create";
-import NoteUpdate from "./components/note_update";
 
 export default function Home() {
   const { notes } = useContext(AppContext);
@@ -28,7 +26,7 @@ export default function Home() {
         ))}
       </>
       <p>
-        Warning App Is Only 10% Complete. So Much Work To Be Done.
+        Warning App Is Still In Planning Stage.
       </p>
     </main>
   );
