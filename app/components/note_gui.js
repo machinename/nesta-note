@@ -72,16 +72,19 @@ export default function NoteGUI(props) {
     };
 
     const handleResetNote = () => {
-        setContent('');
-        setTitle('');
-        setInfoContent('');
-        setInfoTitle('');
-        setNestedContent('')
-        setNestedTitle('')
-        setNestedNotes([]);
+        if (props.mode === "create") {
+            setContent('');
+            setTitle('');
+            setInfoContent('');
+            setInfoTitle('');
+            setNestedContent('');
+            setNestedTitle('');
+            setNestedNotes([]);
+            setIsPinned(false);
+        }
+
         setContentArray(['']);
         setNestedContentArray(['']);
-        setIsPinned(false);
         setIsNestedMode(false);
         setIsEditMode(false);
         index.current = 0;
@@ -135,6 +138,16 @@ export default function NoteGUI(props) {
         }
     };
 
+    const compareNestedNotesDifferent = (notes1, notes2) => {
+        if (notes1.length !== notes2.length) return true;
+        for (let i = 0; i < notes1.length; i++) {
+            if (notes1[i].title !== notes2[i].title || notes1[i].content !== notes2[i].content) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     const handleSubmit = (event) => {
         event.preventDefault();
 
@@ -153,58 +166,66 @@ export default function NoteGUI(props) {
                 createNote(note);
                 console.log("Created Note")
             } else {
-                console.log("Nothing To See Here")
+                console.log("Nothing To Create")
             }
         } else {
-            note.id = props.note.id;
-            updateNote(note);
-            console.log("Updated Note")
+            let nestedNotesChanged = compareNestedNotesDifferent(nestedNotes, userNote.nestedNotes);
+
+            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged) {
+                updateNote(note);
+                console.log("Created Note")
+            } else {
+                console.log("Nothing To Update")
+            }
         }
-
-
 
         handleResetNote();
     };
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            const userNote = props.note;
+    // useEffect(() => {
+    //     const handleClickOutside = (event) => {
+    //         const userNote = props.note;
 
-            if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
-                if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotes.length > 0) {
-                    const note = ({
-                        title: title.trim(),
-                        content: content.trim(),
-                        isPinned: isPinned,
-                        nestedNotes: nestedNotes
-                    })
-                    createNote(note);
-                } else {
-                    console.log("Nothing To See Here")
-                }
-                setContent('');
-                setTitle('');
-                setInfoContent('');
-                setInfoTitle('');
-                setNestedContent('')
-                setNestedTitle('')
-                setNestedNotes([]);
-                setContentArray(['']);
-                setNestedContentArray(['']);
-                setIsPinned(false);
-                setIsNestedMode(false);
-                setIsEditMode(false);
-                index.current = 0;
-                nestedIndex.current = 0;
-            }
-        };
+    //         if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
 
-        document.addEventListener('mousedown', handleClickOutside);
+    //             if () {
 
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [content, createNote, updateNote, isEditMode, isPinned, nestedNotes, props.note, setInfoContent, setInfoTitle, title]);
+    //             }
+
+    //             if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotes.length > 0) {
+    //                 const note = ({
+    //                     title: title.trim(),
+    //                     content: content.trim(),
+    //                     isPinned: isPinned,
+    //                     nestedNotes: nestedNotes
+    //                 })
+    //                 createNote(note);
+    //             } else {
+    //                 console.log("Nothing To See Here")
+    //             }
+    //             setContent('');
+    //             setTitle('');
+    //             setInfoContent('');
+    //             setInfoTitle('');
+    //             setNestedContent('')
+    //             setNestedTitle('')
+    //             setNestedNotes([]);
+    //             setContentArray(['']);
+    //             setNestedContentArray(['']);
+    //             setIsPinned(false);
+    //             setIsNestedMode(false);
+    //             setIsEditMode(false);
+    //             index.current = 0;
+    //             nestedIndex.current = 0;
+    //         }
+    //     };
+
+    //     document.addEventListener('mousedown', handleClickOutside);
+
+    //     return () => {
+    //         document.removeEventListener('mousedown', handleClickOutside);
+    //     };
+    // }, [content, createNote, updateNote, isEditMode, isPinned, nestedNotes, props.note, props.mode, setInfoContent, setInfoTitle, title]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -244,6 +265,7 @@ export default function NoteGUI(props) {
                             multiline={true}
                             name='textField'
                             value={isNestedMode ? nestedTitle : title}
+                            onFocus={isNestedMode ? null : () => setIsEditMode(true)}
                             onChange={handleTitleChange}
                             sx={{
                                 width: '100%',
@@ -282,7 +304,6 @@ export default function NoteGUI(props) {
             </div>
             {isEditMode && (
                 <>
-
                     {
                         nestedNotes.length > 0 && !isNestedMode && (
                             <div className={styles.nestedNotesWrapper}>
