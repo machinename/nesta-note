@@ -1,11 +1,11 @@
 'use client';
-import { AlarmOutlined, ArchiveOutlined, Brush, ChevronLeft, ImageOutlined, Note, NoteAdd, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
+import { AlarmOutlined, ArchiveOutlined, Bolt, Brush, ChevronLeft, ImageOutlined, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
 import { Box, Button, IconButton, TextField } from '@mui/material';
 import styles from "./note.module.css";
 import { useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../context/app_provider';
 
-export default function NoteUpdate(props) {
+export default function NoteGUI(props) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isNestedMode, setIsNestedMode] = useState(false);
     const [showShadow, setShowShadow] = useState(false);
@@ -22,11 +22,12 @@ export default function NoteUpdate(props) {
     const [nestedContent, setNestedContent] = useState(nestedNote.content);
     const [nestedContentArray, setNestedContentArray] = useState([nestedContent]);
 
-    const { updateNote, setInfoContent, setInfoTitle } = useContext(AppContext);
+    const { createNote, updateNote, setInfoContent, setInfoTitle, setInfoGeneral } = useContext(AppContext);
 
     const index = useRef(0);
     const nestedIndex = useRef(0);
     const noteCreateRef = useRef(null);
+    const noteUpdateRef = useRef(null);
     const infoContainerRef = useRef(null);
 
     const handleTitleChange = (event) => {
@@ -70,28 +71,6 @@ export default function NoteUpdate(props) {
         }
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const userNote = props.note;
-        if (title.trim() !== userNote.title || content.trim() !== userNote.content) {
-            const note = ({
-                id: userNote.id,
-                title: title.trim(),
-                content: content.trim(),
-                isPinned: isPinned,
-                nestedNotes: nestedNotes
-            })
-
-            updateNote(note);
-            console.log("Updated Note")
-
-        } else {
-            console.log("Nothing To See Here")
-        }
-
-        handleResetNote();
-    };
-
     const handleResetNote = () => {
         setContent('');
         setTitle('');
@@ -110,22 +89,22 @@ export default function NoteUpdate(props) {
     };
 
     const handleNestedNote = () => {
-        // if (nestedTitle.trim() !== nestedNote.title || nestedContent.trim() !== nestedNote.content) {
-        //     const nestedNote = ({
-        //         title: nestedTitle.trim(),
-        //         content: nestedContent.trim(),
-        //     })
-        //     setNestedNotes([...nestedNotes, nestedNote]);
-        //     console.log('Adding Nested Note')
-        // } else {
-        //     console.log("Not Adding Nested Note")
-        // }
+        if (nestedTitle.trim() !== nestedNote.title || nestedContent.trim() !== nestedNote.content) {
+            const nestedNote = ({
+                title: nestedTitle.trim(),
+                content: nestedContent.trim(),
+            })
+            setNestedNotes([...nestedNotes, nestedNote]);
+            console.log('Adding Nested Note')
+        } else {
+            console.log("Not Adding Nested Note")
+        }
 
-        // setNestedTitle('');
-        // setNestedContent('');
-        // setNestedContentArray(['']);
-        // setIsNestedMode(false);
-        // nestedIndex.current = 0;
+        setNestedTitle('');
+        setNestedContent('');
+        setNestedContentArray(['']);
+        setIsNestedMode(false);
+        nestedIndex.current = 0;
     }
 
     const handleUndo = () => {
@@ -156,6 +135,37 @@ export default function NoteUpdate(props) {
         }
     };
 
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        let note = ({
+            title: title.trim(),
+            content: content.trim(),
+            isPinned: isPinned,
+            nestedNotes: nestedNotes
+        })
+
+        const userNote = props.note;
+
+
+        if (props.mode === 'create') {
+            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotes.length > 0) {
+                createNote(note);
+                console.log("Created Note")
+            } else {
+                console.log("Nothing To See Here")
+            }
+        } else {
+            note.id = props.note.id;
+            updateNote(note);
+            console.log("Updated Note")
+        }
+
+
+
+        handleResetNote();
+    };
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             const userNote = props.note;
@@ -168,7 +178,7 @@ export default function NoteUpdate(props) {
                         isPinned: isPinned,
                         nestedNotes: nestedNotes
                     })
-                    updateNote(note);
+                    createNote(note);
                 } else {
                     console.log("Nothing To See Here")
                 }
@@ -194,7 +204,7 @@ export default function NoteUpdate(props) {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [content, updateNote, isEditMode, isPinned, nestedNotes, props.note, setInfoContent, setInfoTitle, title]);
+    }, [content, createNote, updateNote, isEditMode, isPinned, nestedNotes, props.note, setInfoContent, setInfoTitle, title]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -219,7 +229,7 @@ export default function NoteUpdate(props) {
     }, []);
 
     return (
-        <Box component="form" className={styles.note} onSubmit={handleSubmit} ref={noteCreateRef}>
+        <Box component="form" className={styles.note} onSubmit={handleSubmit} ref={props.mode === 'create' ? noteCreateRef : noteUpdateRef}>
             <div className={styles.infoContainer} ref={infoContainerRef}>
                 {(isEditMode || title.length > 0) && (
                     <div className={styles.titleContainer}>

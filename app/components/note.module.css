@@ -24,53 +24,43 @@
   border: none;
   color: black;
   cursor: pointer;
+  font-size: large;
 }
 
-
-.contentContainer,
-.footerContainer,
-.infoContainer,
-.titleContainer {
-  position: relative;
-}
 
 .infoContainer {
   overflow-y: scroll;
-  padding-left: 1rem;
-  padding-right: 1rem;
 }
 
-.titleContainer,
+.titleContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
 .contentContainer {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-.detailsContainer {
-  height: 4rem;
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  align-items: center;
-}
 
 .nestedNotesContainer {
   display: flex;
   flex-direction: row;
   width: 100%;
   align-items: center;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
   justify-content: flex-start;
 }
 
+.nestedNotesWrapper,
 .footerWrapper,
 .footerWrapperShadow {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .footerWrapperShadow {

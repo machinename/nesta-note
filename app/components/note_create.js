@@ -1,5 +1,5 @@
 'use client';
-import { AddCardOutlined, AlarmOutlined, ArchiveOutlined, Brush, CardMembershipSharp, ChevronLeft, ImageOutlined, Note, NoteAdd, NoteAddOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
+import { AddCardOutlined, AlarmOutlined, ArchiveOutlined, Bolt, Brush, CardMembershipSharp, ChevronLeft, ImageOutlined, Note, NoteAdd, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
 import { Box, Button, IconButton, TextField } from '@mui/material';
 import styles from "./note.module.css";
 import { useContext, useEffect, useState, useRef } from 'react';
@@ -171,7 +171,20 @@ export default function NoteCreate(props) {
                 } else {
                     console.log("Nothing To See Here")
                 }
-                handleResetNote();
+                setContent('');
+                setTitle('');
+                setInfoContent('');
+                setInfoTitle('');
+                setNestedContent('')
+                setNestedTitle('')
+                setNestedNotes([]);
+                setContentArray(['']);
+                setNestedContentArray(['']);
+                setIsPinned(false);
+                setIsNestedMode(false);
+                setIsEditMode(false);
+                index.current = 0;
+                nestedIndex.current = 0;
             }
         };
 
@@ -180,7 +193,7 @@ export default function NoteCreate(props) {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [content, isEditMode, isPinned, nestedNotes, title]);
+    }, [content, createNote, isEditMode, isPinned, nestedNotes, props.note, setInfoContent, setInfoTitle, title]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -207,10 +220,14 @@ export default function NoteCreate(props) {
     return (
         <Box component="form" className={styles.note} onSubmit={handleSubmit} ref={noteCreateRef}>
             <div className={styles.infoContainer} ref={infoContainerRef}>
-                {isEditMode && (
+                {(isEditMode || title.length > 0) && (
                     <div className={styles.titleContainer}>
                         <TextField
-                            inputProps={{ autoComplete: 'off' }}
+                            inputProps={{
+                                autoComplete: 'off',
+                                style: { fontSize: 20 }
+                            }}
+
                             className={styles.titleTextField}
                             placeholder={isNestedMode ? 'Nested - Title' : 'Title'}
                             multiline={true}
@@ -230,6 +247,10 @@ export default function NoteCreate(props) {
                 )}
                 <div className={styles.contentContainer}>
                     <TextField
+                        inputProps={{
+                            autoComplete: 'off',
+                            style: { fontSize: 16 }
+                        }}
                         className={styles.contentTextField}
                         placeholder={isNestedMode ? 'Nested - Take a note...' : 'Take a note...'}
                         multiline={true}
@@ -250,42 +271,39 @@ export default function NoteCreate(props) {
             </div>
             {isEditMode && (
                 <>
+
                     {
                         nestedNotes.length > 0 && !isNestedMode && (
-                            <div className={styles.nestedNotesContainer}>
-                                <div>
-                                    {nestedNotes.map((note, index) => (
-                                        <IconButton key={index}>
-                                            <CardMembershipSharp />
-                                        </IconButton>
+                            <div className={styles.nestedNotesWrapper}>
+                                <div className={styles.nestedNotesContainer}>
+                                    <div>
+                                        {nestedNotes.map((note, index) => (
+                                            <IconButton key={index}>
+                                                <NoteOutlined />
+                                            </IconButton>
 
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         )
                     }
-
                     <div className={showShadow ? styles.footerWrapperShadow : styles.footerWrapper}>
                         <div className={styles.footerContainer}>
                             <div>
                                 {
                                     isNestedMode ? (
-                                        <IconButton aria-label="Add Note" onClick={handleNestedNote}>
+                                        <IconButton aria-label="Add Note" onClick={handleNestedNote} style={{
+                                        }}>
                                             <ChevronLeft />
                                         </IconButton>
                                     ) : (
-                                        <IconButton aria-label="Add Note" onClick={() => {
-                                            setIsNestedMode(true);
+                                        <IconButton aria-label="Set Nested Mode" onClick={() => { setIsNestedMode(true) }} style={{
                                         }}>
                                             <NoteAddOutlined />
                                         </IconButton>
                                     )
                                 }
-                                <IconButton aria-label="Pin note" onClick={() => {
-                                    setIsPinned(!isPinned);
-                                }}>
-                                    {isPinned ? <PushPin /> : <PushPinOutlined />}
-                                </IconButton>
                                 <IconButton aria-label="Add Reminder">
                                     <AlarmOutlined />
                                 </IconButton>

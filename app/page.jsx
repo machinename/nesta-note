@@ -3,6 +3,7 @@
 import styles from "./page.module.css";
 import { useContext } from 'react';
 import { AppContext } from "./context/app_provider";
+import NoteGUI from './components/note_gui';
 import NoteCreate from "./components/note_create";
 import NoteUpdate from "./components/note_update";
 
@@ -17,15 +18,18 @@ export default function Home() {
 
   return (
     <main className={styles.content}>
-      <NoteCreate note={newNote} />
+      <NoteGUI note={newNote} mode={'create'} />
       <div style={{
-        marginBottom: '1rem'
+        marginBottom: '2rem'
       }} />
       <>
         {notes.map((note, index) => (
-          <NoteUpdate note={note} key={index} />
+          <NoteGUI note={note} mode={'update'} key={index}  />
         ))}
       </>
+      <p>
+        Warning App Is Only 10% Complete. So Much Work To Be Done.
+      </p>
     </main>
   );
 }
