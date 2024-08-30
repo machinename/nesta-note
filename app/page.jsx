@@ -17,16 +17,13 @@ export default function Home() {
   return (
     <main className={styles.content}>
       <NoteGUI note={newNote} mode={'create'} />
-      <div style={{
-        marginBottom: '2rem'
-      }} />
       <>
         {notes.map((note, index) => (
           <NoteGUI note={note} mode={'update'} key={index}  />
         ))}
       </>
       <p>
-        Warning App Is Still In Planning Stage.
+        App Is Still In Very Every Development.
       </p>
     </main>
   );
