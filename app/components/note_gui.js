@@ -1,9 +1,10 @@
 'use client';
 import { AlarmOutlined, ArchiveOutlined, Bolt, Brush, ChevronLeft, ImageOutlined, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
-import { Box, Button, IconButton, TextField } from '@mui/material';
+import { Box, Button, IconButton, TextField, Tooltip } from '@mui/material';
 import styles from "./note.module.css";
 import { useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../context/app_provider';
+import CustomTooltip from './custom_tooltip';
 
 export default function NoteGUI(props) {
     const [isEditMode, setIsEditMode] = useState(false);
@@ -92,7 +93,7 @@ export default function NoteGUI(props) {
         nestedIndex.current = 0;
     };
 
-    const pushToNestedNote = (note) => { 
+    const pushToNestedNote = (note) => {
         console.log(note.id);
         setNestedNote(note);
         setNestedTitle(note.title);
@@ -107,16 +108,17 @@ export default function NoteGUI(props) {
             title: nestedTitle.trim(),
             content: nestedContent.trim(),
         };
-    
+
         // Check if the note content has changed
         if (newNestedNote.title !== nestedNote.title || newNestedNote.content !== nestedNote.content) {
             if (isNestedEdit) {
                 // Update the existing nested note
-                const updatedNestedNotes = nestedNotes.map((note) => 
+                const updatedNestedNotes = nestedNotes.map((note) =>
                     note.id === nestedNote.id ? { ...note, ...newNestedNote } : note
                 );
                 setNestedNotes(updatedNestedNotes);
                 console.log('Updated Nested Note');
+                setIsNestedEdit(false);
             } else {
                 // Add a new nested note
                 newNestedNote.id = Date.now(); // Ensure id is added only for new notes
@@ -126,15 +128,16 @@ export default function NoteGUI(props) {
         } else {
             console.log("Not Adding Nested Note");
         }
-    
+
         // Reset the nested note form
         setNestedTitle('');
         setNestedContent('');
         setNestedContentArray(['']);
+
         setIsNestedMode(false);
         nestedIndex.current = 0;
     };
-    
+
 
     const handleUndo = () => {
         if (isNestedMode) {
@@ -177,7 +180,7 @@ export default function NoteGUI(props) {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        if(isNestedMode){
+        if (isNestedMode) {
             handleNestedNote();
         }
 
@@ -340,16 +343,16 @@ export default function NoteGUI(props) {
                 nestedNotes.length > 0 && !isNestedMode && (
                     <div className={styles.nestedNotesWrapper} onClick={() => setIsEditMode(true)}>
                         <div className={styles.nestedNotesContainer}>
-                            <div>
-                                {nestedNotes.map((note, index) => (
-                                    <IconButton key={index} onClick={() =>
+                            {nestedNotes.map((note, index) => (
+                                <CustomTooltip key={index} title={note.title.substring(0, 6)}>
+                                    <IconButton onClick={() =>
                                         pushToNestedNote(note)
                                     }>
                                         <NoteOutlined />
                                     </IconButton>
+                                </CustomTooltip>
+                            ))}
 
-                                ))}
-                            </div>
                         </div>
                     </div>
                 )
