@@ -24,7 +24,7 @@ export default function Home() {
         ))}
       </>
       <p>
-        App Is Still In Very Every Development.
+      App Is Still In Very Early Development.
       </p>
     </main>
   );

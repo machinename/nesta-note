@@ -1,18 +1,17 @@
 'use client';
 
 import { AlarmOutlined, MoreVert, Archive, ArchiveOutlined, Bolt, Brush, ChevronLeft, ImageOutlined, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
-import { Box, Button, IconButton, TextField, Toolti, Menu, MenuItem } from '@mui/material';
+import { Box, Button, IconButton, TextField, MenuItem } from '@mui/material';
 import styles from "./note.module.css";
 import { useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../context/app_provider';
 import CustomTooltip from './custom_tooltip';
 
-const ITEM_HEIGHT = 48;
-
 export default function NoteGUI(props) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isNestedMode, setIsNestedMode] = useState(false);
     const [isNestedEdit, setIsNestedEdit] = useState(false);
+    const [isNoteMenuOpen, setIsNoteMenu] = useState(false);
     const [showShadow, setShowShadow] = useState(false);
 
     const [isPinned, setIsPinned] = useState(props.note.isPinned);
@@ -28,20 +27,13 @@ export default function NoteGUI(props) {
     const [nestedContent, setNestedContent] = useState('');
     const [nestedContentArray, setNestedContentArray] = useState([nestedContent]);
 
-    const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setInfoGeneral} = useContext(AppContext);
+    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setInfoGeneral } = useContext(AppContext);
 
     const index = useRef(0);
     const nestedIndex = useRef(0);
     const noteCreateRef = useRef(null);
+    const noteMenuRefButton = useRef(null);
+    const noteMenuRef = useRef(null);
     const noteUpdateRef = useRef(null);
     const infoContainerRef = useRef(null);
 
@@ -61,14 +53,16 @@ export default function NoteGUI(props) {
         }
     };
 
+    const handleNoteMenu = () => {
+
+    }
 
     const handleDeleteNote = () => {
-        if( props.mode === 'create' ) {
+        if (props.mode === 'create') {
             handleResetNote();
         } else {
             deleteNote(props.note.id)
         }
-
     }
 
     const handleContentChange = (event) => {
@@ -126,41 +120,93 @@ export default function NoteGUI(props) {
     }
 
     const handleNestedNote = () => {
-        // Create a new note object with trimmed values
-        const newNestedNote = {
+        const createNewNestedNote = () => ({
             title: nestedTitle.trim(),
             content: nestedContent.trim(),
+        });
+
+        const hasNoteContentChanged = (newNote, existingNote) =>
+            newNote.title !== existingNote.title || newNote.content !== existingNote.content;
+
+        const updateNestedNote = (newNote) => {
+            const updatedNestedNotes = nestedNotes.map((note) =>
+                note.id === nestedNote.id ? { ...note, ...newNote } : note
+            );
+            setIsNestedEdit(false);
+            return updatedNestedNotes;
         };
 
-        // Check if the note content has changed
-        if (newNestedNote.title !== nestedNote.title || newNestedNote.content !== nestedNote.content) {
+        const addNestedNote = (newNote) => {
+            newNote.id = Date.now(); // Ensure id is added only for new notes
+            return [...nestedNotes, newNote];
+        };
+
+        const resetNestedNoteForm = () => {
+            setNestedTitle('');
+            setNestedContent('');
+            setNestedContentArray(['']);
+            setIsNestedMode(false);
+            nestedIndex.current = 0;
+        };
+
+        const newNestedNote = createNewNestedNote();
+
+        let updatedNestedNotes;
+        if (hasNoteContentChanged(newNestedNote, nestedNote)) {
             if (isNestedEdit) {
-                // Update the existing nested note
-                const updatedNestedNotes = nestedNotes.map((note) =>
-                    note.id === nestedNote.id ? { ...note, ...newNestedNote } : note
-                );
-                setNestedNotes(updatedNestedNotes);
-                console.log('Updated Nested Note');
-                setIsNestedEdit(false);
+                updatedNestedNotes = updateNestedNote(newNestedNote);
             } else {
-                // Add a new nested note
-                newNestedNote.id = Date.now(); // Ensure id is added only for new notes
-                setNestedNotes([...nestedNotes, newNestedNote]);
-                console.log('Adding Nested Note');
+                updatedNestedNotes = addNestedNote(newNestedNote);
             }
         } else {
             console.log("Not Adding Nested Note");
+            updatedNestedNotes = nestedNotes;
         }
 
-        // Reset the nested note form
-        setNestedTitle('');
-        setNestedContent('');
-        setNestedContentArray(['']);
+        resetNestedNoteForm();
 
-        setIsNestedMode(false);
-        nestedIndex.current = 0;
+        setNestedNotes(updatedNestedNotes);
+
+        return updatedNestedNotes;
     };
 
+    const handleNote = () => {
+        let newNestedNotes = nestedNotes;
+
+        console.log(isNestedMode);
+        if (isNestedMode) {
+            newNestedNotes = handleNestedNote();
+        }
+
+        const note = {
+            title: title.trim(),
+            content: content.trim(),
+            isPinned: isPinned,
+            nestedNotes: newNestedNotes
+        };
+
+        const userNote = props.note;
+
+        if (props.mode === 'create') {
+            if (title.trim() !== userNote.title || content.trim() !== userNote.content || note.nestedNotes.length > 0) {
+                createNote(note);
+                console.log("Created Note");
+            } else {
+                console.log("No Note Created");
+            }
+        } else {
+            let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, userNote.nestedNotes);
+
+            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged) {
+                updateNote(note);
+                console.log("Updated Note");
+            } else {
+                console.log("No Note Updated");
+            }
+        }
+
+        handleResetNote();
+    }
 
     const handleUndo = () => {
         if (isNestedMode) {
@@ -202,86 +248,42 @@ export default function NoteGUI(props) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-
-        if (isNestedMode) {
-            handleNestedNote();
-        }
-
-        let note = ({
-            title: title.trim(),
-            content: content.trim(),
-
-            isPinned: isPinned,
-            nestedNotes: nestedNotes
-        })
-
-        const userNote = props.note;
-
-        if (props.mode === 'create') {
-            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotes.length > 0) {
-                createNote(note);
-                console.log("Created Note")
-            } else {
-                console.log("No Note Created")
-            }
-        } else {
-            let nestedNotesChanged = compareNestedNotesDifferent(nestedNotes, userNote.nestedNotes);
-
-            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged || isArchived !== userNote.isArchived) {
-                updateNote(note);
-                console.log("Updated Note");
-            } else {
-                console.log("No Note Updated");
-            }
-        }
-
-        handleResetNote();
+        handleNote();
     };
 
-    // useEffect(() => {
-    //     const handleClickOutside = (event) => {
-    //         const userNote = props.note;
+    const isDeleteEnabled = () => {
+        return title.length > 0 || content.length > 0 || nestedTitle.length > 0 || nestedContent.length > 0 || nestedNotes.length > 0;
+    }
 
-    //         if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isNoteMenuOpen && noteMenuRef.current && !noteMenuRef.current.contains(event.target) && !noteMenuRefButton.current.contains(event.target)) {
+                setIsNoteMenu(false);
+            }
+        };
 
-    //             if () {
+        document.addEventListener('mousedown', handleClickOutside);
 
-    //             }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isNoteMenuOpen]);
 
-    //             if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotes.length > 0) {
-    //                 const note = ({
-    //                     title: title.trim(),
-    //                     content: content.trim(),
-    //                     isPinned: isPinned,
-    //                     nestedNotes: nestedNotes
-    //                 })
-    //                 createNote(note);
-    //             } else {
-    //                 console.log("Nothing To See Here")
-    //             }
-    //             setContent('');
-    //             setTitle('');
-    //             setInfoContent('');
-    //             setInfoTitle('');
-    //             setNestedContent('')
-    //             setNestedTitle('')
-    //             setNestedNotes([]);
-    //             setContentArray(['']);
-    //             setNestedContentArray(['']);
-    //             setIsPinned(false);
-    //             setIsNestedMode(false);
-    //             setIsEditMode(false);
-    //             index.current = 0;
-    //             nestedIndex.current = 0;
-    //         }
-    //     };
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            const userNote = props.note;
 
-    //     document.addEventListener('mousedown', handleClickOutside);
+            if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
 
-    //     return () => {
-    //         document.removeEventListener('mousedown', handleClickOutside);
-    //     };
-    // }, [content, createNote, updateNote, isEditMode, isPinned, nestedNotes, props.note, props.mode, setInfoContent, setInfoTitle, title]);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isEditMode]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -399,48 +401,38 @@ export default function NoteGUI(props) {
                             <IconButton aria-label="Add Reminder">
                                 <AlarmOutlined />
                             </IconButton>
-
-                            <IconButton
-                                //    onClick={() => setShowNoteMenu(!showNoteMenu)}
-                                aria-label="more"
-                                id="long-button"
-                                aria-controls={open ? 'long-menu' : undefined}
-                                aria-expanded={open ? 'true' : undefined}
-                                aria-haspopup="true"
-                                onClick={handleClick}
-                            >
-                                <MoreVert />
-                            </IconButton>
-                            <Menu
-                                id="long-menu"
-                                MenuListProps={{
-                                    'aria-labelledby': 'long-button',
-                                }}
-                                anchorEl={anchorEl}
-                                open={open}
-                                onClose={handleClose}
-                                slotProps={{
-                                    paper: {
-                                        style: {
-                                            maxHeight: ITEM_HEIGHT * 4.5,
-                                            width: '20ch',
-                                        },
-                                    },
-                                }}
-                            >
+                            <>
+                                <IconButton
+                                    style={{
+                                        position: 'relative'
+                                    }}
+                                    ref={noteMenuRefButton}
+                                    onClick={() => setIsNoteMenu(!isNoteMenuOpen)}
+                                >
+                                    <MoreVert />
+                                </IconButton>
                                 {
-                                    (
-                                        (content.length > 0 || title.length > 0 || nestedNotes.length > 0) && (
-                                            <MenuItem onClick={() => handleDeleteNote()}>
-                                                Delete
-                                            </MenuItem>
-                                        )
+                                    isNoteMenuOpen && (
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                marginLeft: '5rem',
+                                                width: 'fit-content',
+                                                backgroundColor: 'white'
+                                            }}
+                                            ref={noteMenuRef}
+                                        >
+                                            <MenuItem>Add Label</MenuItem>
+                                            {
+                                                isDeleteEnabled() && (
+                                                    <MenuItem onClick={handleDeleteNote}>Delete Note</MenuItem>
+                                                )
+                                            }
+                                        </div>
                                     )
                                 }
-                                <MenuItem onClick={() => addLabel()}>
-                                    Add Label
-                                </MenuItem>
-                            </Menu>
+
+                            </>
                             {/* <IconButton aria-label="Archive" onClick={() => setIsArchived(!isArchived)}>
                                 {
                                     isArchived ? (
