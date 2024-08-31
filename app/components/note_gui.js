@@ -1,10 +1,13 @@
 'use client';
-import { AlarmOutlined, ArchiveOutlined, Bolt, Brush, ChevronLeft, ImageOutlined, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
-import { Box, Button, IconButton, TextField, Tooltip } from '@mui/material';
+
+import { AlarmOutlined, MoreVert, Archive, ArchiveOutlined, Bolt, Brush, ChevronLeft, ImageOutlined, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
+import { Box, Button, IconButton, TextField, Toolti, Menu, MenuItem } from '@mui/material';
 import styles from "./note.module.css";
 import { useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../context/app_provider';
 import CustomTooltip from './custom_tooltip';
+
+const ITEM_HEIGHT = 48;
 
 export default function NoteGUI(props) {
     const [isEditMode, setIsEditMode] = useState(false);
@@ -13,6 +16,7 @@ export default function NoteGUI(props) {
     const [showShadow, setShowShadow] = useState(false);
 
     const [isPinned, setIsPinned] = useState(props.note.isPinned);
+
     const [title, setTitle] = useState(props.note.title)
     const [content, setContent] = useState(props.note.content);
     const [nestedNotes, setNestedNotes] = useState(props.note.nestedNotes);
@@ -24,7 +28,16 @@ export default function NoteGUI(props) {
     const [nestedContent, setNestedContent] = useState('');
     const [nestedContentArray, setNestedContentArray] = useState([nestedContent]);
 
-    const { createNote, updateNote, setInfoContent, setInfoTitle, setInfoGeneral } = useContext(AppContext);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setInfoGeneral} = useContext(AppContext);
 
     const index = useRef(0);
     const nestedIndex = useRef(0);
@@ -47,6 +60,16 @@ export default function NoteGUI(props) {
             }
         }
     };
+
+
+    const handleDeleteNote = () => {
+        if( props.mode === 'create' ) {
+            handleResetNote();
+        } else {
+            deleteNote(props.note.id)
+        }
+
+    }
 
     const handleContentChange = (event) => {
         const newValue = event.target.value;
@@ -187,28 +210,28 @@ export default function NoteGUI(props) {
         let note = ({
             title: title.trim(),
             content: content.trim(),
+
             isPinned: isPinned,
             nestedNotes: nestedNotes
         })
 
         const userNote = props.note;
 
-
         if (props.mode === 'create') {
             if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotes.length > 0) {
                 createNote(note);
                 console.log("Created Note")
             } else {
-                console.log("Nothing To Create")
+                console.log("No Note Created")
             }
         } else {
             let nestedNotesChanged = compareNestedNotesDifferent(nestedNotes, userNote.nestedNotes);
 
-            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged) {
+            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged || isArchived !== userNote.isArchived) {
                 updateNote(note);
-                console.log("Created Note")
+                console.log("Updated Note");
             } else {
-                console.log("Nothing To Update")
+                console.log("No Note Updated");
             }
         }
 
@@ -352,7 +375,6 @@ export default function NoteGUI(props) {
                                     </IconButton>
                                 </CustomTooltip>
                             ))}
-
                         </div>
                     </div>
                 )
@@ -374,15 +396,67 @@ export default function NoteGUI(props) {
                                     </IconButton>
                                 )
                             }
-                            {/* <IconButton aria-label="Add Reminder">
+                            <IconButton aria-label="Add Reminder">
                                 <AlarmOutlined />
                             </IconButton>
+
+                            <IconButton
+                                //    onClick={() => setShowNoteMenu(!showNoteMenu)}
+                                aria-label="more"
+                                id="long-button"
+                                aria-controls={open ? 'long-menu' : undefined}
+                                aria-expanded={open ? 'true' : undefined}
+                                aria-haspopup="true"
+                                onClick={handleClick}
+                            >
+                                <MoreVert />
+                            </IconButton>
+                            <Menu
+                                id="long-menu"
+                                MenuListProps={{
+                                    'aria-labelledby': 'long-button',
+                                }}
+                                anchorEl={anchorEl}
+                                open={open}
+                                onClose={handleClose}
+                                slotProps={{
+                                    paper: {
+                                        style: {
+                                            maxHeight: ITEM_HEIGHT * 4.5,
+                                            width: '20ch',
+                                        },
+                                    },
+                                }}
+                            >
+                                {
+                                    (
+                                        (content.length > 0 || title.length > 0 || nestedNotes.length > 0) && (
+                                            <MenuItem onClick={() => handleDeleteNote()}>
+                                                Delete
+                                            </MenuItem>
+                                        )
+                                    )
+                                }
+                                <MenuItem onClick={() => addLabel()}>
+                                    Add Label
+                                </MenuItem>
+                            </Menu>
+                            {/* <IconButton aria-label="Archive" onClick={() => setIsArchived(!isArchived)}>
+                                {
+                                    isArchived ? (
+
+                                        <Archive />
+
+                                    ) : (
+                                        <ArchiveOutlined />
+                                    )
+                                }
+                            </IconButton> */}
+                            {/* 
                             <IconButton aria-label="Background Color">
                                 <Brush />
                             </IconButton>
-                            <IconButton aria-label="Archive">
-                                <ArchiveOutlined />
-                            </IconButton>
+          
                             <IconButton aria-label="Add Image">
                                 <ImageOutlined />
                             </IconButton> */}
