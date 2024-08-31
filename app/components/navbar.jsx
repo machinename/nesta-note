@@ -137,7 +137,7 @@ export function Navbar() {
         <div
           className={styles.navBarTrailing}>
           <div>
-          {/* <CustomTooltip title="Grid View">
+            {/* <CustomTooltip title="Grid View">
             <IconButton >
               <GridViewOutlined />
             </IconButton>
@@ -169,8 +169,8 @@ export function Navbar() {
           ref={menuRef}
         >
           <Link className={styles.navLink} href='/'>Notes</Link>
-          {/* <Link className={styles.navLink} href='/reminders'>Reminders</Link>
-          <Link className={styles.navLink} href='/archive'>Archive</Link>
+          {/*  <Link className={styles.navLink} href='/archive'>Archive</Link>
+          <Link className={styles.navLink} href='/reminders'>Reminders</Link>
           <div onClick={() => { }} className={styles.navLink}>Labels</div>
           <Link className={styles.navLink} href='/media'>Media</Link>
           <Link className={styles.navLink} href='/settings'>Settings</Link>

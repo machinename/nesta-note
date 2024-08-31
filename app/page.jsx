@@ -11,6 +11,7 @@ export default function Home() {
     title: '',
     content: '',
     isPinned: false,
+    isArchived: false,
     nestedNotes: []
   });
 
@@ -19,11 +20,11 @@ export default function Home() {
       <NoteGUI note={newNote} mode={'create'} />
       <>
         {notes.map((note, index) => (
-          <NoteGUI note={note} mode={'update'} key={index}  />
+          !note.isArchived && <NoteGUI note={note} mode={'update'} key={index}  />
         ))}
       </>
       <p>
-        App Is Still In Very Every Development.
+      App Is Still In Very Early Development.
       </p>
     </main>
   );
