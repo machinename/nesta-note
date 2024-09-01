@@ -32,10 +32,20 @@ export default function NoteGUI(props) {
     const index = useRef(0);
     const nestedIndex = useRef(0);
     const noteCreateRef = useRef(null);
+    const noteEditRef = useRef(null);
     const noteMenuRefButton = useRef(null);
     const noteMenuRef = useRef(null);
-    const noteUpdateRef = useRef(null);
     const infoContainerRef = useRef(null);
+
+    const compareNestedNotesDifferent = (notes1, notes2) => {
+        if (notes1.length !== notes2.length) return true;
+        for (let i = 0; i < notes1.length; i++) {
+            if (notes1[i].title !== notes2[i].title || notes1[i].content !== notes2[i].content) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     const handleTitleChange = (event) => {
         const newValue = event.target.value;
@@ -53,14 +63,12 @@ export default function NoteGUI(props) {
         }
     };
 
-    const handleNoteMenu = () => {
-
-    }
-
     const handleDeleteNote = () => {
         if (props.mode === 'create') {
+            setIsNoteMenu(false);
             handleResetNote();
         } else {
+            setIsNoteMenu(false);
             deleteNote(props.note.id)
         }
     }
@@ -102,8 +110,8 @@ export default function NoteGUI(props) {
             setIsPinned(false);
         }
 
-        setContentArray(['']);
-        setNestedContentArray(['']);
+        setContentArray([content]);
+        setNestedContentArray([nestedContent]);
         setIsNestedMode(false);
         setIsEditMode(false);
         index.current = 0;
@@ -236,16 +244,6 @@ export default function NoteGUI(props) {
         }
     };
 
-    const compareNestedNotesDifferent = (notes1, notes2) => {
-        if (notes1.length !== notes2.length) return true;
-        for (let i = 0; i < notes1.length; i++) {
-            if (notes1[i].title !== notes2[i].title || notes1[i].content !== notes2[i].content) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     const handleSubmit = (event) => {
         event.preventDefault();
         handleNote();
@@ -260,21 +258,15 @@ export default function NoteGUI(props) {
             if (isNoteMenuOpen && noteMenuRef.current && !noteMenuRef.current.contains(event.target) && !noteMenuRefButton.current.contains(event.target)) {
                 setIsNoteMenu(false);
             }
-        };
 
-        document.addEventListener('mousedown', handleClickOutside);
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isNoteMenuOpen]);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            const userNote = props.note;
-
-            if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
-
+            if (props.mode === 'create') {
+                if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
+                    handleNote()
+                }
+            } else {
+                if (isEditMode && noteEditRef.current && !noteEditRef.current.contains(event.target)) {
+                    handleNote()
+                }
             }
         };
 
@@ -283,7 +275,7 @@ export default function NoteGUI(props) {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isEditMode]);
+    }, [isNoteMenuOpen, isEditMode, handleNote]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -308,7 +300,7 @@ export default function NoteGUI(props) {
     }, []);
 
     return (
-        <Box component="form" className={styles.note} onSubmit={handleSubmit} ref={props.mode === 'create' ? noteCreateRef : noteUpdateRef}>
+        <Box component="form" className={styles.note} onSubmit={handleSubmit} ref={props.mode === 'create' ? noteCreateRef : noteEditRef}>
             <div className={styles.infoContainer} ref={infoContainerRef}>
                 {(isEditMode || title.length > 0) && (
                     <div className={styles.titleContainer}>
@@ -418,7 +410,9 @@ export default function NoteGUI(props) {
                                                 position: 'absolute',
                                                 marginLeft: '5rem',
                                                 width: 'fit-content',
-                                                backgroundColor: 'white'
+                                                backgroundColor: '#fbfdfb',
+                                                zIndex: '100',
+                                              
                                             }}
                                             ref={noteMenuRef}
                                         >

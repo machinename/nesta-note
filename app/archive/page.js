@@ -16,7 +16,7 @@ export default function Archive() {
         ))}
       </>
       <p>
-        App Is Still In Very Early Development.
+      The current state of this application is not a representation of the finished product.
       </p>
     </main>
   );
