@@ -8,34 +8,51 @@ import { AppContext } from '../context/app_provider';
 import CustomTooltip from './custom_tooltip';
 
 export default function NoteGUI(props) {
+    // State for edit modes and UI elements
     const [isEditMode, setIsEditMode] = useState(false);
-    const [isNestedMode, setIsNestedMode] = useState(false);
     const [isNestedEdit, setIsNestedEdit] = useState(false);
+    const [isNestedMode, setIsNestedMode] = useState(false);
     const [isNoteMenuOpen, setIsNoteMenu] = useState(false);
     const [showShadow, setShowShadow] = useState(false);
 
-    const [isPinned, setIsPinned] = useState(props.note.isPinned);
+    // State for managing content arrays
+    const [contentArray, setContentArray] = useState([props.note.content]);
+    const [nestedContentArray, setNestedContentArray] = useState(['']);
 
-    const [title, setTitle] = useState(props.note.title)
+    // State for nested note management
+    const [nestedContent, setNestedContent] = useState('');
+    const [nestedNote, setNestedNote] = useState({ title: '', content: '' });
+    const [nestedTitle, setNestedTitle] = useState('');
+
+    // State for note properties
+    const [isArchived, setIsArchived] = useState(props.note.isArchived);
+    const [isPinned, setIsPinned] = useState(props.note.isPinned);
+    const [title, setTitle] = useState(props.note.title);
     const [content, setContent] = useState(props.note.content);
     const [nestedNotes, setNestedNotes] = useState(props.note.nestedNotes);
 
-    const [contentArray, setContentArray] = useState([content]);
+    // Context for application-wide state and actions
+    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes,setInfoGeneral, notes } = useContext(AppContext);
 
-    const [nestedNote, setNestedNote] = useState({ title: '', content: '', });
-    const [nestedTitle, setNestedTitle] = useState('');
-    const [nestedContent, setNestedContent] = useState('');
-    const [nestedContentArray, setNestedContentArray] = useState([nestedContent]);
-
-    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setInfoGeneral } = useContext(AppContext);
-
+    // Refs for DOM elements and indexes
     const index = useRef(0);
     const nestedIndex = useRef(0);
     const noteCreateRef = useRef(null);
     const noteEditRef = useRef(null);
-    const noteMenuRefButton = useRef(null);
     const noteMenuRef = useRef(null);
+    const noteMenuRefButton = useRef(null);
     const infoContainerRef = useRef(null);
+
+    const toggleArchive = () => {
+        if(isArchived){
+            setInfoGeneral('Note unarchived')
+        }else {
+            setInfoGeneral('Note archived')
+        }
+        setNotes(notes.map(note =>
+            note.id === props.note.id ? { ...note, isArchived: !note.isArchived } : note
+        ));
+    };
 
     const compareNestedNotesDifferent = (notes1, notes2) => {
         if (notes1.length !== notes2.length) return true;
@@ -67,9 +84,11 @@ export default function NoteGUI(props) {
         if (props.mode === 'create') {
             setIsNoteMenu(false);
             handleResetNote();
+  
         } else {
             setIsNoteMenu(false);
             deleteNote(props.note.id)
+
         }
     }
 
@@ -108,6 +127,7 @@ export default function NoteGUI(props) {
             setNestedTitle('');
             setNestedNotes([]);
             setIsPinned(false);
+            setIsArchived(false);
         }
 
         setContentArray([content]);
@@ -189,6 +209,7 @@ export default function NoteGUI(props) {
         const note = {
             title: title.trim(),
             content: content.trim(),
+            isArchived: isArchived,
             isPinned: isPinned,
             nestedNotes: newNestedNotes
         };
@@ -205,7 +226,7 @@ export default function NoteGUI(props) {
         } else {
             let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, userNote.nestedNotes);
 
-            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged) {
+            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged || isArchived !== userNote.isArchived) {
                 updateNote(note);
                 console.log("Updated Note");
             } else {
@@ -276,6 +297,7 @@ export default function NoteGUI(props) {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [isNoteMenuOpen, isEditMode, handleNote]);
+
 
     useEffect(() => {
         const handleScroll = () => {
@@ -412,7 +434,7 @@ export default function NoteGUI(props) {
                                                 width: 'fit-content',
                                                 backgroundColor: '#fbfdfb',
                                                 zIndex: '100',
-                                              
+
                                             }}
                                             ref={noteMenuRef}
                                         >
@@ -425,19 +447,20 @@ export default function NoteGUI(props) {
                                         </div>
                                     )
                                 }
-
                             </>
-                            {/* <IconButton aria-label="Archive" onClick={() => setIsArchived(!isArchived)}>
-                                {
-                                    isArchived ? (
-
-                                        <Archive />
-
-                                    ) : (
-                                        <ArchiveOutlined />
-                                    )
-                                }
-                            </IconButton> */}
+                            {
+                                props.mode === 'update' && (
+                                    <IconButton aria-label="Archive" onClick={() => toggleArchive(props.note.id)}>
+                                        {
+                                            isArchived ? (
+                                                <Archive />
+                                            ) : (
+                                                <ArchiveOutlined />
+                                            )
+                                        }
+                                    </IconButton>
+                                )
+                            }
                             {/* 
                             <IconButton aria-label="Background Color">
                                 <Brush />

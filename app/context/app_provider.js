@@ -1,5 +1,4 @@
-// context/noteProvider.js
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useMemo } from 'react';
 
 export const AppContext = createContext();
 
@@ -11,32 +10,58 @@ export const AppProvider = ({ children }) => {
   const [notes, setNotes] = useState([]);
 
   const createNote = (newNote) => {
-    console.log('Note Created:', newNote);
-    newNote.id = Date.now();
-    setNotes([...notes, newNote]);
+    try {
+      const noteWithId = {
+        ...newNote,
+        id: Date.now(), // Temp solution for local usage.
+      };
+      setNotes(prevNotes => [...prevNotes, noteWithId]);
+    } catch (error) {
+      console.error('Error creating note:', error);
+    }
   };
 
   const updateNote = (id, updatedNote) => {
-    const updatedNotes = notes.map(note => {
-      if (note.id === id) {
-        console.log('Note Updated:', updatedNote);
-        return updatedNote;
-      }
-      return note;
-    });
-    setNotes(updatedNotes);
+    try {
+      const updatedNotes = notes.map(note => {
+        if (note.id === id) {
+          console.log('Note Updated:', updatedNote);
+          return { ...note, ...updatedNote };
+        }
+        return note;
+      });
+      setNotes(updatedNotes);
+    } catch (error) {
+      console.error('Error updating note:', error);
+    }
   };
 
   const deleteNote = (id) => {
-    const updatedNotes = notes.filter(note => note.id !== id);
-    setNotes(updatedNotes);
+    try {
+      const updatedNotes = notes.filter(note => note.id !== id);
+      setNotes(updatedNotes);
+      setInfoGeneral('Note deleted');
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
   };
 
+  const contextValue = useMemo(() => ({
+    infoContent,
+    infoGeneral,
+    infoTitle,
+    notes,
+    createNote,
+    updateNote,
+    deleteNote,
+    setInfoContent,
+    setInfoGeneral,
+    setInfoTitle,
+    setNotes
+  }), [infoContent, infoGeneral, infoTitle, notes]);
+
   return (
-    <AppContext.Provider value={{
-      infoContent, infoGeneral, infoTitle, notes,
-      createNote, deleteNote, setInfoContent, setInfoGeneral, setInfoTitle, updateNote
-    }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );
