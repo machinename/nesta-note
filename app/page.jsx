@@ -17,16 +17,18 @@ export default function Home() {
 
   return (
     <main className={styles.content}>
-      <NoteGUI note={newNote} mode={'create'} />
-      <>
-        {notes.map((note, index) => (
-          !note.isArchived && <NoteGUI note={note} mode={'update'} key={index}  />
-        ))}
-      </>
+      <NoteGUI note={newNote} mode='create' />
+      {notes
+        .filter(note => !note.isArchived)
+        .map(note => (
+          <NoteGUI note={note} mode='update' key={note.id} />
+        ))
+      }
       <p>
-      App Is Still In Very Early Development.
+        The current state of this application is not a representation of the finished product.
       </p>
     </main>
+
   );
 }
 

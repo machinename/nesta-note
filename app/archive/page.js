@@ -11,12 +11,15 @@ export default function Archive() {
   return (
     <main className={styles.content}>
       <>
-        {notes.map((note, index) => (
-          note.isArchived && <NoteGUI note={note} mode={'update'} key={index}  />
-        ))}
+      {notes
+        .filter(note => note.isArchived)
+        .map(note => (
+          <NoteGUI note={note} mode='update' key={note.id} />
+        ))
+      }
       </>
       <p>
-        App Is Still In Very Early Development.
+      The current state of this application is not a representation of the finished product.
       </p>
     </main>
   );

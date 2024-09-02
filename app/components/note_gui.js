@@ -8,34 +8,61 @@ import { AppContext } from '../context/app_provider';
 import CustomTooltip from './custom_tooltip';
 
 export default function NoteGUI(props) {
+    // State for edit modes and UI elements
     const [isEditMode, setIsEditMode] = useState(false);
-    const [isNestedMode, setIsNestedMode] = useState(false);
     const [isNestedEdit, setIsNestedEdit] = useState(false);
+    const [isNestedMode, setIsNestedMode] = useState(false);
     const [isNoteMenuOpen, setIsNoteMenu] = useState(false);
     const [showShadow, setShowShadow] = useState(false);
 
-    const [isPinned, setIsPinned] = useState(props.note.isPinned);
+    // State for managing content arrays
+    const [contentArray, setContentArray] = useState([props.note.content]);
+    const [nestedContentArray, setNestedContentArray] = useState(['']);
 
-    const [title, setTitle] = useState(props.note.title)
+    // State for nested note management
+    const [nestedContent, setNestedContent] = useState('');
+    const [nestedNote, setNestedNote] = useState({ title: '', content: '' });
+    const [nestedTitle, setNestedTitle] = useState('');
+
+    // State for note properties
+    const [isArchived, setIsArchived] = useState(props.note.isArchived);
+    const [isPinned, setIsPinned] = useState(props.note.isPinned);
+    const [title, setTitle] = useState(props.note.title);
     const [content, setContent] = useState(props.note.content);
     const [nestedNotes, setNestedNotes] = useState(props.note.nestedNotes);
 
-    const [contentArray, setContentArray] = useState([content]);
+    // Context for application-wide state and actions
+    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes,setInfoGeneral, notes } = useContext(AppContext);
 
-    const [nestedNote, setNestedNote] = useState({ title: '', content: '', });
-    const [nestedTitle, setNestedTitle] = useState('');
-    const [nestedContent, setNestedContent] = useState('');
-    const [nestedContentArray, setNestedContentArray] = useState([nestedContent]);
-
-    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setInfoGeneral } = useContext(AppContext);
-
+    // Refs for DOM elements and indexes
     const index = useRef(0);
     const nestedIndex = useRef(0);
     const noteCreateRef = useRef(null);
-    const noteMenuRefButton = useRef(null);
+    const noteEditRef = useRef(null);
     const noteMenuRef = useRef(null);
-    const noteUpdateRef = useRef(null);
+    const noteMenuRefButton = useRef(null);
     const infoContainerRef = useRef(null);
+
+    const toggleArchive = () => {
+        if(isArchived){
+            setInfoGeneral('Note unarchived')
+        }else {
+            setInfoGeneral('Note archived')
+        }
+        setNotes(notes.map(note =>
+            note.id === props.note.id ? { ...note, isArchived: !note.isArchived } : note
+        ));
+    };
+
+    const compareNestedNotesDifferent = (notes1, notes2) => {
+        if (notes1.length !== notes2.length) return true;
+        for (let i = 0; i < notes1.length; i++) {
+            if (notes1[i].title !== notes2[i].title || notes1[i].content !== notes2[i].content) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     const handleTitleChange = (event) => {
         const newValue = event.target.value;
@@ -53,15 +80,15 @@ export default function NoteGUI(props) {
         }
     };
 
-    const handleNoteMenu = () => {
-
-    }
-
     const handleDeleteNote = () => {
         if (props.mode === 'create') {
+            setIsNoteMenu(false);
             handleResetNote();
+  
         } else {
+            setIsNoteMenu(false);
             deleteNote(props.note.id)
+
         }
     }
 
@@ -100,10 +127,11 @@ export default function NoteGUI(props) {
             setNestedTitle('');
             setNestedNotes([]);
             setIsPinned(false);
+            setIsArchived(false);
         }
 
-        setContentArray(['']);
-        setNestedContentArray(['']);
+        setContentArray([content]);
+        setNestedContentArray([nestedContent]);
         setIsNestedMode(false);
         setIsEditMode(false);
         index.current = 0;
@@ -181,6 +209,7 @@ export default function NoteGUI(props) {
         const note = {
             title: title.trim(),
             content: content.trim(),
+            isArchived: isArchived,
             isPinned: isPinned,
             nestedNotes: newNestedNotes
         };
@@ -197,7 +226,7 @@ export default function NoteGUI(props) {
         } else {
             let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, userNote.nestedNotes);
 
-            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged) {
+            if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged || isArchived !== userNote.isArchived) {
                 updateNote(note);
                 console.log("Updated Note");
             } else {
@@ -236,16 +265,6 @@ export default function NoteGUI(props) {
         }
     };
 
-    const compareNestedNotesDifferent = (notes1, notes2) => {
-        if (notes1.length !== notes2.length) return true;
-        for (let i = 0; i < notes1.length; i++) {
-            if (notes1[i].title !== notes2[i].title || notes1[i].content !== notes2[i].content) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     const handleSubmit = (event) => {
         event.preventDefault();
         handleNote();
@@ -260,21 +279,15 @@ export default function NoteGUI(props) {
             if (isNoteMenuOpen && noteMenuRef.current && !noteMenuRef.current.contains(event.target) && !noteMenuRefButton.current.contains(event.target)) {
                 setIsNoteMenu(false);
             }
-        };
 
-        document.addEventListener('mousedown', handleClickOutside);
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isNoteMenuOpen]);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            const userNote = props.note;
-
-            if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
-
+            if (props.mode === 'create') {
+                if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
+                    handleNote()
+                }
+            } else {
+                if (isEditMode && noteEditRef.current && !noteEditRef.current.contains(event.target)) {
+                    handleNote()
+                }
             }
         };
 
@@ -283,7 +296,8 @@ export default function NoteGUI(props) {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isEditMode]);
+    }, [isNoteMenuOpen, isEditMode, handleNote]);
+
 
     useEffect(() => {
         const handleScroll = () => {
@@ -308,7 +322,7 @@ export default function NoteGUI(props) {
     }, []);
 
     return (
-        <Box component="form" className={styles.note} onSubmit={handleSubmit} ref={props.mode === 'create' ? noteCreateRef : noteUpdateRef}>
+        <Box component="form" className={styles.note} onSubmit={handleSubmit} ref={props.mode === 'create' ? noteCreateRef : noteEditRef}>
             <div className={styles.infoContainer} ref={infoContainerRef}>
                 {(isEditMode || title.length > 0) && (
                     <div className={styles.titleContainer}>
@@ -418,7 +432,9 @@ export default function NoteGUI(props) {
                                                 position: 'absolute',
                                                 marginLeft: '5rem',
                                                 width: 'fit-content',
-                                                backgroundColor: 'white'
+                                                backgroundColor: '#fbfdfb',
+                                                zIndex: '100',
+
                                             }}
                                             ref={noteMenuRef}
                                         >
@@ -431,19 +447,20 @@ export default function NoteGUI(props) {
                                         </div>
                                     )
                                 }
-
                             </>
-                            {/* <IconButton aria-label="Archive" onClick={() => setIsArchived(!isArchived)}>
-                                {
-                                    isArchived ? (
-
-                                        <Archive />
-
-                                    ) : (
-                                        <ArchiveOutlined />
-                                    )
-                                }
-                            </IconButton> */}
+                            {
+                                props.mode === 'update' && (
+                                    <IconButton aria-label="Archive" onClick={() => toggleArchive(props.note.id)}>
+                                        {
+                                            isArchived ? (
+                                                <Archive />
+                                            ) : (
+                                                <ArchiveOutlined />
+                                            )
+                                        }
+                                    </IconButton>
+                                )
+                            }
                             {/* 
                             <IconButton aria-label="Background Color">
                                 <Brush />
