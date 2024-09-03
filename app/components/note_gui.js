@@ -238,7 +238,7 @@ export default function NoteGUI(props) {
         } else {
             let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, userNote.nestedNotes);
 
-            if (title.trim().length === 0 || content.trim().length === 0 || nestedNotes.length === 0) {
+            if (title.trim().length === 0 && content.trim().length === 0 && nestedNotes.length === 0) {
                 deleteNote(props.note.id);
                 console.log("Deleted Note");
             } else {
