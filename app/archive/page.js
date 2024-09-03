@@ -19,7 +19,7 @@ export default function Archive() {
       }
       </>
       <p>
-      The current state of this application is not a representation of the finished product.
+        Not A Final Version
       </p>
     </main>
   );

@@ -6,6 +6,15 @@ body {
   min-width: 400px;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+  color: black;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
 
 @media (prefers-color-scheme: dark) {
   html {
