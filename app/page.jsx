@@ -28,9 +28,9 @@ export default function Home() {
           <NoteGUI note={note} mode='read' key={note.id} />
         ))
       }
-      <p>
+      <h1>
         Not A Final Version
-      </p>
+      </h1>
       <h2>
         Coming Soon
       </h2>

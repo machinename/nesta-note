@@ -18,12 +18,12 @@ export default function Archive() {
           ))
         }
       </>
-      <p>
+      <h1>
         Not A Final Version
-      </p>
-      <p>
+      </h1>
+      <h2>
         Coming Soon
-      </p>
+      </h2>
       <p>
         Account Management
       </p>

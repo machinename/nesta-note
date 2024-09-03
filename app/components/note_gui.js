@@ -219,30 +219,30 @@ export default function NoteGUI(props) {
         }
 
         const note = {
-            title: title.trim(),
-            content: content.trim(),
+            title: title,
+            content: content,
             isArchived: isArchived,
             isPinned: isPinned,
             nestedNotes: newNestedNotes
         };
 
-        const userNote = props.note;
+        const prevNote = props.note;
 
         if (initialMode === 'create') {
-            if (title.trim() !== userNote.title || content.trim() !== userNote.content || note.nestedNotes.length > 0) {
+            if (note.title !== prevNote.title || note.content !== prevNote.content || note.nestedNotes.length > 0) {
                 createNote(note);
                 console.log("Created Note");
             } else {
                 console.log("No Note Created");
             }
         } else {
-            let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, userNote.nestedNotes);
+            let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, prevNote.nestedNotes);
 
-            if (title.trim().length === 0 && content.trim().length === 0 && nestedNotes.length === 0) {
+            if (note.title.trim().length === 0 && note.content.trim().length === 0 && note.nestedNotes.length === 0) {
                 deleteNote(props.note.id);
                 console.log("Deleted Note");
             } else {
-                if (title.trim() !== userNote.title || content.trim() !== userNote.content || nestedNotesChanged || isArchived !== userNote.isArchived) {
+                if (note.title !== prevNote.title || note.content !== prevNote.content || nestedNotesChanged || note.isArchived !== prevNote.isArchived) {
                     updateNote(note);
                     console.log("Updated Note");
                 } else {
@@ -489,7 +489,7 @@ export default function NoteGUI(props) {
                                     }
                                 </>
                                 {
-                                    initialMode === 'update' && (
+                                    initialMode !== 'create' && (
                                         <IconButton aria-label="Archive" onClick={() => toggleArchive(props.note.id)}>
                                             {
                                                 isArchived ? (
