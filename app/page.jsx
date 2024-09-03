@@ -31,6 +31,30 @@ export default function Home() {
       <p>
         Not A Final Version
       </p>
+      <h2>
+        Coming Soon
+      </h2>
+      <p>
+        Account Management
+      </p>
+      <p>
+        Drawing
+      </p>
+      <p>
+        Layouts
+      </p>
+      <p>
+        Reminder
+      </p>
+      <p>
+        Settings
+      </p>
+      <p>
+        Help
+      </p>
+      <p>
+        Search Functionality
+      </p>
     </main>
   );
 }

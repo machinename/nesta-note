@@ -345,7 +345,7 @@ export default function NoteGUI(props) {
             className={isViewMode ? styles.centeredNote : styles.note} 
             onSubmit={handleSubmit} ref={initialMode === 'create' ? noteCreateRef : noteEditRef} onClick={isViewMode ? null : handleMode}>
                 <div 
-                className={isViewMode ? styles.infoContainerCentered  : styles.infoContainer} 
+                className={(initialMode === 'read' && !isViewMode) ? styles.infoContainerRead  : styles.infoContainer}
      
                  ref={infoContainerRef}>
                     {(isEditMode || title.length > 0) && (
