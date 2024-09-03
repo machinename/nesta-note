@@ -28,15 +28,10 @@ export default function Home() {
       <p>
         Nesta Note Beta
       </p>
-      {/* {selectedNote && (
-       
-         
-            <NoteGUI note={selectedNote} key={selectedNote.id} mode='update' />
-       
-   
+      {/* {selectedNote && (     
+          <NoteGUI note={selectedNote} key={selectedNote.id} mode='update' />
       )} */}
     </main>
-
   );
 }
 
