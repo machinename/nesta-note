@@ -15,9 +15,12 @@ export default function Home() {
     nestedNotes: []
   });
 
-
   return (
     <main className={styles.content}>
+
+      <div style={{
+        paddingTop: '6rem',
+      }}/>
       <NoteGUI note={newNote} mode='create' />
       {notes
         .filter(note => !note.isArchived)
@@ -26,11 +29,8 @@ export default function Home() {
         ))
       }
       <p>
-        Nesta Note Beta
+        Not A Final Version
       </p>
-      {/* {selectedNote && (     
-          <NoteGUI note={selectedNote} key={selectedNote.id} mode='update' />
-      )} */}
     </main>
   );
 }
