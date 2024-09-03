@@ -25,7 +25,7 @@ export default function Home() {
         ))
       }
       <p>
-        The current state of this application is not a representation of the finished product.
+        Nesta Note - In Development
       </p>
     </main>
 

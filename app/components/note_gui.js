@@ -84,11 +84,9 @@ export default function NoteGUI(props) {
         if (props.mode === 'create') {
             setIsNoteMenu(false);
             handleResetNote();
-  
         } else {
             setIsNoteMenu(false);
             deleteNote(props.note.id)
-
         }
     }
 
