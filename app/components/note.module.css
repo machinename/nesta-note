@@ -8,7 +8,6 @@
   background-color: white;
   margin-bottom: 1rem;
   overflow-y: hidden;
-  
 }
 .note {
   max-height: 420px;
@@ -49,11 +48,11 @@
 }
 
 
-.infoContainer {
+.infoContainerRead {
   overflow-y: none;
 }
 
-.infoContainerCentered {
+.infoContainer {
   overflow-y: auto;
 }
 

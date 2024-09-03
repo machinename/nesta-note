@@ -238,7 +238,7 @@ export default function NoteGUI(props) {
         } else {
             let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, userNote.nestedNotes);
 
-            if (title.trim().length === 0 || content.trim().length === 0 || nestedNotes.length === 0) {
+            if (title.trim().length === 0 && content.trim().length === 0 && nestedNotes.length === 0) {
                 deleteNote(props.note.id);
                 console.log("Deleted Note");
             } else {
@@ -345,7 +345,7 @@ export default function NoteGUI(props) {
             className={isViewMode ? styles.centeredNote : styles.note} 
             onSubmit={handleSubmit} ref={initialMode === 'create' ? noteCreateRef : noteEditRef} onClick={isViewMode ? null : handleMode}>
                 <div 
-                className={isViewMode ? styles.infoContainerCentered  : styles.infoContainer} 
+                className={(initialMode === 'read' && !isViewMode) ? styles.infoContainerRead  : styles.infoContainer}
      
                  ref={infoContainerRef}>
                     {(isEditMode || title.length > 0) && (
