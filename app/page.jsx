@@ -1,7 +1,7 @@
 'use client'
 
 import styles from "./page.module.css";
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AppContext } from "./context/app_provider";
 import NoteGUI from './components/note_gui';
 
@@ -15,18 +15,26 @@ export default function Home() {
     nestedNotes: []
   });
 
+
   return (
     <main className={styles.content}>
       <NoteGUI note={newNote} mode='create' />
       {notes
         .filter(note => !note.isArchived)
         .map(note => (
-          <NoteGUI note={note} mode='update' key={note.id} />
+          <NoteGUI note={note} mode='read' key={note.id} />
         ))
       }
       <p>
-        The current state of this application is not a representation of the finished product.
+        Nesta Note Beta
       </p>
+      {/* {selectedNote && (
+       
+         
+            <NoteGUI note={selectedNote} key={selectedNote.id} mode='update' />
+       
+   
+      )} */}
     </main>
 
   );
