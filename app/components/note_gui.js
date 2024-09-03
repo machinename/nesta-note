@@ -9,6 +9,8 @@ import CustomTooltip from './custom_tooltip';
 
 export default function NoteGUI(props) {
     // State for edit modes and UI elements
+    const initialMode = props.mode;
+    const [isViewMode, setIsViewMode] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [isNestedEdit, setIsNestedEdit] = useState(false);
     const [isNestedMode, setIsNestedMode] = useState(false);
@@ -32,7 +34,7 @@ export default function NoteGUI(props) {
     const [nestedNotes, setNestedNotes] = useState(props.note.nestedNotes);
 
     // Context for application-wide state and actions
-    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes,setInfoGeneral, notes } = useContext(AppContext);
+    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes, setInfoGeneral, notes } = useContext(AppContext);
 
     // Refs for DOM elements and indexes
     const index = useRef(0);
@@ -44,9 +46,9 @@ export default function NoteGUI(props) {
     const infoContainerRef = useRef(null);
 
     const toggleArchive = () => {
-        if(isArchived){
+        if (isArchived) {
             setInfoGeneral('Note unarchived')
-        }else {
+        } else {
             setInfoGeneral('Note archived')
         }
         setNotes(notes.map(note =>
@@ -81,7 +83,7 @@ export default function NoteGUI(props) {
     };
 
     const handleDeleteNote = () => {
-        if (props.mode === 'create') {
+        if (initialMode === 'create') {
             setIsNoteMenu(false);
             handleResetNote();
         } else {
@@ -116,7 +118,7 @@ export default function NoteGUI(props) {
     };
 
     const handleResetNote = () => {
-        if (props.mode === "create") {
+        if (initialMode === "create" || initialMode === "update") {
             setContent('');
             setTitle('');
             setInfoContent('');
@@ -128,6 +130,7 @@ export default function NoteGUI(props) {
             setIsArchived(false);
         }
 
+        setIsViewMode(false);
         setContentArray([content]);
         setNestedContentArray([nestedContent]);
         setIsNestedMode(false);
@@ -196,6 +199,18 @@ export default function NoteGUI(props) {
         return updatedNestedNotes;
     };
 
+    // const handleMode = () => {
+    //     initialMode === 'read' && setIsViewMode(!isViewMode);
+    // }
+
+    const handleMode = () => {
+        if (initialMode === 'read') {
+
+            setIsEditMode(true);
+            setIsViewMode(true);
+        }
+    }
+
     const handleNote = () => {
         let newNestedNotes = nestedNotes;
 
@@ -214,7 +229,7 @@ export default function NoteGUI(props) {
 
         const userNote = props.note;
 
-        if (props.mode === 'create') {
+        if (initialMode === 'create') {
             if (title.trim() !== userNote.title || content.trim() !== userNote.content || note.nestedNotes.length > 0) {
                 createNote(note);
                 console.log("Created Note");
@@ -278,7 +293,7 @@ export default function NoteGUI(props) {
                 setIsNoteMenu(false);
             }
 
-            if (props.mode === 'create') {
+            if (initialMode === 'create') {
                 if (isEditMode && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
                     handleNote()
                 }
@@ -320,48 +335,28 @@ export default function NoteGUI(props) {
     }, []);
 
     return (
-        <Box component="form" className={styles.note} onSubmit={handleSubmit} ref={props.mode === 'create' ? noteCreateRef : noteEditRef}>
+        <Box component="form" className={isViewMode ? styles.centeredNote : styles.note} onSubmit={handleSubmit} ref={initialMode === 'create' ? noteCreateRef : noteEditRef} onClick={handleMode}>
             <div className={styles.infoContainer} ref={infoContainerRef}>
                 {(isEditMode || title.length > 0) && (
                     <div className={styles.titleContainer}>
-                        <TextField
-                            inputProps={{
-                                autoComplete: 'off',
-                                style: { fontSize: 20 }
-                            }}
-                            className={styles.titleTextField}
-                            placeholder={isNestedMode ? 'Nested - Title' : 'Title'}
-                            multiline={true}
-                            name='textField'
-                            value={isNestedMode ? nestedTitle : title}
-                            onFocus={isNestedMode ? null : () => setIsEditMode(true)}
-                            onChange={handleTitleChange}
-                            sx={{
-                                width: '100%',
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': { border: 'none' },
-                                    '&:hover fieldset': { border: 'none' },
-                                    '&.Mui-focused fieldset': { border: 'none' },
-                                },
-                            }}
-                        />
-                    </div>
-                )}
-                {
-                    (
-                        (props.mode === "create" || content.length > 0 || isEditMode) && (
-                            <div className={styles.contentContainer}>
+                        {
+                            (initialMode === 'read' && !isViewMode) ? (
+                                <div>
+                                    <p>{title}</p>
+                                </div>
+                            ) : (
                                 <TextField
                                     inputProps={{
                                         autoComplete: 'off',
-                                        style: { fontSize: 16 }
+                                        style: { fontSize: 20 }
                                     }}
-                                    className={styles.contentTextField}
-                                    placeholder={isNestedMode ? 'Nested - Take a note...' : 'Take a note...'}
+                                    className={styles.titleTextField}
+                                    placeholder={isNestedMode ? 'Nested - Title' : 'Title'}
                                     multiline={true}
-                                    value={isNestedMode ? nestedContent : content}
+                                    name='textField'
+                                    value={isNestedMode ? nestedTitle : title}
                                     onFocus={isNestedMode ? null : () => setIsEditMode(true)}
-                                    onChange={handleContentChange}
+                                    onChange={handleTitleChange}
                                     sx={{
                                         width: '100%',
                                         '& .MuiOutlinedInput-root': {
@@ -371,6 +366,43 @@ export default function NoteGUI(props) {
                                         },
                                     }}
                                 />
+                            )
+                        }
+                    </div>
+                )}
+
+                {
+                    (
+                        (initialMode === "create" || content.length > 0 || isEditMode) && (
+                            <div className={styles.contentContainer}>
+                                {
+                                    (initialMode === 'read' && !isViewMode) ? (
+                                        <div>
+                                            <p>{content}</p>
+                                        </div>
+                                    ) : (
+                                        <TextField
+                                            inputProps={{
+                                                autoComplete: 'off',
+                                                style: { fontSize: 16 }
+                                            }}
+                                            className={styles.contentTextField}
+                                            placeholder={isNestedMode ? 'Nested - Take a note...' : 'Take a note...'}
+                                            multiline={true}
+                                            value={isNestedMode ? nestedContent : content}
+                                            onFocus={isNestedMode ? null : () => setIsEditMode(true)}
+                                            onChange={handleContentChange}
+                                            sx={{
+                                                width: '100%',
+                                                '& .MuiOutlinedInput-root': {
+                                                    '& fieldset': { border: 'none' },
+                                                    '&:hover fieldset': { border: 'none' },
+                                                    '&.Mui-focused fieldset': { border: 'none' },
+                                                },
+                                            }}
+                                        />
+                                    )
+                                }
                             </div>
                         )
                     )
@@ -432,7 +464,6 @@ export default function NoteGUI(props) {
                                                 width: 'fit-content',
                                                 backgroundColor: '#fbfdfb',
                                                 zIndex: '100',
-
                                             }}
                                             ref={noteMenuRef}
                                         >
@@ -447,7 +478,7 @@ export default function NoteGUI(props) {
                                 }
                             </>
                             {
-                                props.mode === 'update' && (
+                                initialMode === 'update' && (
                                     <IconButton aria-label="Archive" onClick={() => toggleArchive(props.note.id)}>
                                         {
                                             isArchived ? (
