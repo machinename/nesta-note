@@ -7,7 +7,7 @@
   width: 100%;
   background-color: white;
   margin-bottom: 1rem;
-  overflow-y: hidden;
+
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
 }
@@ -17,9 +17,9 @@
 }
 
 .centeredNote {
-  position: fixed;
+  position: relative;
   max-height: 70%;
-  z-index: 900;
+  z-index: 800;
 }
 
 .note:hover,
@@ -27,18 +27,33 @@
   box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
-
-.noteModal  {
+.noteModal {
   width: 100%;
   display: flex;
-  justify-Content: center;
+  flex-direction: column;
+  /* justify-Content: center; */
+  align-items: center;
   padding-Top: 5rem;
   height: 100vh;
   min-Height: 600px;
   position: fixed;
   background-Color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 900;
+}
 
+.noteMenuButton {
+  position: relative;
+}
+
+.noteMenu {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  top: 3rem;
+  position: absolute;
+  left: 1rem;
+  z-index: 950;
+  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
 
@@ -60,22 +75,21 @@
 
 
 .infoContainerRead {
-  overflow-y: none;
+  overflow-y: hidden;
 }
 
 .infoContainer {
   overflow-y: auto;
 }
 
-
-.titleContainer
-.titleContainerScroll {
+.titleContainer .titleContainerScroll {
   display: flex;
   flex-direction: row;
   width: 100%;
 }
+
 .titleContainer div,
-.contentContainer div{
+.contentContainer div {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -85,7 +99,7 @@
 .contentContainer p {
   padding-left: 1rem;
   padding-right: 1rem;
-  word-wrap:break-word; 
+  word-wrap: break-word;
 }
 
 .titleContainerScroll {
@@ -122,15 +136,16 @@
 }
 
 .footerContainer {
+  position: relative;
   display: flex;
   flex-direction: row;
-  width: 100%;
+  /* width: 100%; */
   align-items: center;
   justify-content: space-between;
 
 }
 
-.nestedNotesContainer div,
+/* .nestedNotesContainer div,
 .footerContainer div {
   width: 100%;
-}
+} */
