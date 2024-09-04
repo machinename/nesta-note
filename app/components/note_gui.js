@@ -370,6 +370,7 @@ export default function NoteGUI(props) {
 
     const noteForm = () => {
         return (
+
             <Box component="form"
                 className={isViewMode ? styles.centeredNote : styles.note}
                 // style={{
@@ -541,38 +542,15 @@ export default function NoteGUI(props) {
                                 <IconButton aria-label="Add Reminder">
                                     <AlarmOutlined />
                                 </IconButton>
-                                <>
-                                    <IconButton
-                                        style={{
-                                            position: 'relative'
-                                        }}
-                                        ref={noteMenuRefButton}
-                                        onClick={() => setIsNoteMenu(!isNoteMenuOpen)}
-                                    >
-                                        <MoreVert />
-                                    </IconButton>
-                                    {
-                                        isNoteMenuOpen && (
-                                            <div
-                                                style={{
-                                                    position: 'absolute',
-                                                    marginLeft: '5rem',
-                                                    width: 'fit-content',
-                                                    backgroundColor: '#fbfdfb',
-                                                    zIndex: '100',
-                                                }}
-                                                ref={noteMenuRef}
-                                            >
-                                                <MenuItem>Add Label</MenuItem>
-                                                {
-                                                    isDeleteEnabled() && (
-                                                        <MenuItem onClick={handleDeleteNote}>Delete Note</MenuItem>
-                                                    )
-                                                }
-                                            </div>
-                                        )
-                                    }
-                                </>
+
+                                <IconButton
+                                    ref={noteMenuRefButton}
+                                    onClick={() => setIsNoteMenu(!isNoteMenuOpen)}
+                                    className={styles.noteMenuButton}
+                                >
+                                    <MoreVert />
+                                </IconButton>
+
                                 {
                                     initialMode !== 'create' && (
                                         <IconButton aria-label="Archive" onClick={() => toggleArchive(props.note.id)}>
@@ -619,6 +597,23 @@ export default function NoteGUI(props) {
                             <Button type="submit">
                                 Close
                             </Button>
+                            <>
+                                        {
+                                            isNoteMenuOpen && (
+                                                <div
+                                                    className={styles.noteMenu}
+                                                    ref={noteMenuRef}
+                                                >
+                                                    <MenuItem>Add Label</MenuItem>
+                                                    {
+                                                        isDeleteEnabled() && (
+                                                            <MenuItem onClick={handleDeleteNote}>Delete Note</MenuItem>
+                                                        )
+                                                    }
+                                                </div>
+                                            )
+                                        }
+                                </>
                         </div>
                     </div>
                 )}
