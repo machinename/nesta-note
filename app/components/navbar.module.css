@@ -8,18 +8,13 @@
   margin: 0;
   height: 4rem;
   width: 100%;
-  /* justify-content: space-between; */
   align-items: center;
   background-color: white;
   z-index: 100;
 }
 
-.navBar {
-  border: 0.5px solid lightgray;
-}
-
 .navBarScrolled {
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
 .navBarLeading,

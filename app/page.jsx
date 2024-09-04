@@ -15,9 +15,14 @@ export default function Home() {
     nestedNotes: []
   });
 
+  const [isViewMode, setIsViewMode] = useState(false);
+
+  const handleViewMode =()=> {
+    isViewMode(!isViewMode);
+  }
+
   return (
     <main className={styles.content}>
-
       <div style={{
         paddingTop: '6rem',
       }}/>
@@ -25,32 +30,33 @@ export default function Home() {
       {notes
         .filter(note => !note.isArchived)
         .map(note => (
-          <NoteGUI note={note} mode='read' key={note.id} />
+          <NoteGUI note={note} mode='read' key={note.id} onclick={handleViewMode} />
+ 
         ))
       }
-      <p>
+      <h1>
         Not A Final Version
-      </p>
+      </h1>
       <h2>
-        Coming Soon
+        Features Coming Soon
       </h2>
       <p>
         Account Management
       </p>
       <p>
-        Drawing
+        Drawing & Background Options
       </p>
       <p>
-        Layouts
+        Grid Layouts 
       </p>
       <p>
-        Reminder
+        Reminder Functionality
       </p>
       <p>
-        Settings
+        Settings Page
       </p>
       <p>
-        Help
+        Help & Feedback Page
       </p>
       <p>
         Search Functionality

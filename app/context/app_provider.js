@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo } from 'react';
+import React, { createContext, useState, useMemo, useCallback } from 'react';
 
 export const AppContext = createContext();
 
@@ -9,7 +9,7 @@ export const AppProvider = ({ children }) => {
 
   const [notes, setNotes] = useState([]);
 
-  const createNote = (newNote) => {
+  const createNote = useCallback((newNote) => {
     try {
       const noteWithId = {
         ...newNote,
@@ -19,9 +19,9 @@ export const AppProvider = ({ children }) => {
     } catch (error) {
       console.error('Error creating note:', error);
     }
-  };
+  }, []);
 
-  const updateNote = (id, updatedNote) => {
+  const updateNote = useCallback((id, updatedNote) => {
     try {
       const updatedNotes = notes.map(note => {
         if (note.id === id) {
@@ -34,9 +34,9 @@ export const AppProvider = ({ children }) => {
     } catch (error) {
       console.error('Error updating note:', error);
     }
-  };
+  }, [notes]);
 
-  const deleteNote = (id) => {
+  const deleteNote = useCallback((id) => {
     try {
       const updatedNotes = notes.filter(note => note.id !== id);
       setNotes(updatedNotes);
@@ -44,7 +44,7 @@ export const AppProvider = ({ children }) => {
     } catch (error) {
       console.error('Error deleting note:', error);
     }
-  };
+  }, [notes]);
 
   const contextValue = useMemo(() => ({
     infoContent,
@@ -58,7 +58,7 @@ export const AppProvider = ({ children }) => {
     setInfoGeneral,
     setInfoTitle,
     setNotes
-  }), [infoContent, infoGeneral, infoTitle, notes]);
+  }), [infoContent, infoGeneral, infoTitle, notes, createNote, updateNote, deleteNote]);
 
   return (
     <AppContext.Provider value={contextValue}>

@@ -1,33 +1,44 @@
+/* Base styles for .note and .centeredNote */
 .note,
 .centeredNote {
   display: flex;
   flex-direction: column;
   max-width: 600px;
   width: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   background-color: white;
   margin-bottom: 1rem;
   overflow-y: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
 }
+
 .note {
   max-height: 420px;
 }
 
-.noteModal  {
-    width: 100%;
-    display: flex;
-    justify-Content: center;
-    padding-Top: 5rem;
-    height: 100vh;
-    min-Height: 600px;
-    position: fixed;
-    background-Color: rgba(0, 0, 0, 0.5);
-    z-Index: 1000,
-}
-
 .centeredNote {
   position: fixed;
-  max-height: 80vh;
+  max-height: 70%;
+  z-index: 900;
+}
+
+.note:hover,
+.centeredNote:hover {
+  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
+}
+
+
+.noteModal  {
+  width: 100%;
+  display: flex;
+  justify-Content: center;
+  padding-Top: 5rem;
+  height: 100vh;
+  min-Height: 600px;
+  position: fixed;
+  background-Color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+
 }
 
 
@@ -107,7 +118,7 @@
 }
 
 .footerWrapperShadow {
-  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 8px rgba(0.1, 0.1, 0.1, 0.1);
 }
 
 .footerContainer {
@@ -116,6 +127,7 @@
   width: 100%;
   align-items: center;
   justify-content: space-between;
+
 }
 
 .nestedNotesContainer div,
