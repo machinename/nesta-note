@@ -22,25 +22,25 @@ export default function Archive() {
         Not A Final Version
       </h1>
       <h2>
-        Coming Soon
+        Features Coming Soon
       </h2>
       <p>
         Account Management
       </p>
       <p>
-        Drawing
+        Drawing & Background Options
       </p>
       <p>
-        Layouts
+        Grid Layouts 
       </p>
       <p>
-        Reminder
+        Reminder Functionality
       </p>
       <p>
-        Settings
+        Settings Page
       </p>
       <p>
-        Help
+        Help & Feedback Page
       </p>
       <p>
         Search Functionality

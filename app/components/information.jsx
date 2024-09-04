@@ -29,7 +29,7 @@ export function Information() {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [setInfoContent, setInfoGeneral, setInfoTitle]);
 
     return (
         <>
