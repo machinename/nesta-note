@@ -14,9 +14,10 @@ export default function NoteGUI(props) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isNestedEdit, setIsNestedEdit] = useState(false);
     const [isNestedMode, setIsNestedMode] = useState(false);
-    const [isNoteMenuOpen, setIsNoteMenu] = useState(false);
+    const [isNoteReminderMenuOpen, setIsNoteReminderMenu] = useState(false);
+    const [isNoteOptionsMenuOpen, setIsNoteOptionsMenu] = useState(false);
     const [isInfoScroll, setIsInfoScroll] = useState(false);
-
+    const [showCheckboxes, setShowCheckboxes] = useState(false);
     // State for managing content arrays
     const [contentArray, setContentArray] = useState([props.note.content]);
     const [nestedContentArray, setNestedContentArray] = useState(['']);
@@ -29,6 +30,7 @@ export default function NoteGUI(props) {
     // State for note properties
     const [isArchived, setIsArchived] = useState(props.note.isArchived);
     const [isPinned, setIsPinned] = useState(props.note.isPinned);
+    const [isTrash, setIsTrash] = useState(props.note.isTrash);
     const [title, setTitle] = useState(props.note.title);
     const [content, setContent] = useState(props.note.content);
     const [nestedNotes, setNestedNotes] = useState(props.note.nestedNotes);
@@ -41,9 +43,9 @@ export default function NoteGUI(props) {
     const nestedIndex = useRef(0);
     const noteCreateRef = useRef(null);
     const noteEditRef = useRef(null);
-    const noteModalRef = useRef(null);
-    const noteMenuRef = useRef(null);
-    const noteMenuRefButton = useRef(null);
+    const noteReminderMenuRef = useRef(null);
+    const noteOptionsMenuRef = useRef(null);
+    const noteOptionsMenuRefButton = useRef(null);
     const infoContainerRef = useRef(null);
 
     const toggleArchive = () => {
@@ -57,6 +59,37 @@ export default function NoteGUI(props) {
         ));
     };
 
+    const toggleEditModeTrue = () => {
+        if (isTrash) {
+            if(isViewMode){
+                setInfoGeneral('Cannot edit note in trash');
+            }
+        
+        } else{
+            setIsEditMode(true);
+        }
+    }
+
+    const toggleDelete = () => {
+        if (initialMode === 'create') {
+            handleResetNote();
+            setInfoGeneral('Note deleted');
+        } else {
+
+            if (isTrash) {
+                setInfoGeneral('Note restored from trash')
+            } else {
+                setInfoGeneral('Note moved to trash')
+            }
+
+            setNotes(notes.map(note =>
+                note.id === props.note.id ? { ...note, isTrash: !note.isTrash } : note
+            ));
+        }
+
+        setIsNoteOptionsMenu(false);
+    };
+
     const compareNestedNotesDifferent = (notes1, notes2) => {
         if (notes1.length !== notes2.length) return true;
         for (let i = 0; i < notes1.length; i++) {
@@ -68,6 +101,9 @@ export default function NoteGUI(props) {
     }
 
     const handleTitleChange = (event) => {
+        if(isTrash) {
+            return;
+        } 
         const newValue = event.target.value;
         if (newValue.length <= 1000) {
             if (newValue.length > 900) {
@@ -83,17 +119,10 @@ export default function NoteGUI(props) {
         }
     };
 
-    const handleDeleteNote = () => {
-        if (initialMode === 'create') {
-            setIsNoteMenu(false);
-            handleResetNote();
-        } else {
-            setIsNoteMenu(false);
-            deleteNote(props.note.id)
-        }
-    }
-
     const handleContentChange = (event) => {
+        if(isTrash) {
+            return;
+        } 
         const newValue = event.target.value;
 
         if (newValue.length <= 5000) {
@@ -109,6 +138,10 @@ export default function NoteGUI(props) {
                     [...nestedContentArray.slice(0, nestedIndex.current), newValue]
                 );
             } else {
+                if (showCheckboxes) {
+                    const newLines = newValue.split('\n').map(line => ({ text: line, checked: false }));
+                    setLines(newLines);
+                }
                 setContent(newValue);
                 index.current = index.current + 1;
                 setContentArray(
@@ -201,13 +234,49 @@ export default function NoteGUI(props) {
     }, [createNewNestedNote, hasNoteContentChanged, updateNestedNote, addNestedNote, resetNestedNoteForm, nestedNotes, nestedNote, isNestedEdit]);
 
     const handleMode = () => {
-        if (initialMode === 'read') {
+        if (isTrash) {
+            setIsViewMode(true);
+        } else if (initialMode === 'read') {
             setIsEditMode(true);
             setIsViewMode(true);
         }
     }
 
+    const handleUndo = () => {
+        if (isNestedMode) {
+            if (nestedIndex.current > 0) {
+                nestedIndex.current = nestedIndex.current - 1;
+                setNestedContent(nestedContentArray[nestedIndex.current]);
+            }
+        } else {
+            if (index.current > 0) {
+                index.current = index.current - 1;
+                setContent(contentArray[index.current]);
+            }
+        }
+    };
+
+    const handleRedo = () => {
+        if (isNestedMode) {
+            if (nestedIndex.current < nestedContentArray.length - 1) {
+                nestedIndex.current = nestedIndex.current + 1;
+                setNestedContent(nestedContentArray[nestedIndex.current]);
+            }
+        } else {
+            if (index.current < contentArray.length - 1) {
+                index.current = index.current + 1;
+                setContent(contentArray[index.current]);
+            }
+        }
+    };
+
     const handleNote = useCallback(() => {
+
+        if (isTrash) {
+            handleResetNote();
+            return;
+        }
+
         let newNestedNotes = nestedNotes;
 
         console.log(isNestedMode);
@@ -251,57 +320,28 @@ export default function NoteGUI(props) {
         handleResetNote();
     }, [nestedNotes, isNestedMode, title, content, isArchived, isPinned, initialMode, props.note, handleNestedNote, createNote, deleteNote, updateNote, handleResetNote]);
 
-    const handleUndo = () => {
-        if (isNestedMode) {
-            if (nestedIndex.current > 0) {
-                nestedIndex.current = nestedIndex.current - 1;
-                setNestedContent(nestedContentArray[nestedIndex.current]);
-            }
-        } else {
-            if (index.current > 0) {
-                index.current = index.current - 1;
-                setContent(contentArray[index.current]);
-            }
-        }
-    };
-
-    const handleRedo = () => {
-        if (isNestedMode) {
-            if (nestedIndex.current < nestedContentArray.length - 1) {
-                nestedIndex.current = nestedIndex.current + 1;
-                setNestedContent(nestedContentArray[nestedIndex.current]);
-            }
-        } else {
-            if (index.current < contentArray.length - 1) {
-                index.current = index.current + 1;
-                setContent(contentArray[index.current]);
-            }
-        }
-    };
-
     const handleSubmit = (event) => {
         event.preventDefault();
         handleNote();
     };
 
-    const isDeleteEnabled = () => {
-        return title.length > 0 || content.length > 0 || nestedTitle.length > 0 || nestedContent.length > 0 || nestedNotes.length > 0;
-    }
-
     const handleClickOutside = useCallback((event) => {
-        if (isNoteMenuOpen && noteMenuRef.current && !noteMenuRef.current.contains(event.target) &&
-            !noteMenuRefButton.current.contains(event.target)) {
-            setIsNoteMenu(false);
+        if (isNoteOptionsMenuOpen && noteOptionsMenuRef.current && !noteOptionsMenuRef.current.contains(event.target) &&
+            !noteOptionsMenuRefButton.current.contains(event.target)) {
+            setIsNoteOptionsMenu(false);
         }
 
-        if (isEditMode) {
+        if (isEditMode || isTrash) {
             if (initialMode === 'create' && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
                 handleNote();
             } else if (noteEditRef.current && !noteEditRef.current.contains(event.target)) {
                 handleNote();
             }
         }
-    }, [isNoteMenuOpen, isEditMode, initialMode, handleNote]);
+
+    }, [isNoteOptionsMenuOpen, isEditMode, initialMode, isViewMode, handleNote]);
+
+
 
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
@@ -335,29 +375,6 @@ export default function NoteGUI(props) {
         };
     }, [isViewMode]);
 
-    // useEffect(() => {
-    //     const handleScroll = () => {
-    //         if (infoContainerRef.current) {
-    //             const { scrollTop, scrollHeight, clientHeight } = infoContainerRef.current;
-    //             setShowShadow(scrollTop + clientHeight < scrollHeight);
-    //         }
-    //     };
-
-    //     const infoContainer = infoContainerRef.current;
-
-    //     if (infoContainer) {
-    //         infoContainer.addEventListener('scroll', handleScroll);
-    //         handleScroll();
-    //     }
-
-    //     return () => {
-    //         if (infoContainer) {
-    //             infoContainer.removeEventListener('scroll', handleScroll);
-    //         }
-    //     };
-    // }, [showShadow]);
-
-
     useEffect(() => {
         const previousOverflow = document.body.style.overflowY;
         document.body.style.overflowY = isViewMode ? 'hidden' : 'auto';
@@ -367,35 +384,61 @@ export default function NoteGUI(props) {
         };
     }, [isViewMode]);
 
-
     const noteForm = () => {
         return (
-
             <Box component="form"
                 className={isViewMode ? styles.centeredNote : styles.note}
-                // style={{
-                //     boxShadow: props.mode === 'create' ? '0 4px 8px rgba(0, 0, 0, 0.1)' : ''
-                // }}
+                style={{
+                    boxShadow: props.mode === 'create' ? '0 4px 8px rgba(0.4, 0.4, 0.4, 0.4)' : ''
+                }}
                 onSubmit={handleSubmit} ref={initialMode === 'create' ? noteCreateRef : noteEditRef} onClick={isViewMode ? null : handleMode}>
                 <div
                     className={(initialMode === 'read' && !isViewMode) ? styles.infoContainerRead : styles.infoContainer}
                     ref={infoContainerRef}
                 >
-                    {(isEditMode || title.length > 0) && (
-                        <div className={styles.titleContainer}>
+                    {(isEditMode || title.length > 0) &&
+                        (
+                            <div className={styles.titleContainer}>
+                                <TextField
+                                    inputProps={{
+                                        style: { fontSize: 20 },
+                                        readOnly: initialMode === 'read' && !isViewMode,
+                                        autoComplete: 'off',
+                                    }}
+                                    className={styles.contentTextField}
+                                    placeholder={isNestedMode ? 'Nested - Title...' : 'Title...'}
+                                    multiline={true}
+                                    value={isNestedMode ? nestedTitle : title}
+                                    onFocus={((initialMode === 'read' && !isViewMode) || isNestedMode) ? null : () => setIsEditMode(true)}
+                                    onChange={handleTitleChange}
+                                    onClick={initialMode === 'read' && !isViewMode && !isTrash ? () => setIsEditMode(true) : null}
+                                    sx={{
+                                        width: '100%',
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': { border: 'none' },
+                                            '&:hover fieldset': { border: 'none' },
+                                            '&.Mui-focused fieldset': { border: 'none' },
+                                        },
+                                    }}
+                                />
+
+                            </div>
+                        )}
+                    {((initialMode === "create" || content.length > 0 || isEditMode) && (
+                        <div className={styles.contentContainer}>
                             <TextField
                                 inputProps={{
-                                    style: { fontSize: 20 },
+                                    style: { fontSize: 16 },
                                     readOnly: initialMode === 'read' && !isViewMode,
                                     autoComplete: 'off',
                                 }}
                                 className={styles.contentTextField}
-                                placeholder={isNestedMode ? 'Nested - Title...' : 'Title...'}
+                                placeholder={isNestedMode ? 'Nested - Create a note...' : 'Create a note...'}
                                 multiline={true}
-                                value={isNestedMode ? nestedTitle : title}
-                                onFocus={((initialMode === 'read' && !isViewMode) || isNestedMode) ? null : () => setIsEditMode(true)}
-                                onChange={handleTitleChange}
-                                onClick={initialMode === 'read' && !isViewMode ? () => setIsEditMode(true) : null}
+                                value={isNestedMode ? nestedContent : content}
+                                onFocus={((initialMode === 'read' && !isViewMode) || isNestedMode) ? null : toggleEditModeTrue}
+                                onChange={handleContentChange}
+                                onClick={initialMode === 'read' && !isViewMode ? toggleEditModeTrue : null}
                                 sx={{
                                     width: '100%',
                                     '& .MuiOutlinedInput-root': {
@@ -405,105 +448,8 @@ export default function NoteGUI(props) {
                                     },
                                 }}
                             />
-                            {/* {
-                                (initialMode === 'read' && !isViewMode) ? (
-                                    <TextField
-                                        inputProps={{
-                                            style: { fontSize: 20 },
-                                            readOnly: true
-                                        }}
-                                        className={styles.titleTextField}
-                                        placeholder={'Title'}
-                                        multiline={true}
-                                        value={title}
-                                        onClick={() => setIsEditMode(true)}
-                                        sx={{
-                                            width: '100%',
-                                            '& .MuiOutlinedInput-root': {
-                                                '& fieldset': { border: 'none' },
-                                                '&:hover fieldset': { border: 'none' },
-                                                '&.Mui-focused fieldset': { border: 'none' },
-                                            },
-                                        }}
-                                    />
-                                ) : (
-                                    <TextField
-                                        inputProps={{
-                                            autoComplete: 'off',
-                                            style: { fontSize: 20 }
-                                        }}
-                                        className={styles.titleTextField}
-                                        placeholder={isNestedMode ? 'Nested - Title' : 'Title'}
-                                        multiline={true}
-                                        name='textField'
-                                        value={isNestedMode ? nestedTitle : title}
-                                        onFocus={isNestedMode ? null : () => setIsEditMode(true)}
-                                        onChange={handleTitleChange}
-                                        sx={{
-                                            width: '100%',
-                                            '& .MuiOutlinedInput-root': {
-                                                '& fieldset': { border: 'none' },
-                                                '&:hover fieldset': { border: 'none' },
-                                                '&.Mui-focused fieldset': { border: 'none' },
-                                            },
-                                        }}
-                                    />
-                                )
-                            } */}
                         </div>
-                    )}
-                    {
-                        (
-                            (initialMode === "create" || content.length > 0 || isEditMode) && (
-                                <div className={styles.contentContainer}>
-                                    {
-                                        (initialMode === 'read' && !isViewMode) ? (
-                                            <TextField
-                                                inputProps={{
-                                                    style: { fontSize: 16 },
-                                                    readOnly: true
-                                                }}
-                                                className={styles.contentTextField}
-                                                placeholder={'Take a note...'}
-                                                multiline={true}
-                                                value={content}
-                                                onClick={() => setIsEditMode(true)}
-                                                sx={{
-                                                    width: '100%',
-                                                    '& .MuiOutlinedInput-root': {
-                                                        '& fieldset': { border: 'none' },
-                                                        '&:hover fieldset': { border: 'none' },
-                                                        '&.Mui-focused fieldset': { border: 'none' },
-                                                    },
-                                                }}
-                                            />
-                                        ) : (
-                                            <TextField
-                                                inputProps={{
-                                                    autoComplete: 'off',
-                                                    style: { fontSize: 16 }
-                                                }}
-                                                className={styles.contentTextField}
-                                                placeholder={isNestedMode ? 'Nested - Take a note...' : 'Take a note...'}
-                                                multiline={true}
-                                                value={isNestedMode ? nestedContent : content}
-                                                onFocus={isNestedMode ? null : () => setIsEditMode(true)}
-                                                onChange={handleContentChange}
-                                                sx={{
-                                                    width: '100%',
-                                                    '& .MuiOutlinedInput-root': {
-                                                        '& fieldset': { border: 'none' },
-                                                        '&:hover fieldset': { border: 'none' },
-                                                        '&.Mui-focused fieldset': { border: 'none' },
-                                                    },
-                                                }}
-                                            />
-                                        )
-                                    }
-                                </div>
-                            )
-                        )
-                    }
+                    ))}
                 </div>
                 {
                     nestedNotes.length > 0 && !isNestedMode && (
@@ -528,29 +474,31 @@ export default function NoteGUI(props) {
                             <div>
                                 {
                                     isNestedMode ? (
-                                        <IconButton aria-label="Add Note" onClick={handleNestedNote} style={{
-                                        }}>
+                                        <IconButton
+                                            aria-label="Add Note"
+                                            onClick={() => handleNestedNote()}
+                                        >
                                             <ChevronLeft />
                                         </IconButton>
                                     ) : (
-                                        <IconButton aria-label="Set Nested Mode" onClick={() => { setIsNestedMode(true) }} style={{
-                                        }}>
+                                        <IconButton
+                                            aria-label="Set Nested Mode"
+                                            onClick={() => setIsNestedMode(true)}
+                                        >
                                             <NoteAddOutlined />
                                         </IconButton>
                                     )
                                 }
-                                <IconButton aria-label="Add Reminder">
+                                {/* <IconButton aria-label="Add Reminder">
                                     <AlarmOutlined />
-                                </IconButton>
-
+                                </IconButton> */}
                                 <IconButton
-                                    ref={noteMenuRefButton}
-                                    onClick={() => setIsNoteMenu(!isNoteMenuOpen)}
-                                    className={styles.noteMenuButton}
+                                    ref={noteOptionsMenuRefButton}
+                                    className={styles.noteOptionsMenuButton}
+                                    onClick={() => setIsNoteOptionsMenu(!isNoteOptionsMenuOpen)}
                                 >
                                     <MoreVert />
                                 </IconButton>
-
                                 {
                                     initialMode !== 'create' && (
                                         <IconButton aria-label="Archive" onClick={() => toggleArchive(props.note.id)}>
@@ -568,7 +516,6 @@ export default function NoteGUI(props) {
                             <IconButton aria-label="Background Color">
                                 <Brush />
                             </IconButton>
-          
                             <IconButton aria-label="Add Image">
                                 <ImageOutlined />
                             </IconButton> */}
@@ -598,22 +545,32 @@ export default function NoteGUI(props) {
                                 Close
                             </Button>
                             <>
-                                        {
-                                            isNoteMenuOpen && (
-                                                <div
-                                                    className={styles.noteMenu}
-                                                    ref={noteMenuRef}
-                                                >
-                                                    <MenuItem>Add Label</MenuItem>
-                                                    {
-                                                        isDeleteEnabled() && (
-                                                            <MenuItem onClick={handleDeleteNote}>Delete Note</MenuItem>
-                                                        )
-                                                    }
-                                                </div>
-                                            )
-                                        }
-                                </>
+                                {
+                                    isNoteReminderMenuOpen && (
+                                        <div
+                                            className={styles.noteReminderMenu}
+                                            ref={noteReminderMenuRef}
+                                        >
+                                            <MenuItem>Later Today</MenuItem>
+                                            <MenuItem>Tommorrow</MenuItem>
+                                            <MenuItem>Next Week</MenuItem>
+                                        </div>
+                                    )
+                                }
+                            </>
+
+                            <>
+                                {
+                                    isNoteOptionsMenuOpen && (
+                                        <div
+                                            className={styles.noteOptionsMenu}
+                                            ref={noteOptionsMenuRef}
+                                        >
+                                            <MenuItem onClick={toggleDelete}>Delete Note</MenuItem>
+                                        </div>
+                                    )
+                                }
+                            </>
                         </div>
                     </div>
                 )}
@@ -623,20 +580,147 @@ export default function NoteGUI(props) {
 
     return (
         <>
-            {
-                isViewMode ?
-                    (
-                        <div
-                            className={styles.noteModal}
-                        >
-                            {noteForm()}
-                        </div>
-
-                    ) :
-                    (
-                        noteForm()
-                    )
+            {isViewMode ? (
+                <div className={styles.noteModal}>
+                    {noteForm()}
+                </div>)
+                :
+                (noteForm())
             }
         </>
     );
 }
+
+{/* {
+    (initialMode === 'read' && !isViewMode) ? (
+        <TextField
+            inputProps={{
+                style: { fontSize: 20 },
+                readOnly: true
+            }}
+            className={styles.titleTextField}
+            placeholder={'Title'}
+            multiline={true}
+            value={title}
+            onClick={() => setIsEditMode(true)}
+            sx={{
+                width: '100%',
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': { border: 'none' },
+                    '&:hover fieldset': { border: 'none' },
+                    '&.Mui-focused fieldset': { border: 'none' },
+                },
+            }}
+        />
+    ) : (
+        <TextField
+            inputProps={{
+                autoComplete: 'off',
+                style: { fontSize: 20 }
+            }}
+            className={styles.titleTextField}
+            placeholder={isNestedMode ? 'Nested - Title' : 'Title'}
+            multiline={true}
+            name='textField'
+            value={isNestedMode ? nestedTitle : title}
+            onFocus={isNestedMode ? null : () => setIsEditMode(true)}
+            onChange={handleTitleChange}
+            sx={{
+                width: '100%',
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': { border: 'none' },
+                    '&:hover fieldset': { border: 'none' },
+                    '&.Mui-focused fieldset': { border: 'none' },
+                },
+            }}
+        />
+    )
+} */}
+
+{/* {
+    (initialMode === 'read' && !isViewMode) ? (
+        <TextField
+            inputProps={{
+                style: { fontSize: 16 },
+                readOnly: true
+            }}
+            className={styles.contentTextField}
+            placeholder={'Take a note...'}
+            multiline={true}
+            value={content}
+            onClick={() => setIsEditMode(true)}
+            sx={{
+                width: '100%',
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': { border: 'none' },
+                    '&:hover fieldset': { border: 'none' },
+                    '&.Mui-focused fieldset': { border: 'none' },
+                },
+            }}
+        />
+    ) : (
+        <TextField
+            inputProps={{
+                autoComplete: 'off',
+                style: { fontSize: 16 }
+            }}
+            className={styles.contentTextField}
+            placeholder={isNestedMode ? 'Nested - Take a note...' : 'Take a note...'}
+            multiline={true}
+            value={isNestedMode ? nestedContent : content}
+            onFocus={isNestedMode ? null : () => setIsEditMode(true)}
+            onChange={handleContentChange}
+            sx={{
+                width: '100%',
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': { border: 'none' },
+                    '&:hover fieldset': { border: 'none' },
+                    '&.Mui-focused fieldset': { border: 'none' },
+                },
+            }}
+        />
+    )
+} */}
+
+{/* {showCheckboxes ? (
+    <div>
+        {lines.map((line, index) => (
+            <div key={index}>
+                <Input
+                    type="checkbox"
+                    checked={line.checked}
+                    onChange={handleContentChange}
+                    // onChange={(e) => {
+                    //     const updatedLines = [...lines];
+                    //     updatedLines[index].checked = e.target.checked;
+                    //     setLines(updatedLines);
+                    // }}
+                />
+                {line.text}
+            </div>
+        ))}
+    </div>
+) : (
+    <TextField
+        inputProps={{
+            style: { fontSize: 16 },
+            readOnly: initialMode === 'read' && !isViewMode,
+            autoComplete: 'off',
+        }}
+        className={styles.contentTextField}
+        placeholder={isNestedMode ? 'Nested - Create a note...' : 'Create a note...'}
+        multiline={true}
+        value={isNestedMode ? nestedContent : content}
+        onFocus={((initialMode === 'read' && !isViewMode) || isNestedMode) ? null : () => setIsEditMode(true)}
+        onChange={handleContentChange}
+        onClick={initialMode === 'read' && !isViewMode ? () => setIsEditMode(true) : null}
+        sx={{
+            width: '100%',
+            '& .MuiOutlinedInput-root': {
+                '& fieldset': { border: 'none' },
+                '&:hover fieldset': { border: 'none' },
+                '&.Mui-focused fieldset': { border: 'none' },
+            },
+        }}
+    />
+)} */}

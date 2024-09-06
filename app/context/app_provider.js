@@ -1,3 +1,4 @@
+// context/AppContext.js
 import React, { createContext, useState, useMemo, useCallback } from 'react';
 
 export const AppContext = createContext();
@@ -6,8 +7,9 @@ export const AppProvider = ({ children }) => {
   const [infoContent, setInfoContent] = useState('');
   const [infoGeneral, setInfoGeneral] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
-
   const [notes, setNotes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredNotes, setFilteredNotes] = useState([]);
 
   const createNote = useCallback((newNote) => {
     try {
@@ -25,7 +27,6 @@ export const AppProvider = ({ children }) => {
     try {
       const updatedNotes = notes.map(note => {
         if (note.id === id) {
-          console.log('Note Updated:', updatedNote);
           return { ...note, ...updatedNote };
         }
         return note;
@@ -46,19 +47,38 @@ export const AppProvider = ({ children }) => {
     }
   }, [notes]);
 
+  const handleSearch = useCallback((term) => {
+    setSearchTerm(term);
+    if (term.trim() === '') {
+      setFilteredNotes([]);
+    } else {
+      const lowercasedTerm = term.toLowerCase();
+      setFilteredNotes(
+        notes.filter(note => 
+          note.title.toLowerCase().includes(lowercasedTerm) || 
+          note.content.toLowerCase().includes(lowercasedTerm)
+        )
+      );
+    }
+  }, [notes]);
+  
+
   const contextValue = useMemo(() => ({
     infoContent,
     infoGeneral,
     infoTitle,
     notes,
+    filteredNotes,
+    searchTerm,
     createNote,
     updateNote,
     deleteNote,
+    handleSearch,
     setInfoContent,
     setInfoGeneral,
     setInfoTitle,
     setNotes
-  }), [infoContent, infoGeneral, infoTitle, notes, createNote, updateNote, deleteNote]);
+  }), [infoContent, infoGeneral, infoTitle, notes, filteredNotes, searchTerm, createNote, updateNote, deleteNote, handleSearch]);
 
   return (
     <AppContext.Provider value={contextValue}>

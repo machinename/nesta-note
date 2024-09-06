@@ -3,11 +3,13 @@ import { AccountCircleOutlined, Close, GridViewOutlined, Menu, Refresh, Search }
 import { IconButton } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import styles from "./navbar.module.css";
 import CustomTooltip from './custom_tooltip';
+import { AppContext } from '../context/app_provider';
 
 export function Navbar() {
+  const { searchTerm, filteredNotes, handleSearch } = useContext(AppContext);
   const [isLinkMenuOpen, setIsLinkMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -17,6 +19,10 @@ export function Navbar() {
   const pathname = usePathname();
   const menuRef = useRef(null);
 
+  const handleCloseSearch = () => {
+    handleSearch('');
+    router.push('/', { scroll: false });
+  }
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -68,7 +74,7 @@ export function Navbar() {
         setOnSearchScreen(false);
         break;
       case '/search':
-        setLinkTitle('Note File');
+        setLinkTitle('Search');
         setOnSearchScreen(true);
         break;
       case '/trash':
@@ -109,29 +115,32 @@ export function Navbar() {
         </div>
         {/* Nav Input */}
 
-        {/* <div className={styles.searchInputContainer}>
+        <div className={styles.searchInputContainer}>
           <CustomTooltip title="Search">
           <IconButton>
             <Search />
           </IconButton>
           </CustomTooltip>
           <input
+            autoComplete="off"
             className={styles.searchInput}
             id='navbarInput'
             type="text"
             placeholder='Search'
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
             onClick={onSearchScreen ? null : () => router.push('/search', { scroll: false })}
           />
           {
             onSearchScreen ?
             <CustomTooltip title="Close Search">
-              <IconButton onClick={() => router.push('/', { scroll: false })}>
+              <IconButton onClick={handleCloseSearch}>
                 <Close />
               </IconButton>
               </CustomTooltip>
              : null
           }
-        </div> */}
+        </div>
 
         {/* Nav Trailing*/}
         <div
@@ -170,11 +179,12 @@ export function Navbar() {
         >
           <Link className={styles.navLink} href='/'>Notes</Link>
           <Link className={styles.navLink} href='/archive'>Archive</Link>
+          <Link className={styles.navLink} href='/trash'>Trash</Link>
            {/*  <Link className={styles.navLink} href='/reminders'>Reminders</Link>
           <div onClick={() => { }} className={styles.navLink}>Labels</div>
           <Link className={styles.navLink} href='/media'>Media</Link>
           <Link className={styles.navLink} href='/settings'>Settings</Link>
-          <Link className={styles.navLink} href='/trash'>Trash</Link>
+         
           <Link className={styles.navLink} href='/help'>Help</Link> */}
         </div>
       )}

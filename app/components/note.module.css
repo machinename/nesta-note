@@ -7,9 +7,8 @@
   width: 100%;
   background-color: white;
   margin-bottom: 1rem;
-
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
+  transition: box-shadow 0.5s ease;
 }
 
 .note {
@@ -24,28 +23,28 @@
 
 .note:hover,
 .centeredNote:hover {
-  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
+  box-shadow: 0 4px 8px rgba(0.3, 0.3, 0.3, 0.3);
 }
 
 .noteModal {
   width: 100%;
   display: flex;
   flex-direction: column;
-  /* justify-Content: center; */
   align-items: center;
-  padding-Top: 5rem;
+  padding-top: 5rem;
   height: 100vh;
-  min-Height: 600px;
+  min-height: 600px;
   position: fixed;
-  background-Color: rgba(0, 0, 0, 0.5);
   z-index: 900;
+  transition: background-color 1s ease;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
-.noteMenuButton {
+.noteOptionsMenuButton {
   position: relative;
 }
 
-.noteMenu {
+.noteOptionsMenu {
   background-color: white;
   display: flex;
   flex-direction: column;
