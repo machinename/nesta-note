@@ -8,6 +8,7 @@ export const AppProvider = ({ children }) => {
   const [infoGeneral, setInfoGeneral] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
   const [notes, setNotes] = useState([]);
+  const [isSearch, setIsSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredNotes, setFilteredNotes] = useState([]);
 
@@ -66,6 +67,7 @@ export const AppProvider = ({ children }) => {
   const contextValue = useMemo(() => ({
     infoContent,
     infoGeneral,
+    isSearch,
     infoTitle,
     notes,
     filteredNotes,
@@ -76,9 +78,10 @@ export const AppProvider = ({ children }) => {
     handleSearch,
     setInfoContent,
     setInfoGeneral,
+    setIsSearch,
     setInfoTitle,
     setNotes
-  }), [infoContent, infoGeneral, infoTitle, notes, filteredNotes, searchTerm, createNote, updateNote, deleteNote, handleSearch]);
+  }), [infoContent, infoGeneral, isSearch, infoTitle, notes, filteredNotes, searchTerm, createNote, updateNote, deleteNote, handleSearch]);
 
   return (
     <AppContext.Provider value={contextValue}>

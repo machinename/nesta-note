@@ -1,5 +1,6 @@
 'use client'
-import { AccountCircleOutlined, Close, GridViewOutlined, Menu, Refresh, Search } from '@mui/icons-material';
+
+import { AccountCircleOutlined, ArchiveOutlined, Close, DeleteOutline, GridViewOutlined, Menu, NotesOutlined, Refresh, Search } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link';
@@ -8,21 +9,39 @@ import styles from "./navbar.module.css";
 import CustomTooltip from './custom_tooltip';
 import { AppContext } from '../context/app_provider';
 
-export function Navbar() {
-  const { searchTerm, filteredNotes, handleSearch } = useContext(AppContext);
+export default function Navbar() {
+  const { searchTerm, handleSearch, isSearch, setIsSearch } = useContext(AppContext);
   const [isLinkMenuOpen, setIsLinkMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [linkTitle, setLinkTitle] = useState('');
-  const [onSearchScreen, setOnSearchScreen] = useState(false);
-  const router = useRouter()
   const pathname = usePathname();
   const menuRef = useRef(null);
+  const inputRef = useRef(null);
+  const archiveRef = useRef(null);
+  const homeRef = useRef(null);
+  const trashRef = useRef(null);
 
-  const handleCloseSearch = () => {
+
+  const handleSearchButton = () => {
+    setIsSearch(true);
+    inputRef.current.focus();
+  };
+
+  const handleCloseButton = () => {
+    setIsSearch(false);
     handleSearch('');
-    router.push('/', { scroll: false });
+    window.scrollTo({ top: 0 });
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  const handleLinkClick = (currentPath) => {
+    if(currentPath === pathname){
+      setIsSearch(false);
+      handleSearch('');
+    }
+  }
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -35,6 +54,7 @@ export function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,44 +72,39 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
+    setIsSearch(false);
     switch (pathname) {
       case '/':
         setLinkTitle('Nesta Note');
-        setOnSearchScreen(false);
+
         break;
       case '/reminders':
         setLinkTitle('Reminders');
-        setOnSearchScreen(false);
+
         break;
       case '/archive':
         setLinkTitle('Archive');
-        setOnSearchScreen(false);
+
         break;
       case '/media':
         setLinkTitle('Media');
-        setOnSearchScreen(false);
+    
         break;
       case '/settings':
         setLinkTitle('Settings');
-        setOnSearchScreen(false);
-        break;
-      case '/search':
-        setLinkTitle('Search');
-        setOnSearchScreen(true);
+
         break;
       case '/trash':
         setLinkTitle('Trash');
-        setOnSearchScreen(false);
+
         break;
       case '/help':
         setLinkTitle('Help');
-        setOnSearchScreen(false);
         break;
       default:
         setLinkTitle('');
-        setOnSearchScreen(false);
     }
-  }, [pathname]);
+  }, [pathname, setIsSearch]);
 
   const toggleLinkMenu = () => {
     setIsLinkMenuOpen(!isLinkMenuOpen);
@@ -116,11 +131,9 @@ export function Navbar() {
         {/* Nav Input */}
 
         <div className={styles.searchInputContainer}>
-          <CustomTooltip title="Search">
-          <IconButton>
+          <IconButton onClick={handleSearchButton}>
             <Search />
           </IconButton>
-          </CustomTooltip>
           <input
             autoComplete="off"
             className={styles.searchInput}
@@ -129,16 +142,15 @@ export function Navbar() {
             placeholder='Search'
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
-            onClick={onSearchScreen ? null : () => router.push('/search', { scroll: false })}
+            onFocus={() => setIsSearch(true)}
+            ref={inputRef}
           />
           {
-            onSearchScreen ?
-            <CustomTooltip title="Close Search">
-              <IconButton onClick={handleCloseSearch}>
+            isSearch && (
+              <IconButton onClick={handleCloseButton}>
                 <Close />
               </IconButton>
-              </CustomTooltip>
-             : null
+            )
           }
         </div>
 
@@ -173,21 +185,21 @@ export function Navbar() {
         </div>
       </nav>
       {isLinkMenuOpen && (
-        <div
-          className={styles.menuContainer}
-          ref={menuRef}
-        >
-          <Link className={styles.navLink} href='/'>Notes</Link>
-          <Link className={styles.navLink} href='/archive'>Archive</Link>
-          <Link className={styles.navLink} href='/trash'>Trash</Link>
-           {/*  <Link className={styles.navLink} href='/reminders'>Reminders</Link>
+      <div
+        className={styles.menuContainer}
+        ref={menuRef}
+      >
+        <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/' onClick={()=>handleLinkClick('/')}><NotesOutlined />Notes</Link>
+        <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive' onClick={()=>handleLinkClick('/archive')}><ArchiveOutlined />Archive</Link>
+        <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash' onClick={()=>handleLinkClick('/trash')}><DeleteOutline />Trash</Link>
+        {/*  <Link className={styles.navLink} href='/reminders'>Reminders</Link>
           <div onClick={() => { }} className={styles.navLink}>Labels</div>
           <Link className={styles.navLink} href='/media'>Media</Link>
           <Link className={styles.navLink} href='/settings'>Settings</Link>
          
           <Link className={styles.navLink} href='/help'>Help</Link> */}
-        </div>
-      )}
+      </div>
+   )} 
     </>
   );
 }

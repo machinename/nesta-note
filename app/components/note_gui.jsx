@@ -5,7 +5,7 @@ import { Box, Button, IconButton, TextField, MenuItem } from '@mui/material';
 import styles from "./note.module.css";
 import { useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../context/app_provider';
-import CustomTooltip from './custom_tooltip';
+import  CustomTooltip from './custom_tooltip';
 
 export default function NoteGUI(props) {
     // State for edit modes and UI elements
@@ -152,7 +152,7 @@ export default function NoteGUI(props) {
     };
 
     const handleResetNote = useCallback(() => {
-        if (initialMode === "create" || initialMode === "update") {
+        if (initialMode === "create") {
             setContent('');
             setTitle('');
             setInfoContent('');
@@ -318,7 +318,7 @@ export default function NoteGUI(props) {
         }
 
         handleResetNote();
-    }, [nestedNotes, isNestedMode, title, content, isArchived, isPinned, initialMode, props.note, handleNestedNote, createNote, deleteNote, updateNote, handleResetNote]);
+    }, [isTrash, nestedNotes, isNestedMode, title, content, isArchived, isPinned, props.note, initialMode, handleResetNote, handleNestedNote, createNote, deleteNote, updateNote]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -339,7 +339,7 @@ export default function NoteGUI(props) {
             }
         }
 
-    }, [isNoteOptionsMenuOpen, isEditMode, initialMode, isViewMode, handleNote]);
+    }, [isNoteOptionsMenuOpen, isEditMode, isTrash, initialMode, handleNote]);
 
 
 

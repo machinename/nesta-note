@@ -1,13 +1,13 @@
 'use client'
 
 import styles from "./page.module.css";
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AppContext } from "./context/app_provider";
 import NoteGUI from './components/note_gui';
 import ComingSoon from "./components/coming_soon";
 
 export default function Home() {
-  const { notes } = useContext(AppContext);
+  const { notes, filteredNotes, isSearch } = useContext(AppContext);
   const newNote = ({
     title: '',
     content: '',
@@ -22,14 +22,37 @@ export default function Home() {
       <div style={{
         paddingTop: '6rem',
       }} />
-      <NoteGUI note={newNote} mode='create' />
-      {notes
-        .filter(note => !note.isArchived && !note.isTrash)
-        .map(note => (
-          <NoteGUI note={note} mode='read' key={note.id}/>
-        ))
+      {
+        isSearch ? (
+          <>
+            {filteredNotes.filter(note => !note.isTrash).length === 0 ? (
+              <h1>Search</h1>
+            ) : (filteredNotes
+              .filter(note => !note.isTrash)
+              .map(note => (
+                <NoteGUI note={note} mode='read' key={note.id} />
+              ))
+            )}
+          </>
+        ) : (
+          <>
+            <NoteGUI note={newNote} mode='create' />
+            {
+              notes.filter(note => !note.isArchived).length === 0 ? (
+                <h1>Notes you add appear here</h1>
+              ) : (
+                notes
+                  .filter(note => !note.isArchived && !note.isTrash)
+                  .map(note => (
+                    <NoteGUI note={note} mode='read' key={note.id} />
+                  ))
+
+              )
+            }
+          </>
+        )
       }
-      <ComingSoon />
+      {/* <ComingSoon /> */}
     </main>
   );
 }
