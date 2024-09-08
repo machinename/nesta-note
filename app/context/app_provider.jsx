@@ -8,7 +8,6 @@ export const AppProvider = ({ children }) => {
   const [infoGeneral, setInfoGeneral] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
   const [notes, setNotes] = useState([]);
-  const [isSearch, setIsSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredNotes, setFilteredNotes] = useState([]);
 
@@ -62,12 +61,16 @@ export const AppProvider = ({ children }) => {
       );
     }
   }, [notes]);
+
+  const handleCloseSearch = useCallback(() => {
+    setSearchTerm('');
+    setFilteredNotes([]);
+  }, []);
   
 
   const contextValue = useMemo(() => ({
     infoContent,
     infoGeneral,
-    isSearch,
     infoTitle,
     notes,
     filteredNotes,
@@ -76,12 +79,12 @@ export const AppProvider = ({ children }) => {
     updateNote,
     deleteNote,
     handleSearch,
+    handleCloseSearch,
     setInfoContent,
     setInfoGeneral,
-    setIsSearch,
     setInfoTitle,
     setNotes
-  }), [infoContent, infoGeneral, isSearch, infoTitle, notes, filteredNotes, searchTerm, createNote, updateNote, deleteNote, handleSearch]);
+  }), [infoContent, infoGeneral, infoTitle, notes, filteredNotes, searchTerm, createNote, updateNote, deleteNote, handleSearch, handleCloseSearch]);
 
   return (
     <AppContext.Provider value={contextValue}>

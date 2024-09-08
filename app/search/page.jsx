@@ -1,12 +1,12 @@
 'use client'
 
 import styles from "../page.module.css";
-import MediaNotes from "../note_layouts/media_notes";
+import SearchNotes from "../note_layouts/seach_notes";
 
-export default function Media() {
+export default function Search() {
     return (
         <main className={styles.content}>
-            <MediaNotes />
+            <SearchNotes />
         </main>
     );
 }

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { AppContext } from '../context/app_provider';
-import NoteGUI from "../components/note_gui";
+import NoteGUI from "../components/note_gui/note_gui";
 
 export default function MediaNotes() {
     const { notes } = useContext(AppContext);
@@ -8,6 +8,7 @@ export default function MediaNotes() {
 
     return (
         <>
+            <div style={{ paddingTop: '6rem' }} />
             {mediaNotes.length === 0 ? (
                 <h3>Your media notes appear here</h3>
             ) : (

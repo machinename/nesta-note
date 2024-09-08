@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { AppContext } from '../context/app_provider';
-import NoteGUI from "../components/note_gui";
+import NoteGUI from "../components/note_gui/note_gui";
 
 export default function SearchNotes() {
     const { filteredNotes } = useContext(AppContext);
@@ -8,6 +8,7 @@ export default function SearchNotes() {
 
     return (
         <>
+            <div style={{ paddingTop: '6rem' }} />
             {searchNotes.length === 0 ? (
                 <h3>Search</h3>
             ) : (
