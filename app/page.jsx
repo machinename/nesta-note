@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { AppContext } from "./context/app_provider";
 import NoteGUI from './components/note_gui';
 import ComingSoon from "./components/coming_soon";
+import SearchNotes from "./note_layouts/seach_notes";
 
 export default function Home() {
   const { notes, filteredNotes, isSearch } = useContext(AppContext);
@@ -24,16 +25,17 @@ export default function Home() {
       }} />
       {
         isSearch ? (
-          <>
-            {filteredNotes.filter(note => !note.isTrash).length === 0 ? (
-              <h1>Search</h1>
-            ) : (filteredNotes
-              .filter(note => !note.isTrash)
-              .map(note => (
-                <NoteGUI note={note} mode='read' key={note.id} />
-              ))
-            )}
-          </>
+          // <>
+          //   {filteredNotes.filter(note => !note.isTrash).length === 0 ? (
+          //     <h1>Search</h1>
+          //   ) : (filteredNotes
+          //     .filter(note => !note.isTrash)
+          //     .map(note => (
+          //       <NoteGUI note={note} mode='read' key={note.id} />
+          //     ))
+          //   )}
+          // </>
+          <SearchNotes/>
         ) : (
           <>
             <NoteGUI note={newNote} mode='create' />

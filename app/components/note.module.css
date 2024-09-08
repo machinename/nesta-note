@@ -1,4 +1,3 @@
-/* Base styles for .note and .centeredNote */
 .note,
 .centeredNote {
   display: flex;
@@ -8,7 +7,7 @@
   background-color: white;
   margin-bottom: 1rem;
   box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
-  transition: box-shadow 0.5s ease;
+  transition: box-shadow 0.3s ease;
 }
 
 .note {
@@ -18,12 +17,12 @@
 .centeredNote {
   position: relative;
   max-height: 70%;
-  z-index: 800;
+  z-index: 700;
 }
 
 .note:hover,
 .centeredNote:hover {
-  box-shadow: 0 4px 8px rgba(0.3, 0.3, 0.3, 0.3);
+  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
 .noteModal {
@@ -39,22 +38,6 @@
   transition: background-color 1s ease;
   background-color: rgba(0, 0, 0, 0.5);
 }
-
-.noteOptionsMenuButton {
-  position: relative;
-}
-
-.noteOptionsMenu {
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  top: 3rem;
-  position: absolute;
-  left: 1rem;
-  z-index: 950;
-  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
-}
-
 
 @media screen and (max-width: 600px) {
   .note {
@@ -102,7 +85,7 @@
 }
 
 .titleContainerScroll {
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 2px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
 
@@ -131,20 +114,38 @@
 }
 
 .footerWrapperShadow {
-  box-shadow: 0 -4px 8px rgba(0.1, 0.1, 0.1, 0.1);
+  box-shadow: 0 -2px 2px rgba(0.1, 0.1, 0.1, 0.1);
 }
 
-.footerContainer {
+.footerContainer,
+.footerContainerRead {
   position: relative;
   display: flex;
   flex-direction: row;
-  /* width: 100%; */
   align-items: center;
   justify-content: space-between;
+}
+
+.footerContainerRead {
 
 }
 
-/* .nestedNotesContainer div,
-.footerContainer div {
-  width: 100%;
-} */
+.footerContainerRead:hover {
+
+}
+
+.noteOptionsMenuButton {
+  position: relative;
+}
+
+.noteOptionsMenu {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  top: 3rem;
+  position: absolute;
+  left: 1rem;
+  z-index: 1100;
+  outline: 0.5px solid lightgray;
+  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
+}

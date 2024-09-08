@@ -1,11 +1,12 @@
 'use client';
 
-import { AlarmOutlined, MoreVert, Archive, ArchiveOutlined, Bolt, Brush, ChevronLeft, ImageOutlined, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
+import { AlarmOutlined, MoreVert, Archive, ArchiveOutlined, Bolt, Brush, ChevronLeft, ImageOutlined, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined, DeleteForever, DeleteForeverOutlined, RestoreOutlined, RestoreFromTrashOutlined } from '@mui/icons-material';
 import { Box, Button, IconButton, TextField, MenuItem } from '@mui/material';
 import styles from "./note.module.css";
 import { useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../context/app_provider';
-import  CustomTooltip from './custom_tooltip';
+import CustomTooltip from './custom_tooltip';
+import Trash from '../trash/page';
 
 export default function NoteGUI(props) {
     // State for edit modes and UI elements
@@ -17,7 +18,7 @@ export default function NoteGUI(props) {
     const [isNoteReminderMenuOpen, setIsNoteReminderMenu] = useState(false);
     const [isNoteOptionsMenuOpen, setIsNoteOptionsMenu] = useState(false);
     const [isInfoScroll, setIsInfoScroll] = useState(false);
-    const [showCheckboxes, setShowCheckboxes] = useState(false);
+
     // State for managing content arrays
     const [contentArray, setContentArray] = useState([props.note.content]);
     const [nestedContentArray, setNestedContentArray] = useState(['']);
@@ -61,11 +62,11 @@ export default function NoteGUI(props) {
 
     const toggleEditModeTrue = () => {
         if (isTrash) {
-            if(isViewMode){
-                setInfoGeneral('Cannot edit note in trash');
-            }
-        
-        } else{
+            setInfoGeneral('Cannot edit note in trash');
+        } else if (props.mode === 'read') {
+            setIsEditMode(true);
+            setIsViewMode(true)
+        } else {
             setIsEditMode(true);
         }
     }
@@ -101,9 +102,9 @@ export default function NoteGUI(props) {
     }
 
     const handleTitleChange = (event) => {
-        if(isTrash) {
+        if (isTrash) {
             return;
-        } 
+        }
         const newValue = event.target.value;
         if (newValue.length <= 1000) {
             if (newValue.length > 900) {
@@ -120,9 +121,9 @@ export default function NoteGUI(props) {
     };
 
     const handleContentChange = (event) => {
-        if(isTrash) {
+        if (isTrash) {
             return;
-        } 
+        }
         const newValue = event.target.value;
 
         if (newValue.length <= 5000) {
@@ -138,10 +139,6 @@ export default function NoteGUI(props) {
                     [...nestedContentArray.slice(0, nestedIndex.current), newValue]
                 );
             } else {
-                if (showCheckboxes) {
-                    const newLines = newValue.split('\n').map(line => ({ text: line, checked: false }));
-                    setLines(newLines);
-                }
                 setContent(newValue);
                 index.current = index.current + 1;
                 setContentArray(
@@ -391,7 +388,7 @@ export default function NoteGUI(props) {
                 style={{
                     boxShadow: props.mode === 'create' ? '0 4px 8px rgba(0.4, 0.4, 0.4, 0.4)' : ''
                 }}
-                onSubmit={handleSubmit} ref={initialMode === 'create' ? noteCreateRef : noteEditRef} onClick={isViewMode ? null : handleMode}>
+                onSubmit={handleSubmit} ref={initialMode === 'create' ? noteCreateRef : noteEditRef}>
                 <div
                     className={(initialMode === 'read' && !isViewMode) ? styles.infoContainerRead : styles.infoContainer}
                     ref={infoContainerRef}
@@ -411,7 +408,7 @@ export default function NoteGUI(props) {
                                     value={isNestedMode ? nestedTitle : title}
                                     onFocus={((initialMode === 'read' && !isViewMode) || isNestedMode) ? null : () => setIsEditMode(true)}
                                     onChange={handleTitleChange}
-                                    onClick={initialMode === 'read' && !isViewMode && !isTrash ? () => setIsEditMode(true) : null}
+                                    onClick={initialMode === 'read' && !isViewMode ? toggleEditModeTrue : null}
                                     sx={{
                                         width: '100%',
                                         '& .MuiOutlinedInput-root': {
@@ -468,27 +465,54 @@ export default function NoteGUI(props) {
                         </div>
                     )
                 }
-                {isEditMode && (
+                {isTrash && (
                     <div className={isInfoScroll ? styles.footerWrapperShadow : styles.footerWrapper}>
                         <div className={styles.footerContainer}>
                             <div>
+                                <IconButton
+                                    aria-label="Delete forever"
+                                >
+                                    <DeleteForeverOutlined />
+                                </IconButton>
+                                <IconButton
+                                    aria-label="Restore from trash"
+                                >
+                                    <RestoreFromTrashOutlined />
+                                </IconButton>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {((isEditMode && !isTrash) || (props.mode === 'read' && !isTrash)) && (
+                    <div className={isInfoScroll ? styles.footerWrapperShadow : styles.footerWrapper}>
+                        <div className={styles.footerContainer}>
+                            <div>
+
                                 {
-                                    isNestedMode ? (
-                                        <IconButton
-                                            aria-label="Add Note"
-                                            onClick={() => handleNestedNote()}
-                                        >
-                                            <ChevronLeft />
-                                        </IconButton>
-                                    ) : (
-                                        <IconButton
-                                            aria-label="Set Nested Mode"
-                                            onClick={() => setIsNestedMode(true)}
-                                        >
-                                            <NoteAddOutlined />
-                                        </IconButton>
-                                    )
-                                }
+                                    isEditMode && (
+                                        <>
+                                            {
+                                                isNestedMode ? (
+                                                    <IconButton
+                                                        aria-label="Add Note"
+                                                        onClick={() => handleNestedNote()}
+                                                    >
+                                                        <ChevronLeft />
+                                                    </IconButton>
+                                                ) : (
+                                                    <IconButton
+                                                        aria-label="Set Nested Mode"
+                                                        onClick={() => setIsNestedMode(true)}
+                                                    >
+                                                        <NoteAddOutlined />
+                                                    </IconButton>
+                                                )
+                                            }
+                                        </>
+
+                                    )}
+
+
                                 {/* <IconButton aria-label="Add Reminder">
                                     <AlarmOutlined />
                                 </IconButton> */}
@@ -520,30 +544,41 @@ export default function NoteGUI(props) {
                                 <ImageOutlined />
                             </IconButton> */}
                                 {
-                                    isNestedMode ? (
+                                    isEditMode && (
                                         <>
-                                            <IconButton aria-label="Undo" onClick={handleUndo} disabled={nestedIndex.current === 0}>
-                                                <UndoOutlined />
-                                            </IconButton>
-                                            <IconButton aria-label="Redo" onClick={handleRedo} disabled={nestedIndex.current === nestedContentArray.length - 1}>
-                                                <RedoOutlined />
-                                            </IconButton>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IconButton aria-label="Undo" onClick={handleUndo} disabled={index.current === 0}>
-                                                <UndoOutlined />
-                                            </IconButton>
-                                            <IconButton aria-label="Redo" onClick={handleRedo} disabled={index.current === contentArray.length - 1}>
-                                                <RedoOutlined />
-                                            </IconButton>
+                                            {
+                                                isNestedMode ? (
+                                                    <>
+                                                        <IconButton aria-label="Undo" onClick={handleUndo} disabled={nestedIndex.current === 0}>
+                                                            <UndoOutlined />
+                                                        </IconButton>
+                                                        <IconButton aria-label="Redo" onClick={handleRedo} disabled={nestedIndex.current === nestedContentArray.length - 1}>
+                                                            <RedoOutlined />
+                                                        </IconButton>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <IconButton aria-label="Undo" onClick={handleUndo} disabled={index.current === 0}>
+                                                            <UndoOutlined />
+                                                        </IconButton>
+                                                        <IconButton aria-label="Redo" onClick={handleRedo} disabled={index.current === contentArray.length - 1}>
+                                                            <RedoOutlined />
+                                                        </IconButton>
+                                                    </>
+                                                )
+                                            }
                                         </>
                                     )
                                 }
                             </div>
-                            <Button type="submit">
-                                Close
-                            </Button>
+                            {
+                                isEditMode && (
+                                    <Button type="submit">
+                                        Close
+                                    </Button>
+                                )
+                            }
+
                             <>
                                 {
                                     isNoteReminderMenuOpen && (
@@ -558,7 +593,6 @@ export default function NoteGUI(props) {
                                     )
                                 }
                             </>
-
                             <>
                                 {
                                     isNoteOptionsMenuOpen && (

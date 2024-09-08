@@ -1,19 +1,20 @@
+import { useContext } from 'react';
+import { AppContext } from '../context/app_provider';
 import NoteGUI from "../components/note_gui";
 
 export default function ArchiveNotes() {
-  const { notes } = useContext(AppContext);
+    const { notes } = useContext(AppContext);
+    const archivedNotes = notes.filter(note => note.isArchived && !note.isTrash);
 
-  const archivedNotes = notes.filter(note => note.isArchived);
-
-  return (
-    <>
-      {archivedNotes.length === 0 ? (
-        <h2>Your archived notes appear here</h2>
-      ) : (
-        archivedNotes.map(note => (
-          <NoteGUI note={note} mode='read' key={note.id} />
-        ))
-      )}
-    </>
-  );
+    return (
+        <>
+            {archivedNotes.length === 0 ? (
+                <h3>Your archived notes appear here</h3>
+            ) : (
+                archivedNotes.map(note => (
+                    <NoteGUI note={note} mode='read' key={note.id} />
+                ))
+            )}
+        </>
+    );
 }
