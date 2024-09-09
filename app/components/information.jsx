@@ -4,7 +4,7 @@ import { AppContext } from '../context/app_provider';
 import styles from "./information.module.css";
 import { Close } from '@mui/icons-material';
 
-export function Information() {
+export default function Information() {
     const { infoContent, infoGeneral, infoTitle, setInfoContent, setInfoGeneral, setInfoTitle } = useContext(AppContext);
 
     const infoItems = [

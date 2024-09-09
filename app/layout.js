@@ -1,12 +1,35 @@
 'use client'
 
 import { Inter } from "next/font/google";
+import Head from 'next/head'; 
 import "./globals.css";
-import { Navbar } from "./components/navbar";
-import { Footer } from "./components/footer";
-import {Information} from "./components/information";
+import Navbar from "./components/navbar";
+import Footer from "./components/footer";
+import Information from "./components/information";
 import { AppProvider } from "./context/app_provider";
 const inter = Inter({ subsets: ["latin"] });
+
+
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body
+        className={inter.className}>
+        <Head>
+          <title>Nesta Note - By Machine Name</title>
+        </Head>
+        <AppProvider>
+          <Navbar />
+          {children}
+          <Information />
+          <Footer />
+        </AppProvider>
+      </body>
+    </html>
+  );
+}
+
 
 // export const metadata = {
 //   // metadataBase: new URL(baseUrl),
@@ -32,19 +55,3 @@ const inter = Inter({ subsets: ["latin"] });
 //     },
 //   },
 // };
-
-export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <body
-        className={inter.className}>
-        <AppProvider>
-          <Navbar />
-          {children}
-          <Information />
-          <Footer />
-        </AppProvider>
-      </body>
-    </html>
-  );
-}
