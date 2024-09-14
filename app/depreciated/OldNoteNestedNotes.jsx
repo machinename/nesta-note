@@ -1,21 +1,18 @@
 'use client';
 
-import CustomTooltip from "../custom_tooltip";
-import { NoteOutlined } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
-import styles from "./note.module.css"
+import styles from "./noteStyles.module.css"
 
-export default function NoteFormNestedNotes({
+export default function NoteNestedNotes({
     isNestedMode,
     nestedNotes,
     pushToNestedNote,
-    setIsEditMode,
+    toggleEditModeTrue
 }) {
     return (
         <>
             {
                 nestedNotes.length > 0 && !isNestedMode && (
-                    <div className={styles.nestedNotesWrapper} onClick={() => setIsEditMode(true)}>
+                    <div className={styles.nestedNotesWrapper} onClick={toggleEditModeTrue}>
                         <div className={styles.nestedNotesContainer}>
                             {nestedNotes.map((note, index) => (
                                 <CustomTooltip key={index} title={note.title.substring(0, 6)}>

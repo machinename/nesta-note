@@ -14,9 +14,9 @@ import {
     RestoreFromTrashOutlined
 } from '@mui/icons-material';
 import { Button, IconButton, MenuItem } from '@mui/material';
-import styles from "./note.module.css";
+import styles from "./noteStyles.module.css"
 
-export default function NoteFormFooter({
+export default function OldNoteFooter({
     contentArray,
     handleNestedNote,
     handleRedo,
@@ -44,7 +44,7 @@ export default function NoteFormFooter({
     return (
         <>
             {isTrash && (
-                <div className={isInfoScroll ? styles.footerWrapperShadow : styles.footerWrapper}>
+                <div className={styles.footerWrapper}>
                     <div className={styles.footerContainer}>
                         <div>
                             <IconButton aria-label="Delete forever">
@@ -59,7 +59,7 @@ export default function NoteFormFooter({
             )}
 
             {((isEditMode && !isTrash) || (mode === 'read' && !isTrash)) && (
-                <div className={isInfoScroll ? styles.footerWrapperShadow : styles.footerWrapper}>
+                <div className={styles.footerWrapper}>
                     <div className={styles.footerContainer}>
                         <div>
                             {isEditMode && (

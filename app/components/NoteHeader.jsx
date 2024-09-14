@@ -1,23 +1,23 @@
 'use client';
 
 import { TextField } from '@mui/material';
-import styles from "./note.module.css";
+import styles from "./noteStyles.module.css"
+import { useState } from 'react';
 
-export default function NoteFormContent({
-    content,
-    handleContentChange,
+export default function NoteHeader({
+    handleTitleChange,
     initialMode,
     isEditMode,
-    isNestedMode,
     isViewMode,
-    nestedContent,
+    setIsEditMode,
+    title,
     toggleEditModeTrue
 }) {
     const readOnlyMode = initialMode === 'read' && !isViewMode;
-    const placeholderText = isNestedMode ? 'Nested - Create a note...' : 'Create a note...';
+    const placeholderText = 'Title...';
 
     const handleFocus = () => {
-        if (!readOnlyMode && !isNestedMode) {
+        if (!readOnlyMode) {
             toggleEditModeTrue();
         }
     };
@@ -30,18 +30,18 @@ export default function NoteFormContent({
 
     return (
         <>
-            {((initialMode === "create" || content.length > 0 || isEditMode) && (
-                <div className={styles.contentContainer}>
+            {(isEditMode || title.length > 0) && (
+                <div className={styles.titleContainer}>
                     <TextField
                         inputProps={{
                             autoComplete: 'off',
                             readOnly: readOnlyMode,
-                            style: { fontSize: 16 },
+                            style: { fontSize: 20 },
                         }}
-                        className={styles.contentTextField}
+                        className={styles.textField}
                         multiline
-                        onChange={handleContentChange}
-                        onClick={handleClick}
+                        onChange={handleTitleChange}
+                        onClick={initialMode === 'create' ? null : handleClick}
                         onFocus={handleFocus}
                         placeholder={placeholderText}
                         sx={{
@@ -52,10 +52,10 @@ export default function NoteFormContent({
                                 '&.Mui-focused fieldset': { border: 'none' },
                             },
                         }}
-                        value={isNestedMode ? nestedContent : content}
+                        value={title}
                     />
                 </div>
-            ))}
+            )}
         </>
     );
 }

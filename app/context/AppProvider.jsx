@@ -1,21 +1,27 @@
-// context/AppContext.js
-import React, { createContext, useState, useMemo, useCallback } from 'react';
+import { Note, Project} from '../models';
+
+import React, { createContext, useState, useMemo, useCallback, useEffect } from 'react';
 
 export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  const [notes, setNotes] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredNotes, setFilteredNotes] = useState([]);
   const [infoContent, setInfoContent] = useState('');
   const [infoGeneral, setInfoGeneral] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
-  const [notes, setNotes] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredNotes, setFilteredNotes] = useState([]);
 
+  /**
+   * Creates a new note and adds it to the notes state.
+   * @param {Object} newNote - The new note object to be created, which should include note details.
+   */
   const createNote = useCallback((newNote) => {
     try {
       const noteWithId = {
         ...newNote,
-        id: Date.now(), // Temp solution for local usage.
+        id: Date.now(), // Temporary solution for local usage
       };
       setNotes(prevNotes => [...prevNotes, noteWithId]);
     } catch (error) {
@@ -23,6 +29,11 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
 
+  /**
+   * Updates an existing note based on its ID.
+   * @param {number} id - The ID of the note to be updated.
+   * @param {Object} updatedNote - The updated note data to be applied.
+   */
   const updateNote = useCallback((id, updatedNote) => {
     try {
       const updatedNotes = notes.map(note => {
@@ -37,6 +48,10 @@ export const AppProvider = ({ children }) => {
     }
   }, [notes]);
 
+  /**
+   * Deletes a note based on its ID.
+   * @param {number} id - The ID of the note to be deleted.
+   */
   const deleteNote = useCallback((id) => {
     try {
       const updatedNotes = notes.filter(note => note.id !== id);
@@ -47,6 +62,10 @@ export const AppProvider = ({ children }) => {
     }
   }, [notes]);
 
+  /**
+   * Filters notes based on the search term.
+   * @param {string} term - The term to search for within note titles and content.
+   */
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
     if (term.trim() === '') {
@@ -54,25 +73,27 @@ export const AppProvider = ({ children }) => {
     } else {
       const lowercasedTerm = term.toLowerCase();
       setFilteredNotes(
-        notes.filter(note => 
-          note.title.toLowerCase().includes(lowercasedTerm) || 
+        notes.filter(note =>
+          note.title.toLowerCase().includes(lowercasedTerm) ||
           note.content.toLowerCase().includes(lowercasedTerm)
         )
       );
     }
   }, [notes]);
 
+  // Clears the search term and filtered notes.
   const handleCloseSearch = useCallback(() => {
     setSearchTerm('');
     setFilteredNotes([]);
   }, []);
-  
 
+  // Memoized context value to avoid unnecessary re-renders.
   const contextValue = useMemo(() => ({
     infoContent,
     infoGeneral,
     infoTitle,
     notes,
+    projects,
     filteredNotes,
     searchTerm,
     createNote,
@@ -83,8 +104,12 @@ export const AppProvider = ({ children }) => {
     setInfoContent,
     setInfoGeneral,
     setInfoTitle,
-    setNotes
-  }), [infoContent, infoGeneral, infoTitle, notes, filteredNotes, searchTerm, createNote, updateNote, deleteNote, handleSearch, handleCloseSearch]);
+    setNotes,
+    setProjects
+  }), [
+    infoContent, infoGeneral, infoTitle, notes, projects, filteredNotes, searchTerm,
+    createNote, updateNote, deleteNote, handleSearch, handleCloseSearch
+  ]);
 
   return (
     <AppContext.Provider value={contextValue}>
