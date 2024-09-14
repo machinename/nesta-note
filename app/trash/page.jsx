@@ -1,12 +1,33 @@
 'use client'
 
+import { useContext } from 'react';
+import { AppContext } from '../context/AppProvider';
+import NoteGUI from "../components/NoteGUI";
 import styles from "../page.module.css";
-import TrashNotes from "../note_layouts/trash_notes";
 
 export default function Trash() {
+    const { notes } = useContext(AppContext);
+    const trashNotes = notes.filter(note => note.isTrash);
+
+    const trashBinItems = '';
+
     return (
-        <main className={styles.content}>
-            <TrashNotes />
-        </main>
+        <div className={styles.content}>
+            {trashNotes.length === 0 ? (
+                <>
+                    <h3>Empty Trash</h3>
+                </>
+            ) : (
+                trashNotes.map(note => (
+                    <>
+                        <div style={{
+                            height: '1rem'
+                        }} key={note.id} />
+                        <NoteGUI note={note} mode='read' key={note.id} />
+                    </>
+
+                ))
+            )}
+        </div >
     );
 }

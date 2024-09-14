@@ -1,25 +1,22 @@
 'use client';
 
 import { TextField } from '@mui/material';
-import styles from "./note.module.css"
+import styles from "./noteStyles.module.css"
 
-export default function NoteFormTitle({
-    handleTitleChange,
+export default function NoteBody({
+    content,
+    handleContentChange,
     initialMode,
     isEditMode,
-    isNestedMode,
     isViewMode,
-    nestedTitle,
-    setIsEditMode,
-    title,
     toggleEditModeTrue
 }) {
-    const placeholderText = isNestedMode ? 'Nested - Title...' : 'Title...';
     const readOnlyMode = initialMode === 'read' && !isViewMode;
+    const placeholderText = 'Create a note...';
 
     const handleFocus = () => {
-        if (!(readOnlyMode || isNestedMode)) {
-            setIsEditMode(true);
+        if (!readOnlyMode) {
+            toggleEditModeTrue();
         }
     };
 
@@ -31,17 +28,17 @@ export default function NoteFormTitle({
 
     return (
         <>
-            {(isEditMode || title.length > 0) && (
-                <div className={styles.titleContainer}>
+            {((initialMode === "create" || content.length > 0 || isEditMode) && (
+                <div className={styles.contentContainer}>
                     <TextField
                         inputProps={{
                             autoComplete: 'off',
                             readOnly: readOnlyMode,
-                            style: { fontSize: 20 },
+                            style: { fontSize: 16 },
                         }}
-                        className={styles.contentTextField}
+                        className={styles.textField}
                         multiline
-                        onChange={handleTitleChange}
+                        onChange={handleContentChange}
                         onClick={handleClick}
                         onFocus={handleFocus}
                         placeholder={placeholderText}
@@ -53,10 +50,10 @@ export default function NoteFormTitle({
                                 '&.Mui-focused fieldset': { border: 'none' },
                             },
                         }}
-                        value={isNestedMode ? nestedTitle : title}
+                        value={content}
                     />
                 </div>
-            )}
+            ))}
         </>
     );
 }

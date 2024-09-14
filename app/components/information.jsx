@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from 'react';
 import { IconButton } from '@mui/material';
-import { AppContext } from '../context/app_provider';
+import { AppContext } from '../context/AppProvider';
 import styles from "./information.module.css";
 import { Close } from '@mui/icons-material';
 

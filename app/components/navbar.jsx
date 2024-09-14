@@ -1,22 +1,19 @@
 'use client'
 
-import { AccountCircleOutlined, AlarmOutlined, ArchiveOutlined, Close, DeleteOutline, DeleteOutlined, GridViewOutlined, MediaBluetoothOffOutlined, Menu, NotesOutlined, Notifications, NotificationsOutlined, PermMediaOutlined, Refresh, RingVolume, Search, TaxiAlertOutlined } from '@mui/icons-material';
+import { AccountCircleOutlined, AccountTreeOutlined, AlarmOutlined, ArchiveOutlined, Close, DeleteOutline, DeleteOutlined, GridViewOutlined, MediaBluetoothOffOutlined, Menu, MenuOpen, NoteOutlined, NotesOutlined, Notifications, NotificationsOutlined, PermMediaOutlined, Refresh, RingVolume, Search, SettingsOutlined, TaxiAlertOutlined } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import styles from "./navbar.module.css";
-
-import CustomTooltip from './custom_tooltip';
-
-import { AppContext } from '../context/app_provider';
+import { AppContext } from '../context/AppProvider';
 
 export default function Navbar() {
   const { searchTerm, handleSearch, handleCloseSearch, isSearch, setIsSearch } = useContext(AppContext);
   const [isLinkMenuOpen, setIsLinkMenuOpen] = useState(false);
+  const [linkTitle, setLinkTitle] = useState('');
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [linkTitle, setLinkTitle] = useState('');
   const pathname = usePathname();
   const router = useRouter();
   const archiveRef = useRef(null);
@@ -24,16 +21,19 @@ export default function Navbar() {
   const inputRef = useRef(null);
   const mediaRef = useRef(null);
   const menuRef = useRef(null);
+  const projectRef = useRef(null);
   const trashRef = useRef(null);
 
-
+  const handleOnFocusSearch = () => {
+    router.push('/search');
+  }
   const handleSearchButton = () => {
     router.push('/search');
     inputRef.current.focus();
   };
 
   const handleCloseButton = () => {
-    router.push('/');
+    router.back();
     handleCloseSearch();
     window.scrollTo({ top: 0 });
     // window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -71,39 +71,43 @@ export default function Navbar() {
 
   useEffect(() => {
     handleCloseSearch();
-    switch (pathname) {
-      case '/':
-        setLinkTitle('Nesta Note');
-        break;
-      case '/reminders':
-        setLinkTitle('Reminders');
-        break;
-      case '/archive':
-        setLinkTitle('Archive');
-        break;
-      case '/media':
-        setLinkTitle('Media');
-        break;
-      case '/settings':
-        setLinkTitle('Settings');
-        break;
-      case '/trash':
-        setLinkTitle('Trash');
-        break;
-      case '/help':
-        setLinkTitle('Help');
-        break;
-      default:
-        setLinkTitle('');
+    if (pathname.includes('projects')) {
+      setLinkTitle('Projects');
+    } else {
+      switch (pathname) {
+        case ('/'):
+          setLinkTitle('Notes');
+          break;
+        case ('/search'):
+          setLinkTitle('Search');
+          break;
+        case '/reminders':
+          setLinkTitle('Reminders');
+          break;
+        case '/archive':
+          setLinkTitle('Archive');
+          break;
+        case '/settings':
+          setLinkTitle('Settings');
+          break;
+        case '/trash':
+          setLinkTitle('Trash');
+          break;
+        case '/help':
+          setLinkTitle('Help');
+          break;
+        default:
+          setLinkTitle('');
+      }
     }
   }, [handleCloseSearch, pathname, setIsSearch]);
 
   const toggleLinkMenu = () => {
-    setIsLinkMenuOpen(!isLinkMenuOpen);
-  };
+    setIsLinkMenuOpen(!setIsLinkMenuOpen);
+  }
 
   const toggleAccountMenu = () => {
-    setIsAccountMenuOpen(!isAccountMenuOpen);
+    setIsAccountMenuOpen(prevState => !prevState);
   };
 
   return (
@@ -113,68 +117,78 @@ export default function Navbar() {
         <div
           className={styles.navBarLeading}
         >
-          <IconButton onClick={toggleLinkMenu}>
-            {isLinkMenuOpen ? <Close /> : <Menu />}
-          </IconButton>
-          <div>
-            <p className={styles.linkTitleText}>{linkTitle}</p>
-          </div>
-        </div>
-        {/* Nav Input */}
 
-        <div className={styles.searchInputContainer}>
-          <IconButton onClick={handleSearchButton}>
-            <Search />
-          </IconButton>
-          <input
-            autoComplete="off"
-            className={styles.searchInput}
-            id='navbarInput'
-            type="text"
-            placeholder='Search'
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-            onFocus={() => router.push('/search')}
-            ref={inputRef}
-          />
           {
-            isSearch && (
-              <IconButton onClick={()=>handleCloseButton()}>
+            isLinkMenuOpen ?
+              <IconButton
+
+                onClick={() => setIsLinkMenuOpen(false)}
+              >
                 <Close />
               </IconButton>
-            )
+              :
+              <>
+                <IconButton
+
+                  onClick={() => setIsLinkMenuOpen(true)}>
+                  <MenuOpen />
+                </IconButton>
+              </>
           }
+
+
+          <div className={styles.navBarTitle}>
+            <h3 style={{
+              color: 'grey'
+            }}>{linkTitle}</h3>
+          </div>
+
+
+          {/* <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/'>
+            Notes
+          </Link>
+          <Link className={pathname === '/projects' ? styles.navLinkActive : styles.navLink} ref={projectRef} href='/projects'>
+            Projects
+          </Link> */}
+          {/* Nav Input */}
+          <div className={styles.searchInputContainer}>
+            <IconButton onClick={() => handleSearchButton()}
+            >
+              <Search />
+            </IconButton>
+            <input
+              autoComplete="off"
+              className={styles.searchInput}
+              id='navbarInput'
+              type="text"
+              placeholder='Search'
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              onFocus={() => handleOnFocusSearch()}
+              ref={inputRef}
+            />
+            {
+              pathname === '/search' && (
+                <IconButton onClick={() => handleCloseButton()}>
+                  <Close />
+                </IconButton>
+              )
+            }
+          </div>
         </div>
 
         {/* Nav Trailing*/}
         <div
           className={styles.navBarTrailing}>
-          <div>
-            {/* <CustomTooltip title="Grid View">
-            <IconButton >
-              <GridViewOutlined />
-            </IconButton>
-            </CustomTooltip>
-            <CustomTooltip title="Refresh">
-            <IconButton>
-              <Refresh />
-            </IconButton>
-            </CustomTooltip >
-            <CustomTooltip title="Account">
-            <IconButton>
-              <AccountCircleOutlined />
-            </IconButton>
-            </CustomTooltip> */}
-          </div>
-          {/* <div>
-            <p>
-              Note File
-            </p >
-            <IconButton>
-              <AccountCircleOutlined />
-            </IconButton>
-          </div> */}
+          <IconButton
+          >
+            <SettingsOutlined />
+          </IconButton>
+          <IconButton>
+            <AccountCircleOutlined />
+          </IconButton>
         </div>
+
       </nav>
       {isLinkMenuOpen && (
         <div
@@ -182,9 +196,9 @@ export default function Navbar() {
           ref={menuRef}
         >
           <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/'><NotesOutlined />Notes</Link>
-          <Link className={pathname === '/reminders' ? styles.navLinkActive : styles.navLink} ref={mediaRef} href='/reminders'><NotificationsOutlined />Reminders</Link>
+          <Link className={pathname === '/projects' ? styles.navLinkActive : styles.navLink} ref={projectRef} href='/projects'><AccountTreeOutlined />Projects</Link>
+          {/* <Link className={pathname === '/reminders' ? styles.navLinkActive : styles.navLink} ref={mediaRef} href='/reminders'><NotificationsOutlined />Reminders</Link> */}
           <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive'><ArchiveOutlined />Archive</Link>
-          <Link className={pathname === '/media' ? styles.navLinkActive : styles.navLink} ref={mediaRef} href='/media'><PermMediaOutlined />Media</Link>
           <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash'><DeleteOutlined />Trash</Link>
           {/*
           <div onClick={() => { }} className={styles.navLink}>Labels</div>
