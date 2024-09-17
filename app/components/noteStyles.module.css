@@ -10,7 +10,8 @@
     position: fixed;
     justify-content: center;
     transition: background-color 1s ease;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
+
     z-index: 1200;
     /* height: 100%; */
     top: 0;
@@ -31,6 +32,7 @@
 }
 
 .noteCreate {
+    max-height: 420px;
     box-shadow: 0 4px 8px rgba(0.4, 0.4, 0.4, 0.4);
 }
 
@@ -54,7 +56,6 @@
 }
 
 @media screen and (max-width: 600px) {
-
     .noteCreate,
     .noteRead,
     .noteEdit {
@@ -126,7 +127,11 @@
     justify-content: flex-start;
 }
 
-.nestedNotesWrapper,
+.nestedNotesWrapper {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
 .footerWrapper {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;

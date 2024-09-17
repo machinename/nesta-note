@@ -1,21 +1,21 @@
-import { Note, Project} from '../models';
+'use client'
 
-import React, { createContext, useState, useMemo, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
+import { Note } from '../models/note';
 
-export const AppContext = createContext();
+const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [notes, setNotes] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const [filteredNotes, setFilteredNotes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [infoContent, setInfoContent] = useState('');
   const [infoGeneral, setInfoGeneral] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
 
   /**
-   * Creates a new note and adds it to the notes state.
-   * @param {Object} newNote - The new note object to be created, which should include note details.
+   * // Creates a new note and adds it to the notes state.
+   * @param { Note } newNote - The new note object to be created, which should include note details.
    */
   const createNote = useCallback((newNote) => {
     try {
@@ -31,8 +31,8 @@ export const AppProvider = ({ children }) => {
 
   /**
    * Updates an existing note based on its ID.
-   * @param {number} id - The ID of the note to be updated.
-   * @param {Object} updatedNote - The updated note data to be applied.
+   * @param { number } id - The ID of the note to be updated.
+   * @param { Note } updatedNote - The updated note data to be applied.
    */
   const updateNote = useCallback((id, updatedNote) => {
     try {
@@ -50,7 +50,7 @@ export const AppProvider = ({ children }) => {
 
   /**
    * Deletes a note based on its ID.
-   * @param {number} id - The ID of the note to be deleted.
+   * @param { number } id - The ID of the note to be deleted.
    */
   const deleteNote = useCallback((id) => {
     try {
@@ -64,7 +64,7 @@ export const AppProvider = ({ children }) => {
 
   /**
    * Filters notes based on the search term.
-   * @param {string} term - The term to search for within note titles and content.
+   * @param { string } term - The term to search for within note titles and content.
    */
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
@@ -93,7 +93,6 @@ export const AppProvider = ({ children }) => {
     infoGeneral,
     infoTitle,
     notes,
-    projects,
     filteredNotes,
     searchTerm,
     createNote,
@@ -105,9 +104,8 @@ export const AppProvider = ({ children }) => {
     setInfoGeneral,
     setInfoTitle,
     setNotes,
-    setProjects
   }), [
-    infoContent, infoGeneral, infoTitle, notes, projects, filteredNotes, searchTerm,
+    infoContent, infoGeneral, infoTitle, notes, filteredNotes, searchTerm,
     createNote, updateNote, deleteNote, handleSearch, handleCloseSearch
   ]);
 
@@ -116,4 +114,12 @@ export const AppProvider = ({ children }) => {
       {children}
     </AppContext.Provider>
   );
+};
+
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useAppContext must be used within AppProvider.jsx');
+  }
+  return context;
 };

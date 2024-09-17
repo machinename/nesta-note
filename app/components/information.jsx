@@ -1,11 +1,13 @@
+'use client'
+
 import { useContext, useEffect, useRef } from 'react';
 import { IconButton } from '@mui/material';
-import { AppContext } from '../context/AppProvider';
 import styles from "./information.module.css";
 import { Close } from '@mui/icons-material';
+import { useAppContext } from '../providers/AppProvider';
 
 export default function Information() {
-    const { infoContent, infoGeneral, infoTitle, setInfoContent, setInfoGeneral, setInfoTitle } = useContext(AppContext);
+    const { infoContent, infoGeneral, infoTitle, setInfoContent, setInfoGeneral, setInfoTitle } = useAppContext();
 
     const infoItems = [
         { show: infoGeneral.length > 0, info: infoGeneral, type: 'general' },

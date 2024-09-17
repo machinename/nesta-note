@@ -3,11 +3,13 @@
     position: fixed;
     display: flex;
     flex-direction: row;
-    height: 4rem;
+    /* height: 4rem; */
     width: 100%;
     justify-content: space-between;
     align-items: center;
     /* background-color: white; */
+    /* padding-top: 0.5rem;
+    padding-bottom: 0.5rem; */
 }
 
 .footerLeading,

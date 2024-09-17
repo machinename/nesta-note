@@ -1,5 +1,5 @@
 {
-  "name": "note-file-web",
+  "name": "nesta-note-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.46.0",
+    "@types/node": "22.5.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "playwright": "^1.46.0"

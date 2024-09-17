@@ -1,5 +1,8 @@
 'use client';
 
+import { IconButton } from "@mui/material";
+import { NoteOutlined } from "@mui/icons-material";
+import CustomTooltip from "./CustomTooltip";
 import styles from "./noteStyles.module.css"
 
 export default function NoteNestedNotes({
@@ -8,6 +11,11 @@ export default function NoteNestedNotes({
     pushToNestedNote,
     toggleEditModeTrue
 }) {
+    const handlePushToNestedNote = (note) => {
+        pushToNestedNote(note);
+        toggleEditModeTrue();
+    };
+    
     return (
         <>
             {
@@ -16,8 +24,8 @@ export default function NoteNestedNotes({
                         <div className={styles.nestedNotesContainer}>
                             {nestedNotes.map((note, index) => (
                                 <CustomTooltip key={index} title={note.title.substring(0, 6)}>
-                                    <IconButton onClick={() =>
-                                        pushToNestedNote(note)
+                                    <IconButton onClick={
+                                       ()=> handlePushToNestedNote(note)
                                     }>
                                         <NoteOutlined />
                                     </IconButton>
@@ -31,5 +39,3 @@ export default function NoteNestedNotes({
         </>
     );
 }
-
-

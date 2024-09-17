@@ -1,12 +1,11 @@
 'use client'
 
-import { useContext } from "react";
 import styles from "../page.module.css";
-import { AppContext } from "../context/AppProvider";
 import NoteGUI from "../components/NoteGUI";
+import { useAppContext } from "../providers/AppProvider";
 
 export default function Archive() {
-    const { notes } = useContext(AppContext);
+    const { notes } = useAppContext();
     const archivedNotes = notes.filter(note => note.isArchived && !note.isTrash);
 
     return (

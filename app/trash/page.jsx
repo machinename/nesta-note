@@ -1,12 +1,11 @@
 'use client'
 
-import { useContext } from 'react';
-import { AppContext } from '../context/AppProvider';
 import NoteGUI from "../components/NoteGUI";
 import styles from "../page.module.css";
+import { useAppContext } from "../providers/AppProvider";
 
 export default function Trash() {
-    const { notes } = useContext(AppContext);
+    const { notes } = useAppContext();
     const trashNotes = notes.filter(note => note.isTrash);
 
     const trashBinItems = '';
@@ -25,7 +24,6 @@ export default function Trash() {
                         }} key={note.id} />
                         <NoteGUI note={note} mode='read' key={note.id} />
                     </>
-
                 ))
             )}
         </div >

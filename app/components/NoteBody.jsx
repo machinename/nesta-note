@@ -8,14 +8,16 @@ export default function NoteBody({
     handleContentChange,
     initialMode,
     isEditMode,
+    isNestedMode,
     isViewMode,
+    nestedContent,
     toggleEditModeTrue
 }) {
     const readOnlyMode = initialMode === 'read' && !isViewMode;
-    const placeholderText = 'Create a note...';
+    const placeholderText = isNestedMode ? 'Nested - Create a note...' : 'Create a note...';
 
     const handleFocus = () => {
-        if (!readOnlyMode) {
+        if (!readOnlyMode && !isNestedMode) {
             toggleEditModeTrue();
         }
     };
@@ -50,7 +52,7 @@ export default function NoteBody({
                                 '&.Mui-focused fieldset': { border: 'none' },
                             },
                         }}
-                        value={content}
+                        value={isNestedMode ? nestedContent : content}
                     />
                 </div>
             ))}

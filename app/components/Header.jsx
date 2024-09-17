@@ -4,12 +4,12 @@ import { AccountCircleOutlined, AccountTreeOutlined, AlarmOutlined, ArchiveOutli
 import { IconButton } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import styles from "./navbar.module.css";
-import { AppContext } from '../context/AppProvider';
+import React, { useEffect, useRef, useState } from 'react';
+import styles from "./header.module.css";
+import { useAppContext } from '../providers/AppProvider';
 
 export default function Navbar() {
-  const { searchTerm, handleSearch, handleCloseSearch, isSearch, setIsSearch } = useContext(AppContext);
+  const { searchTerm, handleSearch, handleCloseSearch, isSearch, setIsSearch } = useAppContext();
   const [isLinkMenuOpen, setIsLinkMenuOpen] = useState(false);
   const [linkTitle, setLinkTitle] = useState('');
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
@@ -71,9 +71,7 @@ export default function Navbar() {
 
   useEffect(() => {
     handleCloseSearch();
-    if (pathname.includes('projects')) {
-      setLinkTitle('Projects');
-    } else {
+    
       switch (pathname) {
         case ('/'):
           setLinkTitle('Notes');
@@ -99,7 +97,7 @@ export default function Navbar() {
         default:
           setLinkTitle('');
       }
-    }
+    
   }, [handleCloseSearch, pathname, setIsSearch]);
 
   const toggleLinkMenu = () => {
@@ -143,13 +141,6 @@ export default function Navbar() {
             }}>{linkTitle}</h3>
           </div>
 
-
-          {/* <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/'>
-            Notes
-          </Link>
-          <Link className={pathname === '/projects' ? styles.navLinkActive : styles.navLink} ref={projectRef} href='/projects'>
-            Projects
-          </Link> */}
           {/* Nav Input */}
           <div className={styles.searchInputContainer}>
             <IconButton onClick={() => handleSearchButton()}
@@ -196,7 +187,7 @@ export default function Navbar() {
           ref={menuRef}
         >
           <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/'><NotesOutlined />Notes</Link>
-          <Link className={pathname === '/projects' ? styles.navLinkActive : styles.navLink} ref={projectRef} href='/projects'><AccountTreeOutlined />Projects</Link>
+
           {/* <Link className={pathname === '/reminders' ? styles.navLinkActive : styles.navLink} ref={mediaRef} href='/reminders'><NotificationsOutlined />Reminders</Link> */}
           <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive'><ArchiveOutlined />Archive</Link>
           <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash'><DeleteOutlined />Trash</Link>

@@ -1,12 +1,13 @@
 'use client'
 
 import { useContext } from 'react';
-import { AppContext } from '../context/AppProvider';
 import NoteGUI from "../components/NoteGUI";
 import styles from "../page.module.css";
+import { useAppContext } from '../providers/AppProvider';
 
 export default function Search() {
-    const { filteredNotes } = useContext(AppContext);
+
+    const { filteredNotes } = useAppContext();
     const searchNotes = filteredNotes.filter(note => !note.isTrash);
 
     return (

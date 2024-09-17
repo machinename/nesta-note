@@ -1,14 +1,23 @@
 export default function ComingSoon() {
     return (
-        <>
-            <h1>
-                ----- Not A Final Version -----
-            </h1>
+        <div style={{
+            textAlign: 'center'
+        }}>
             <h2>
-                Features Coming Soon
+                Notes you add appear here
             </h2>
+            <p>--------------------</p>
+            <h3>
+                Features Coming Soon
+            </h3>
             <p>
                 Account Management
+            </p>
+            <p>
+                Application Settings
+            </p>
+            <p>
+                Offline Mode
             </p>
             <p>
                 Drawing & Background Options
@@ -20,11 +29,8 @@ export default function ComingSoon() {
                 Reminder Functionality
             </p>
             <p>
-                Settings Page
-            </p>
-            <p>
                 Help & Feedback Page
             </p>
-        </>
+        </div>
     );
 }

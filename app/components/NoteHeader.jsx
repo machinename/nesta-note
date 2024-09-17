@@ -2,23 +2,24 @@
 
 import { TextField } from '@mui/material';
 import styles from "./noteStyles.module.css"
-import { useState } from 'react';
 
 export default function NoteHeader({
     handleTitleChange,
     initialMode,
     isEditMode,
+    isNestedMode,
     isViewMode,
+    nestedTitle,
     setIsEditMode,
     title,
     toggleEditModeTrue
 }) {
+    const placeholderText = isNestedMode ? 'Nested - Title...' : 'Title...';
     const readOnlyMode = initialMode === 'read' && !isViewMode;
-    const placeholderText = 'Title...';
 
     const handleFocus = () => {
-        if (!readOnlyMode) {
-            toggleEditModeTrue();
+        if (!(readOnlyMode || isNestedMode)) {
+            setIsEditMode(true);
         }
     };
 
@@ -41,7 +42,7 @@ export default function NoteHeader({
                         className={styles.textField}
                         multiline
                         onChange={handleTitleChange}
-                        onClick={initialMode === 'create' ? null : handleClick}
+                        onClick={handleClick}
                         onFocus={handleFocus}
                         placeholder={placeholderText}
                         sx={{
@@ -52,7 +53,7 @@ export default function NoteHeader({
                                 '&.Mui-focused fieldset': { border: 'none' },
                             },
                         }}
-                        value={title}
+                        value={isNestedMode ? nestedTitle : title}
                     />
                 </div>
             )}

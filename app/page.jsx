@@ -2,36 +2,47 @@
 
 import { useContext } from "react";
 import styles from "./page.module.css";
-import { AppContext } from "./context/AppProvider";
 import NoteGUI from "./components/NoteGUI";
+import ComingSoon from "./components/ComingSoon";
+import { Note } from "./models/note";
+import { useAppContext } from "./providers/AppProvider";
+
 
 export default function Home() {
-  const { notes } = useContext(AppContext);
+  
+  const { notes } = useAppContext();
   const activeNotes = notes.filter(note => !note.isArchived && !note.isTrash);
 
-  const newNote = ({
-    title: '',
-    content: '',
-    isPinned: false,
-    isArchived: false,
-    isTrash: false,
-    isMedia: false,
-  });
+  // Creating a new Note instance with empty strings for id, title, and content,
+  // and setting the default values for other optional parameters.
+  const newNote = new Note(
+    "",             // id
+    "",             // title
+    "",             // content
+    false,          // isArchived (default)
+    false,          // isPinned (default)
+    false,          // isTrash (default)
+    null,           // reminder (default)
+    [],             // images (default)
+    []              // nestedNotes (default)
+  );
+
 
   return (
     <div className={styles.content}>
-      <NoteGUI note={newNote} mode={'create'} />
+      {/* id, title, content, isArchived = false, isPinned = false, isTrash = false, reminder = undefined, images = [], nestedNotes = [] */}
+      <NoteGUI mode={'create'} note={newNote} />
       {activeNotes.length === 0 ? (
-        <h3>Notes you add appear here</h3>
+        <ComingSoon/>
       ) : (
         activeNotes.map(note => (
           <>
             <div style={{
-              height:'1rem'
-            }} key={note.id}/>
-            <NoteGUI note={note} mode={'read'} key={note.id} />
+              height: '1rem'
+            }} key={note.id} />
+            <NoteGUI key={note.id} mode={'read'} note={note} />
           </>
-         
+
         ))
       )}
     </div>
