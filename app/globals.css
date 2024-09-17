@@ -38,3 +38,23 @@ h3 {
     color-scheme: dark;
   }
 }
+
+footer {
+  bottom: 0;
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: start;
+  align-items: center;
+}
+
+
+footer div {
+  padding-left: 0.5rem;
+}
+
+footer p {
+  font-weight: 300;
+  font-size: 14px;
+}

@@ -1,11 +1,7 @@
-import { Inter } from "next/font/google";
-import Navbar from "./components/Header";
-import Footer from "./components/Footer";
+import Header from "./components/Header";
 import Information from "./components/Information";
 import ProviderWrapper from "./providers/ProviderWrapper";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   metadataBase: new URL("https://www.nestanote.com"),
@@ -35,14 +31,19 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      {/* <body className={inter.className}> */}
       <body>
         <ProviderWrapper>
-          <Navbar />
+          <Header />
           {children}
           <Information />
-          <Footer />
         </ ProviderWrapper>
+        <footer>
+          <div>
+            <p>
+              © 2024 Machine Name LLC. All Rights Reserved.
+            </p>
+          </div>
+        </footer>
       </body>
     </html>
   );

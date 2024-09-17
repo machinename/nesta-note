@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from "./header.module.css";
 import { useAppContext } from '../providers/AppProvider';
 
-export default function Navbar() {
+export default function Header() {
   const { searchTerm, handleSearch, handleCloseSearch, isSearch, setIsSearch } = useAppContext();
   const [isLinkMenuOpen, setIsLinkMenuOpen] = useState(false);
   const [linkTitle, setLinkTitle] = useState('');
