@@ -1,6 +1,6 @@
 'use client'
 
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { IconButton } from '@mui/material';
 import styles from "./information.module.css";
 import { Close } from '@mui/icons-material';

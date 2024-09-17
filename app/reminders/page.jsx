@@ -1,6 +1,5 @@
 'use client'
 
-import { useContext } from "react";
 import styles from "../page.module.css";
 import { useAppContext } from "../context/AppProvider";
 import NoteGUI from "../components/NoteGUI";
