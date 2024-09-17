@@ -184,11 +184,11 @@ export default function Header() {
           className={styles.menuContainer}
           ref={menuRef}
         >
-          <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/' rel="noreferrer"><NotesOutlined />Notes</Link>
+          <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/'><NotesOutlined />Notes</Link>
 
           {/* <Link className={pathname === '/reminders' ? styles.navLinkActive : styles.navLink} ref={mediaRef} href='/reminders'><NotificationsOutlined />Reminders</Link> */}
-          <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive' rel="noreferrer"><ArchiveOutlined />Archive</Link>
-          <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash' rel="noreferrer"><DeleteOutlined />Trash</Link>
+          <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive'><ArchiveOutlined />Archive</Link>
+          <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash'><DeleteOutlined />Trash</Link>
           {/*
           <div onClick={() => { }} className={styles.navLink}>Labels</div>
           <Link className={styles.navLink} href='/settings'>Settings</Link>
