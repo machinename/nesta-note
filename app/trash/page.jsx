@@ -13,17 +13,10 @@ export default function Trash() {
     return (
         <div className={styles.content}>
             {trashNotes.length === 0 ? (
-                <>
-                    <h3>Empty Trash</h3>
-                </>
+                <h3>Empty Trash</h3>
             ) : (
                 trashNotes.map(note => (
-                    <>
-                        <div style={{
-                            height: '1rem'
-                        }} key={note.id} />
-                        <NoteGUI note={note} mode='read' key={note.id} />
-                    </>
+                    <NoteGUI note={note} mode='read' key={note.id} />
                 ))
             )}
         </div >

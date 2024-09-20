@@ -7,10 +7,10 @@ import { Close } from '@mui/icons-material';
 import { useAppContext } from '../providers/AppProvider';
 
 export default function Information() {
-    const { infoContent, infoGeneral, infoTitle, setInfoContent, setInfoGeneral, setInfoTitle } = useAppContext();
+    const { infoContent, info, infoTitle, setInfoContent, setInfo, setInfoTitle } = useAppContext();
 
     const infoItems = [
-        { show: infoGeneral.length > 0, info: infoGeneral, type: 'general' },
+        { show: info.length > 0, info: info, type: 'general' },
         { show: infoTitle.length > 0, info: infoTitle, type: 'title' },
         { show: infoContent.length > 0, info: infoContent, type: 'content' }
     ];
@@ -21,7 +21,7 @@ export default function Information() {
         const handleClickOutside = (event) => {
             if (informationRef.current && !informationRef.current.contains(event.target)) {
                 setInfoContent('');
-                setInfoGeneral('');
+                setInfo('');
                 setInfoTitle('');
             }
         };
@@ -31,11 +31,11 @@ export default function Information() {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [setInfoContent, setInfoGeneral, setInfoTitle]);
+    }, [setInfoContent, setInfo, setInfoTitle]);
 
     return (
         <>
-            {(infoContent.length > 0 || infoGeneral.length > 0 || infoTitle.length > 0) && (
+            {(infoContent.length > 0 || info.length > 0 || infoTitle.length > 0) && (
                 <div className={styles.container} ref={informationRef}>
                     {infoItems.map((item, index) =>
                         item.show && (
@@ -43,7 +43,7 @@ export default function Information() {
                                 <p>{item.info}</p>
                                 {
                                     item.type === "general" && (
-                                        <IconButton onClick={() => setInfoGeneral('')}>
+                                        <IconButton onClick={() => setInfo('')}>
                                             <Close style={{
                                                 color: 'white'
                                             }} color='white'/>

@@ -1,14 +1,17 @@
 import { AppProvider } from './AppProvider';
+import { AuthProvider } from './AuthProvider';
 import { ThemeProvider } from './ThemeProvider';
 
 
 const ProviderWrapper = ({ children }) => {
     return (
-        <ThemeProvider>
-            <AppProvider>
-                {children}
-            </AppProvider>
-        </ThemeProvider>
+        <AuthProvider>
+            <ThemeProvider>
+                <AppProvider>
+                    {children}
+                </AppProvider>
+            </ThemeProvider>
+        </AuthProvider>
     );
 };
 

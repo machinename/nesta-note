@@ -1,50 +1,167 @@
-'use client'
+'use client';
 
-import { useContext } from "react";
-import styles from "./page.module.css";
-import NoteGUI from "./components/NoteGUI";
-import ComingSoon from "./components/ComingSoon";
-import { Note } from "./models/note";
-import { useAppContext } from "./providers/AppProvider";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { Box, TextField, Typography, Button } from '@mui/material';
+import loginStyles from './login.module.css';
+import { useRouter } from 'next/navigation'
+import { useAuthContext } from './providers/AuthProvider';
 
+export default function Page() {
 
-export default function Home() {
-  
-  const { notes } = useAppContext();
-  const activeNotes = notes.filter(note => !note.isArchived && !note.isTrash);
+  const { user, loading, error, createAccount, login, logOut } = useAuthContext();
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
 
-  // Creating a new Note instance with empty strings for id, title, and content,
-  // and setting the default values for other optional parameters.
-  const newNote = new Note(
-    "",             // id
-    "",             // title
-    "",             // content
-    false,          // isArchived (default)
-    false,          // isPinned (default)
-    false,          // isTrash (default)
-    null,           // reminder (default)
-    [],             // images (default)
-    []              // nestedNotes (default)
-  );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
+    setErrors({
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+
+    let hasErrors = false;
+    const newErrors = {};
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+      hasErrors = true;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Email format is invalid';
+      hasErrors = true;
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+      hasErrors = true;
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      hasErrors = true;
+    }
+
+    if (!isLogin) {
+      if (!confirmPassword) {
+        newErrors.confirmPassword = 'Please confirm your password';
+        hasErrors = true;
+      } else if (password !== confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      if (isLogin) {
+        await login(email, password);
+        router.push('/notes');
+      } else {
+        await createAccount(email, password);
+        router.push('/notes');
+      }
+    } catch (error) {
+      setErrors({ ...newErrors, api: error.message });
+    }
+  };
+
+  const handleSwitch = () => {
+    setIsLogin((prev) => !prev);
+    if (!isLogin) {
+      setConfirmPassword('');
+    }
+    setErrors({
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+  };
 
   return (
-    <div className={styles.content}>
-      {/* id, title, content, isArchived = false, isPinned = false, isTrash = false, reminder = undefined, images = [], nestedNotes = [] */}
-      <NoteGUI mode={'create'} note={newNote} />
-      {activeNotes.length === 0 ? (
-        <ComingSoon/>
-      ) : (
-        activeNotes.map(note => (
-          <>
-            <div style={{
-              height: '1rem'
-            }} key={note.id} />
-            <NoteGUI key={note.id} mode={'read'} note={note} />
-          </>
-
-        ))
-      )}
+    <div className={loginStyles.content}>
+      <h1>Nesta Note</h1>
+      <div className={loginStyles.container}>
+        <Box component="form" className={loginStyles.form} onSubmit={handleSubmit}>
+          <h2>{isLogin ? 'Login' : 'Create account'}</h2>
+          <TextField
+            id="email"
+            label="Email"
+            variant="outlined"
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={!!errors.email}
+            helperText={errors.email}
+          />
+          <TextField
+            id="password"
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={!!errors.password}
+            helperText={errors.password}
+          />
+          {!isLogin && (
+            <>
+              <TextField
+                id="confirm-password"
+                label="Confirm Password"
+                type="password"
+                variant="outlined"
+                fullWidth
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword}
+              />
+              <Typography variant="caption">
+                By clicking Sign Up, you agree to our <Link href="/terms" target="_blank">Terms of Service</Link>, <Link href="/terms" target="_blank">Privacy Policy</Link> and <Link href="/terms" target="_blank">Cookies Policy</Link>. You may receive notifications from us via email and can opt out any time.
+              </Typography>
+              {/* <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={agreedToTerms}
+                                        margin="dense"
+                                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                    />
+                                }
+                                label={
+                                    <Typography variant="body2">
+                                        By clicking "Sign Up", you agree to our <a href="/terms" target="_blank">terms and conditions</a>.
+                                    </Typography>
+                                }
+                            />
+                            {errors.terms && (
+                                <Typography variant="caption" color="error">{errors.terms}</Typography>
+                            )} */}
+            </>
+          )}
+          <Button className={loginStyles.loginButton} type="submit" variant="contained" margin="normal">
+            {isLogin ? 'Login' : 'Create account'}
+          </Button>
+          <Button className={loginStyles.switchButton} onClick={handleSwitch}>
+            {isLogin ? 'Create new account' : 'Already have an account?'}
+          </Button>
+          <Button className={loginStyles.switchButton} onClick={() => router.push('/notes')}>
+            Continue without account
+          </Button>
+        </Box>
+      </div>
     </div>
   );
 }

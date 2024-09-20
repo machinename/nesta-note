@@ -1,27 +1,38 @@
 'use client'
 
-import { AccountCircleOutlined, AccountTreeOutlined, AlarmOutlined, ArchiveOutlined, Close, DeleteOutline, DeleteOutlined, GridViewOutlined, MediaBluetoothOffOutlined, Menu, MenuOpen, NoteOutlined, NotesOutlined, Notifications, NotificationsOutlined, PermMediaOutlined, Refresh, RingVolume, Search, SettingsOutlined, TaxiAlertOutlined } from '@mui/icons-material';
+import {
+  AccountBoxOutlined, AlarmOutlined, ArchiveOutlined,
+  CircleOutlined, Close, DeleteOutlined, GridViewOutlined,
+  LoginOutlined, LogoutOutlined, MenuOpen, NotesOutlined,
+  NotificationsOutlined, Refresh, Search, SettingsOutlined
+} from '@mui/icons-material';
+
 import { IconButton } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from "./header.module.css";
 import { useAppContext } from '../providers/AppProvider';
+import { useAuthContext } from '../providers/AuthProvider';
 
 export default function Header() {
+  const { user, logOut } = useAuthContext();
   const { searchTerm, handleSearch, handleCloseSearch, isSearch, setIsSearch } = useAppContext();
-  const [isLinkMenuOpen, setIsLinkMenuOpen] = useState(false);
-  const [linkTitle, setLinkTitle] = useState('');
+  const [title, setTitle] = useState('');
+  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  const accountMenuRef = useRef(null);
   const archiveRef = useRef(null);
   const homeRef = useRef(null);
   const inputRef = useRef(null);
-  const mediaRef = useRef(null);
-  const menuRef = useRef(null);
-  const projectRef = useRef(null);
+  const imageRef = useRef(null);
+  const loginRef = useRef(null);
+  const logOutRef = useRef(null);
+  const navMenuRef = useRef(null);
   const trashRef = useRef(null);
 
   const handleOnFocusSearch = () => {
@@ -32,6 +43,15 @@ export default function Header() {
     inputRef.current.focus();
   };
 
+  const handleLogOut = async () => {
+    try {
+      await logOut();
+      setIsAccountMenuOpen(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const handleCloseButton = () => {
     router.back();
     handleCloseSearch();
@@ -39,11 +59,14 @@ export default function Header() {
     // window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsLinkMenuOpen(false);
+      if (navMenuRef.current && !navMenuRef.current.contains(event.target)) {
+        setIsNavMenuOpen(false);
+      }
+      // if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+      if (accountMenuRef.current && (!accountMenuRef.current.contains(event.target))) {
+        setIsAccountMenuOpen(false);
       }
     };
 
@@ -71,42 +94,42 @@ export default function Header() {
 
   useEffect(() => {
     handleCloseSearch();
-    
-      switch (pathname) {
-        case ('/'):
-          setLinkTitle('Notes');
-          break;
-        case ('/search'):
-          setLinkTitle('Search');
-          break;
-        // case '/reminders':
-        //   setLinkTitle('Reminders');
-        //   break;
-        case '/archive':
-          setLinkTitle('Archive');
-          break;
-        // case '/settings':
-        //   setLinkTitle('Settings');
-        //   break;
-        case '/trash':
-          setLinkTitle('Trash');
-          break;
-        // case '/help':
-        //   setLinkTitle('Help');
-        //   break;
-        default:
-          setLinkTitle('');
-      }
-    
-  }, [handleCloseSearch, pathname, setIsSearch]);
+    switch (pathname) {
+      case ('/notes'):
+        setTitle('Nesta Notes');
+        break;
+      case ('/account'):
+        setTitle('Account');
+        break;
+      case ('/login'):
+        setTitle('Nesta Notes');
+        break;
+      case ('/search'):
+        setTitle('Search');
+        break;
+      // case '/reminders':
+      //   setTitle('Reminders');
+      //   break;
+      case '/archive':
+        setTitle('Archive');
+        break;
+      // case '/settings':
+      //   setTitle('Settings');
+      //   break;
+      case '/trash':
+        setTitle('Trash');
+        break;
+      // case '/help':
+      //   setTitle('Help');
+      //   break;
+      default:
+        setTitle('');
+    }
+  }, [handleCloseSearch, pathname]);
 
-  const toggleLinkMenu = () => {
-    setIsLinkMenuOpen(!setIsLinkMenuOpen);
+  if (pathname === '/') {
+    return null;
   }
-
-  const toggleAccountMenu = () => {
-    setIsAccountMenuOpen(prevState => !prevState);
-  };
 
   return (
     <>
@@ -115,34 +138,23 @@ export default function Header() {
         <div
           className={styles.navBarLeading}
         >
-
           {
-            isLinkMenuOpen ?
-              <IconButton
-                onClick={() => setIsLinkMenuOpen(false)}
-              >
-                <Close />
-              </IconButton>
+            isNavMenuOpen ?
+              <IconButton onClick={() => setIsNavMenuOpen(false)}><Close /></IconButton>
               :
               <>
                 <IconButton
-                  onClick={() => setIsLinkMenuOpen(true)}>
+                  onClick={() => setIsNavMenuOpen(true)}>
                   <MenuOpen />
                 </IconButton>
               </>
           }
-
-
           <div className={styles.navBarTitle}>
-            <h3 style={{
-              color: 'grey'
-            }}>{linkTitle}</h3>
+            <p>{title}</p>
           </div>
-
           {/* Nav Input */}
           <div className={styles.searchInputContainer}>
-            <IconButton onClick={() => handleSearchButton()}
-            >
+            <IconButton onClick={() => handleSearchButton()}>
               <Search />
             </IconButton>
             <input
@@ -165,26 +177,24 @@ export default function Header() {
             }
           </div>
         </div>
-
         {/* Nav Trailing*/}
         <div
           className={styles.navBarTrailing}>
-          <IconButton
-          >
+          <IconButton>
             <SettingsOutlined />
           </IconButton>
-          <IconButton>
-            <AccountCircleOutlined />
+          <IconButton onClick={() => setIsAccountMenuOpen(prevState => !prevState)}>
+            <CircleOutlined />
           </IconButton>
         </div>
 
       </nav>
-      {isLinkMenuOpen && (
+      {isNavMenuOpen && (
         <div
-          className={styles.menuContainer}
-          ref={menuRef}
+          className={styles.navMenu}
+          ref={navMenuRef}
         >
-          <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/'><NotesOutlined />Notes</Link>
+          <Link className={pathname === '/notes' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/notes'><NotesOutlined />Notes</Link>
 
           {/* <Link className={pathname === '/reminders' ? styles.navLinkActive : styles.navLink} ref={mediaRef} href='/reminders'><NotificationsOutlined />Reminders</Link> */}
           <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive'><ArchiveOutlined />Archive</Link>
@@ -193,6 +203,31 @@ export default function Header() {
           <div onClick={() => { }} className={styles.navLink}>Labels</div>
           <Link className={styles.navLink} href='/settings'>Settings</Link>
           <Link className={styles.navLink} href='/help'>Help</Link> */}
+        </div>
+      )}
+      {isAccountMenuOpen && (
+        <div
+          className={styles.accountMenu}
+          ref={accountMenuRef}
+        >
+          {user ?
+            <Link className={styles.navLink} ref={archiveRef} onClick={() => setIsAccountMenuOpen(false)} href='/account'><AccountBoxOutlined />Account</Link>
+            :
+            null
+          }
+          {
+            user
+              ?
+              <Link className={styles.navLink} ref={logOutRef} onClick={handleLogOut} href='/'>
+                <LogoutOutlined />
+                Log Out
+              </Link>
+              :
+              <Link className={styles.navLink} ref={loginRef} href='/'>
+                <LoginOutlined />
+                Login
+              </Link>
+          }
         </div>
       )}
     </>

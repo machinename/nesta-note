@@ -10,11 +10,13 @@ import NoteHeader from './NoteHeader';
 import NoteFooter from './NoteFooter';
 import NoteNestedNotes from './NoteNestedNotes';
 import styles from "./noteStyles.module.css"
+import { useAuthContext } from '../providers/AuthProvider';
 
 export default function NoteGUI(props) {
 
-    // Context for application-wide state and actions
-    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes, setIsModalOpen, setInfoGeneral, notes } = useAppContext();
+
+    const { user } = useAuthContext();
+    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes, setIsModalOpen, setInfo, notes } = useAppContext();
 
     // State for edit modes and UI elements
     const initialMode = props.mode;
@@ -43,8 +45,6 @@ export default function NoteGUI(props) {
     const [content, setContent] = useState(props.note.content);
     const [nestedNotes, setNestedNotes] = useState(props.note.nestedNotes);
 
-
-
     // Refs for DOM elements and indexes
     const index = useRef(0);
     const nestedIndex = useRef(0);
@@ -72,24 +72,31 @@ export default function NoteGUI(props) {
         } else if (props.mode === 'read') {
             setIsEditMode(true);
             setIsViewMode(true);
+            
         } else {
             setIsEditMode(true);
         }
+        console.log(props.note);
     }
 
     const toggleDelete = () => {
         if (initialMode === 'create') {
             handleResetNote();
-            setInfoGeneral('Note deleted');
+            setInfo('Note deleted');
         } else {
             if (isTrash) {
-                setInfoGeneral('Note restored from trash')
+                setInfo('Note restored from trash');
             } else {
-                setInfoGeneral('Note moved to trash')
+                setInfo('Note moved to trash');
             }
-            setNotes(notes.map(note =>
+            const updatedNotes = notes.map(note =>
                 note.id === props.note.id ? { ...note, isTrash: !note.isTrash } : note
-            ));
+            );
+            setNotes(updatedNotes);
+            const updatedNote = updatedNotes.find(note => note.id === props.note.id);
+            if(user){
+                updateNote(props.note.id, { isTrash: updatedNote.isTrash });
+            }
         }
         setIsNoteOptionsMenu(false);
     };
@@ -195,9 +202,9 @@ export default function NoteGUI(props) {
         return updatedNestedNotes;
     }, [nestedNotes, nestedNote]);
 
-    const addNestedNote = useCallback((newNote) => {
-        newNote.id = Date.now();
-        return [...nestedNotes, newNote];
+    const addNestedNote = useCallback((newNestedNote) => {
+        newNestedNote.createdAt = Date.now();
+        return [...nestedNotes, newNestedNote];
     }, [nestedNotes]);
 
     const resetNestedNoteForm = useCallback(() => {
@@ -243,9 +250,13 @@ export default function NoteGUI(props) {
         }
     };
 
-    const handleDeleteNote = () => {
-        deleteNote(props.note.id);
-        console.log("Deleted Note");
+    const handleDeleteNote = async () =>  {
+        try {
+             await deleteNote(props.note.id);
+             setInfo('Note deleted')
+        } catch (error){
+            console.log(error);
+        }
     }
 
     const handleRedo = () => {
@@ -265,13 +276,14 @@ export default function NoteGUI(props) {
     const handleNote = useCallback(() => {
 
         if (isTrash) {
-            handleResetNote();
+            // handleResetNote();
             return;
         }
 
         let newNestedNotes = nestedNotes;
 
-        console.log(isNestedMode);
+        console.log("Is Nested Mode? " + isNestedMode);
+
         if (isNestedMode) {
             newNestedNotes = handleNestedNote();
         }
@@ -289,12 +301,19 @@ export default function NoteGUI(props) {
         if (initialMode === 'create') {
             if (note.title !== prevNote.title || note.content !== prevNote.content || note.nestedNotes.length > 0) {
                 createNote(note);
-                console.log("Created Note");
             } else {
                 console.log("No Note Created");
             }
         } else {
             let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, prevNote.nestedNotes);
+            console.log("note.title.trim() - " + note.title.trim());
+            console.log("note.content.trim() - " + note.content.trim());
+            console.log("note.nestedNotes.length - " + note.nestedNotes.length);
+
+            if (note.title.trim().length === 0 && note.content.trim().length === 0 && note.nestedNotes.length === 0) {
+                deleteNote(props.note.id);
+                console.log("Deleted Note");
+            }
 
             if (note.title.trim().length === 0 && note.content.trim().length === 0 && note.nestedNotes.length === 0) {
                 deleteNote(props.note.id);

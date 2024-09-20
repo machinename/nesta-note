@@ -6,6 +6,10 @@
     width: 100%;
 }
 
+.container {
+    margin-bottom: 1rem;
+}
+
 .containerModal {
     position: fixed;
     justify-content: center;
@@ -55,11 +59,12 @@
     box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 720px) {
+
     .noteCreate,
     .noteRead,
     .noteEdit {
-        max-width: 380px;
+        width: 380px;
     }
 }
 

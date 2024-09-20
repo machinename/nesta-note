@@ -16,12 +16,7 @@ export default function Search() {
                 <h3>Search</h3>
             ) : (
                 searchNotes.map(note => (
-                    <>
-                        <div style={{
-                            height: '1rem'
-                        }} key={note.id} />
                         <NoteGUI note={note} mode='read' key={note.id} />
-                    </>
                 ))
             )}
         </div>

@@ -1,5 +1,6 @@
 export class Note {
-    constructor(id, title, content, isArchived = false, isPinned = false, isTrash = false, reminder = null, images = [], nestedNotes = []) {
+    constructor(createdAt, id, title, content, isArchived = false, isPinned = false, isTrash = false, reminder = null, images = [], nestedNotes = []) {
+        this.createdAt = createdAt;
         this.id = id;
         this.title = title;
         this.content = content;
@@ -13,8 +14,9 @@ export class Note {
 
     static fromJSON(jsonString) {
         try {
-            const { id, title, content, isArchived, isPinned, isTrash, reminder, images, nestedNotes } = JSON.parse(jsonString);
+            const { createdAt, id, title, content, isArchived, isPinned, isTrash, reminder, images, nestedNotes } = JSON.parse(jsonString);
             return new Note(
+                createdAt,
                 id,
                 title,
                 content,
@@ -24,8 +26,9 @@ export class Note {
                 reminder,
                 images,
                 nestedNotes.map(noteJSON => {
-                    if (noteJSON && noteJSON.id && noteJSON.title && noteJSON.content) {
+                    if (noteJSON && noteJSON.createdAt && noteJSON.id && noteJSON.title && noteJSON.content) {
                         return new Note(
+                            noteJSON.createdAt,
                             noteJSON.id,
                             noteJSON.title,
                             noteJSON.content
@@ -44,6 +47,7 @@ export class Note {
 
     toJSON() {
         return JSON.stringify({
+            createdAt: this.id,
             id: this.id,
             title: this.title,
             content: this.content,

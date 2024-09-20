@@ -1,7 +1,11 @@
 'use client'
 
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
-import { Note } from '../models/note';
+import { useAuthContext } from './AuthProvider';
+import { collection, doc, getDocs, setDoc, query, where, runTransaction } from "firebase/firestore";
+import { firestore } from '../firebase';
+import { v4 as uuidv4 } from 'uuid';
+
 
 const AppContext = createContext();
 
@@ -10,62 +14,133 @@ export const AppProvider = ({ children }) => {
   const [filteredNotes, setFilteredNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [infoContent, setInfoContent] = useState('');
-  const [infoGeneral, setInfoGeneral] = useState('');
+  const [info, setInfo] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
+  const { user } = useAuthContext();
 
-  /**
-   * // Creates a new note and adds it to the notes state.
-   * @param { Note } newNote - The new note object to be created, which should include note details.
-   */
-  const createNote = useCallback((newNote) => {
+  const fetchNotes = useCallback(async () => {
     try {
-      const noteWithId = {
-        ...newNote,
-        id: Date.now(), // Temporary solution for local usage
-      };
-      setNotes(prevNotes => [...prevNotes, noteWithId]);
-    } catch (error) {
-      console.error('Error creating note:', error);
-    }
-  }, []);
+      if (user) {
+        const notesRef = collection(firestore, "users", user.uid, "notes");
+        const q = query(notesRef); // Order by createdAt
+        const querySnapshot = await getDocs(q);
 
-  /**
-   * Updates an existing note based on its ID.
-   * @param { number } id - The ID of the note to be updated.
-   * @param { Note } updatedNote - The updated note data to be applied.
-   */
-  const updateNote = useCallback((id, updatedNote) => {
+        const notesArray = querySnapshot.docs.map(doc => ({
+          id: doc.data().id,
+          ...doc.data()
+        }));
+
+        setNotes(notesArray);
+        console.log("Notes fetched successfully", notesArray);
+      } else {
+        console.log("No user is logged in. Cannot fetch notes.");
+      }
+    } catch (error) {
+      console.log('Error fetching notes:', error);
+      // Consider user feedback here
+    }
+  }, [user, setNotes]);
+
+  // Call fetchNotes when appropriate, such as on component mount or after adding a note
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
+
+  const createNote = useCallback(async (newNote) => {
     try {
-      const updatedNotes = notes.map(note => {
-        if (note.id === id) {
-          return { ...note, ...updatedNote };
-        }
-        return note;
-      });
-      setNotes(updatedNotes);
-    } catch (error) {
-      console.error('Error updating note:', error);
-    }
-  }, [notes]);
+      if (user) {
+        const notesRef = collection(firestore, "users", user.uid, "notes");
+        const noteID = uuidv4(); 
+        const docRef = doc(notesRef, noteID);
 
-  /**
-   * Deletes a note based on its ID.
-   * @param { number } id - The ID of the note to be deleted.
-   */
-  const deleteNote = useCallback((id) => {
+        await runTransaction(firestore, async (transaction) => {
+          const docSnapshot = await transaction.get(docRef);
+          if (!docSnapshot.exists()) {
+            const note = {
+              ...newNote,
+              createdAt: Date.now(),
+              id: noteID
+            };
+
+            transaction.set(docRef, note);
+            console.log("Note created successfully");
+          } else {
+            throw new Error("Note ID collision detected"); // Handle collision
+          }
+        });
+
+        await fetchNotes();
+      } else {
+        const noteWithId = {
+          ...newNote,
+          createdAt: Date.now(),
+          id: Date.now().toString()
+        };
+        console.log(noteWithId);
+        setNotes(prevNotes => [...prevNotes, noteWithId]);
+        console.log("Note created successfully");
+      }
+    } catch (error) {
+      console.log('Error creating note:', error);
+    }
+  }, [user, fetchNotes]);
+
+
+
+  const updateNote = useCallback(async (id, updatedNote) => {
     try {
-      const updatedNotes = notes.filter(note => note.id !== id);
-      setNotes(updatedNotes);
-      setInfoGeneral('Note deleted');
+      if (user) {
+        const noteRef = doc(firestore, "users", user.uid, "notes", id);
+        await runTransaction(firestore, async (transaction) => {
+          const docSnapshot = await transaction.get(noteRef);
+          if (docSnapshot.exists()) {
+            transaction.update(noteRef, updatedNote);
+            console.log("Note updated successfully");
+          } else {
+            throw new Error("Note does not exist");
+          }
+        });
+        await fetchNotes();
+      } else {
+        const updatedNotes = notes.map(note => {
+          if (note.id === id) {
+            return { ...note, ...updatedNote };
+          }
+          return note;
+        });
+        setNotes(updatedNotes);
+        console.log("Note updated successfully");
+      }
     } catch (error) {
-      console.error('Error deleting note:', error);
+      console.log('Error updating note:', error);
     }
-  }, [notes]);
+  }, [notes, user, fetchNotes]);
 
-  /**
-   * Filters notes based on the search term.
-   * @param { string } term - The term to search for within note titles and content.
-   */
+  const deleteNote = useCallback(async (id) => {
+    try {
+      if (user) {
+        const noteRef = doc(firestore, "users", user.uid, "notes", id);
+        await runTransaction(firestore, async (transaction) => {
+          const docSnapshot = await transaction.get(noteRef);
+          if (docSnapshot.exists()) {
+            transaction.delete(noteRef);
+            console.log("Note deleted successfully");
+          } else {
+            throw new Error("Note does not exist");
+          }
+        });
+        await fetchNotes();
+      } else {
+        const updatedNotes = notes.filter(note => note.id !== id);
+        setNotes(updatedNotes);
+        console.log("Note deleted successfully");
+      }
+    } catch (error) {
+      console.log('Error deleting note:', error);
+    }
+  }, [notes, user, fetchNotes]);
+
+
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
     if (term.trim() === '') {
@@ -81,16 +156,14 @@ export const AppProvider = ({ children }) => {
     }
   }, [notes]);
 
-  // Clears the search term and filtered notes.
   const handleCloseSearch = useCallback(() => {
     setSearchTerm('');
     setFilteredNotes([]);
   }, []);
 
-  // Memoized context value to avoid unnecessary re-renders.
   const contextValue = useMemo(() => ({
     infoContent,
-    infoGeneral,
+    info,
     infoTitle,
     notes,
     filteredNotes,
@@ -101,11 +174,11 @@ export const AppProvider = ({ children }) => {
     handleSearch,
     handleCloseSearch,
     setInfoContent,
-    setInfoGeneral,
+    setInfo,
     setInfoTitle,
     setNotes,
   }), [
-    infoContent, infoGeneral, infoTitle, notes, filteredNotes, searchTerm,
+    infoContent, info, infoTitle, notes, filteredNotes, searchTerm,
     createNote, updateNote, deleteNote, handleSearch, handleCloseSearch
   ]);
 
@@ -119,7 +192,7 @@ export const AppProvider = ({ children }) => {
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error('useAppContext must be used within AppProvider.jsx');
+    throw new Error('useAppContext must be used within AppProvider');
   }
   return context;
 };
