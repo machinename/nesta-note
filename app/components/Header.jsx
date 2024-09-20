@@ -223,7 +223,7 @@ export default function Header() {
                 Log Out
               </Link>
               :
-              <Link className={styles.navLink} ref={loginRef} href='/'>
+              <Link className={styles.navLink} ref={loginRef} onClick={() => setIsAccountMenuOpen(false)} href='/'>
                 <LoginOutlined />
                 Login
               </Link>

@@ -91,10 +91,9 @@ export default function Page() {
 
   return (
     <div className={loginStyles.content}>
-      <h1>Nesta Note</h1>
       <div className={loginStyles.container}>
         <Box component="form" className={loginStyles.form} onSubmit={handleSubmit}>
-          <h2>{isLogin ? 'Login' : 'Create account'}</h2>
+          <Typography variant='overline'>Nesta Note</Typography>
           <TextField
             id="email"
             label="Email"
