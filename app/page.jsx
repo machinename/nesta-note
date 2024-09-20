@@ -9,7 +9,7 @@ import { useAuthContext } from './providers/AuthProvider';
 
 export default function Page() {
 
-  const { user, loading, error, createAccount, login, logOut } = useAuthContext();
+  const { createAccount, login } = useAuthContext();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

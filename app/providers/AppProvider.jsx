@@ -85,8 +85,6 @@ export const AppProvider = ({ children }) => {
     }
   }, [user, fetchNotes]);
 
-
-
   const updateNote = useCallback(async (id, updatedNote) => {
     try {
       if (user) {
