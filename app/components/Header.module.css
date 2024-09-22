@@ -1,0 +1,143 @@
+/* header Styles */
+.header,
+.headerScrolled {
+  top: 0;
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  height: 4rem;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  z-index: 1;
+}
+
+.headerScrolled {
+  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
+}
+
+.headerLeading,
+.headerTrailing {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.headerLeading {
+  width: 100%;
+  gap: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.headerTrailing {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.headerTitle {
+  width: 12rem;
+}
+
+.headerTitle p  {
+  font-weight: 300;
+  font-size: 20px;
+  color: gray;
+}
+
+@media screen and (max-width: 600px) {
+  .headerTitle {
+    display: none;
+  }
+}
+
+/* Search Input Container Styles */
+.searchInputContainer {
+  display: flex;
+  max-width: 600px;
+  width: 100%;
+  flex-direction: row;
+  padding-left: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-right: 0.5rem;
+  align-items: center;
+  background-color: #f4f4f4;
+  box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
+}
+
+.searchInputContainer:hover {
+  box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
+}
+
+.searchInput {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  width: 100%;
+  font-size: 16px;
+  z-index: 2;
+}
+
+.searchInput::placeholder {
+  font-size: 1rem;
+  color: #888;
+}
+
+/* Menu Styles */
+.accountMenu,
+.navMenu {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  top: 68px;
+  position: fixed;
+  z-index: 3;
+  box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
+}
+
+.accountMenu {
+  right: 0;
+  margin-right: 0.5rem;
+}
+
+.navMenu {
+  margin-left: 0.5rem;
+}
+
+/* Navigation Link Styles */
+.navLink,
+.navLinkActive {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  color: gray;
+  padding: 0.5rem;
+  text-decoration: none;
+  transition: transform 0.05s ease;
+  z-index: 3;
+  font-weight: 300;
+  font-size: 20px;
+}
+
+@media screen and (min-width: 720px) {
+  .navLinkMobile {
+    display: none;
+  }
+}
+
+.navLink:hover {
+  background-color: rgba(0.2, 0.2, 0.2, 0.2);
+}
+
+.navLinkActive {
+  background-color: #F9E1A8;
+}
+
+/* Link Title Text Styles */
+.linkTitleText {
+  cursor: default;
+}
