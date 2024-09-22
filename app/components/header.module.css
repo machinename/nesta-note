@@ -1,5 +1,6 @@
-.navBar,
-.navBarScrolled {
+/* header Styles */
+.header,
+.headerScrolled {
   top: 0;
   position: fixed;
   display: flex;
@@ -9,48 +10,48 @@
   align-items: center;
   justify-content: space-between;
   background-color: white;
-  z-index: 900;
+  z-index: 1;
 }
 
-.navBar p {
-  font-weight: 300;
-  font-size: 20px;
-  color: gray;
-}
-
-.navBarScrolled {
+.headerScrolled {
   box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
-.navBarLeading,
-.navBarTrailing {
+.headerLeading,
+.headerTrailing {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-.navBarLeading {
+.headerLeading {
   width: 100%;
   gap: 0.5rem;
   padding-left: 0.5rem;
 }
 
-.navBarTrailing {
+.headerTrailing {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
 
-.navBarTitle {
+.headerTitle {
   width: 12rem;
 }
 
+.headerTitle p  {
+  font-weight: 300;
+  font-size: 20px;
+  color: gray;
+}
 
 @media screen and (max-width: 600px) {
-  .navBarTitle {
+  .headerTitle {
     display: none;
   }
 }
 
+/* Search Input Container Styles */
 .searchInputContainer {
   display: flex;
   max-width: 600px;
@@ -77,7 +78,7 @@
   border: none;
   width: 100%;
   font-size: 16px;
-  z-index: 950;
+  z-index: 2;
 }
 
 .searchInput::placeholder {
@@ -85,6 +86,7 @@
   color: #888;
 }
 
+/* Menu Styles */
 .accountMenu,
 .navMenu {
   background-color: white;
@@ -92,20 +94,20 @@
   flex-direction: column;
   top: 68px;
   position: fixed;
-  z-index: 1000;
+  z-index: 3;
   box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
 }
 
 .accountMenu {
   right: 0;
   margin-right: 0.5rem;
-
 }
 
 .navMenu {
-    margin-left: 0.5rem;
+  margin-left: 0.5rem;
 }
 
+/* Navigation Link Styles */
 .navLink,
 .navLinkActive {
   display: flex;
@@ -116,7 +118,7 @@
   padding: 0.5rem;
   text-decoration: none;
   transition: transform 0.05s ease;
-  z-index: 1000;
+  z-index: 3;
   font-weight: 300;
   font-size: 20px;
 }
@@ -135,6 +137,7 @@
   background-color: #F9E1A8;
 }
 
+/* Link Title Text Styles */
 .linkTitleText {
   cursor: default;
 }

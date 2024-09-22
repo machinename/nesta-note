@@ -1,11 +1,9 @@
 'use client'
 
-import styles from "./note.module.css";
+import styles from "../page.module.css";
 import NoteGUI from "../components/NoteGUI";
-import ComingSoon from "../components/ComingSoon";
 import { Note } from "../models/note";
 import { useAppContext } from "../providers/AppProvider";
-
 
 export default function Notes() {
 
@@ -31,7 +29,33 @@ export default function Notes() {
         <div className={styles.content}>
             <NoteGUI mode={'create'} note={newNote} />
             {activeNotes.length === 0 ? (
-                <ComingSoon />
+                <>
+                    <h2>
+                        Notes you add appear here
+                    </h2>
+                    <p>--------------------</p>
+                    <h3>
+                        Features Coming Soon
+                    </h3>
+                    <p>
+                        Application Settings
+                    </p>
+                    <p>
+                        Offline Mode
+                    </p>
+                    <p>
+                        Drawing & Background Options
+                    </p>
+                    <p>
+                        Grid Layouts
+                    </p>
+                    <p>
+                        Reminder Functionality
+                    </p>
+                    <p>
+                        Help & Feedback Page
+                    </p>
+                </>
             ) : (
                 activeNotes.map(note => (
                     <NoteGUI key={note.id} mode={'read'} note={note} />

@@ -1,3 +1,4 @@
+/* Container Styles */
 .container,
 .containerModal {
     display: flex;
@@ -12,18 +13,17 @@
 
 .containerModal {
     position: fixed;
-    justify-content: center;
+    padding-top: 6rem;
     transition: background-color 1s ease;
     background-color: rgba(0, 0, 0, 0.7);
-
-    z-index: 1200;
-    /* height: 100%; */
+    z-index: 5;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
 }
 
+/* Note Styles */
 .noteCreate,
 .noteRead,
 .noteEdit {
@@ -31,12 +31,11 @@
     max-width: 600px;
     display: flex;
     flex-direction: column;
-    cursor: 'pointer';
+    cursor: pointer;
     background-color: white;
 }
 
 .noteCreate {
-    max-height: 420px;
     box-shadow: 0 4px 8px rgba(0.4, 0.4, 0.4, 0.4);
 }
 
@@ -45,12 +44,14 @@
     box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
 }
 
+.noteCreate,
 .noteRead {
     max-height: 420px;
 }
 
 .noteEdit {
-    max-height: 80%;
+    max-height: 50%;
+    min-height: 4rem;
 }
 
 .noteCreate:hover,
@@ -60,7 +61,6 @@
 }
 
 @media screen and (max-width: 720px) {
-
     .noteCreate,
     .noteRead,
     .noteEdit {
@@ -68,13 +68,7 @@
     }
 }
 
-.noteHeader {}
-
-.noteBody {}
-
-.noteFooter {}
-
-
+/* Text Field Styles */
 .textField {
     outline: none;
     border: none;
@@ -83,7 +77,7 @@
     font-size: large;
 }
 
-
+/* Info Container Styles */
 .infoContainerRead {
     overflow-y: hidden;
 }
@@ -92,6 +86,7 @@
     overflow-y: auto;
 }
 
+/* Title Container Styles */
 .titleContainer .titleContainerScroll {
     display: flex;
     flex-direction: row;
@@ -104,26 +99,18 @@
     flex-direction: column;
     width: 100%;
 }
-
-.titleContainer p,
-.contentContainer p {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    word-wrap: break-word;
-}
-
 .titleContainerScroll {
     box-shadow: 0 2px 2px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
-
+/* Content Container Styles */
 .contentContainer {
     display: flex;
     flex-direction: column;
     width: 100%;
 }
 
-
+/* Nested Notes Container Styles */
 .nestedNotesContainer {
     display: flex;
     flex-direction: row;
@@ -137,6 +124,7 @@
     padding-right: 0.5rem;
 }
 
+/* Footer Styles */
 .footerWrapper {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
@@ -153,10 +141,7 @@
     justify-content: space-between;
 }
 
-.footerContainerRead {}
-
-.footerContainerRead:hover {}
-
+/* Note Options Menu Styles */
 .noteOptionsMenuButton {
     position: relative;
 }
@@ -168,7 +153,21 @@
     top: 3rem;
     position: absolute;
     left: 1rem;
-    z-index: 1100;
+    z-index: 4;
     outline: 0.5px solid lightgray;
     box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
 }
+
+.closeBtn,
+.menuItem {
+    outline: none;
+    border: none;  
+    font-size: large;
+    padding: 0.5rem;
+}
+
+.menuItem:hover,
+.closeBtn:hover {
+    background-color: lightgray;
+}
+

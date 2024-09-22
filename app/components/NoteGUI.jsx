@@ -1,22 +1,19 @@
 'use client';
 
-import { AlarmOutlined, MoreVert, Archive, ArchiveOutlined, Bolt, Brush, ChevronLeft, ImageOutlined, NoteAddOutlined, NoteOutlined, PushPin, PushPinOutlined, RedoOutlined, UndoOutlined, DeleteForever, DeleteForeverOutlined, RestoreOutlined, RestoreFromTrashOutlined } from '@mui/icons-material';
-import { Box, Button, IconButton, TextField, MenuItem } from '@mui/material';
-import { useCallback, useContext, useEffect, useState, useRef } from 'react';
+import { Box } from '@mui/material';
+import { useCallback,  useEffect, useState, useRef } from 'react';
 import { useAppContext } from '../providers/AppProvider';
-
+import { useAuthContext } from '../providers/AuthProvider';
 import NoteBody from './NoteBody';
 import NoteHeader from './NoteHeader';
 import NoteFooter from './NoteFooter';
 import NoteNestedNotes from './NoteNestedNotes';
-import styles from "./noteStyles.module.css"
-import { useAuthContext } from '../providers/AuthProvider';
+import styles from "./Note.module.css"
+
 
 export default function NoteGUI(props) {
-
-
     const { user } = useAuthContext();
-    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes, setIsModalOpen, setInfo, notes } = useAppContext();
+    const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes, setInfo, notes } = useAppContext();
 
     // State for edit modes and UI elements
     const initialMode = props.mode;
@@ -27,6 +24,9 @@ export default function NoteGUI(props) {
     const [isNoteOptionsMenuOpen, setIsNoteOptionsMenu] = useState(false);
     const [isInfoScroll, setIsInfoScroll] = useState(false);
     const [wasNestedEdited, setWasNestedEdited] = useState(false);
+
+    const [showDialog, setShowDialog] = useState(false);
+    const [actionToConfirm, setActionToConfirm] = useState(null);
 
     // State for managing content arrays
     const [contentArray, setContentArray] = useState([props.note.content]);
@@ -44,10 +44,12 @@ export default function NoteGUI(props) {
     const [title, setTitle] = useState(props.note.title);
     const [content, setContent] = useState(props.note.content);
     const [nestedNotes, setNestedNotes] = useState(props.note.nestedNotes);
+    const [prevNestedNotes, setPrevNestedNotes] = useState([]);
 
     // Refs for DOM elements and indexes
     const index = useRef(0);
     const nestedIndex = useRef(0);
+    // const dialogRef = useRef(null);
     const noteCreateRef = useRef(null);
     const noteEditRef = useRef(null);
     const noteReminderMenuRef = useRef(null);
@@ -55,11 +57,13 @@ export default function NoteGUI(props) {
     const noteOptionsMenuRefButton = useRef(null);
     const infoContainerRef = useRef(null);
 
+    const isUndoNote = prevNestedNotes.length > 0;
+
     const toggleArchive = () => {
         if (isArchived) {
-            setInfoGeneral('Note unarchived')
+            setInfo('Note unarchived')
         } else {
-            setInfoGeneral('Note archived')
+            setInfo('Note archived')
         }
         setNotes(notes.map(note =>
             note.id === props.note.id ? { ...note, isArchived: !note.isArchived } : note
@@ -72,7 +76,7 @@ export default function NoteGUI(props) {
         } else if (props.mode === 'read') {
             setIsEditMode(true);
             setIsViewMode(true);
-            
+
         } else {
             setIsEditMode(true);
         }
@@ -94,7 +98,7 @@ export default function NoteGUI(props) {
             );
             setNotes(updatedNotes);
             const updatedNote = updatedNotes.find(note => note.id === props.note.id);
-            if(user){
+            if (user) {
                 updateNote(props.note.id, { isTrash: updatedNote.isTrash });
             }
         }
@@ -174,7 +178,7 @@ export default function NoteGUI(props) {
         setIsEditMode(false);
         index.current = 0;
         nestedIndex.current = 0;
-    }, [initialMode, content, nestedContent], );
+    }, [initialMode, content, nestedContent],);
 
     const pushToNestedNote = (note) => {
         console.log(note.id);
@@ -250,14 +254,52 @@ export default function NoteGUI(props) {
         }
     };
 
-    const handleDeleteNote = async () =>  {
+    const handleDeleteNote = async() => {
+        // setActionToConfirm('deleteNote');
+        // setShowDialog(true);
         try {
-             await deleteNote(props.note.id);
-             setInfo('Note deleted')
-        } catch (error){
+            await deleteNote(props.note.id);
+            setInfo('Note deleted');
+        } catch (error) {
             console.log(error);
         }
+    };
+
+    const handleDeleteNestedNote = () => {
+        // setActionToConfirm('deleteNestedNote');
+        // setShowDialog(true);
+        resetNestedNoteForm();
+        setPrevNestedNotes(nestedNotes);
+        const updatedNestedNotes = nestedNotes.filter(note => note.createdAt !== nestedNote.createdAt);
+        setNestedNotes(updatedNestedNotes);
+        setIsNestedMode(false);
+        setInfo('Nested Note Deleted');
+    };
+
+    const handleUndoDeletedNestedNote = () => {
+        setNestedNotes(prevNestedNotes);
+        setInfo('Deleted Nested Note Restored');
+        setPrevNestedNotes([]);
     }
+
+    // const handleConfirm = async (confirmed) => {
+    //     setShowDialog(false);
+    //     if (confirmed) {
+    //         try {
+    //             if (actionToConfirm === 'deleteNote') {
+    //                 await deleteNote(props.note.id);
+    //                 setInfo('Note deleted');
+    //             } else if (actionToConfirm === 'deleteNestedNote') {
+    //                 const updatedNestedNotes = nestedNotes.filter(note => note.id !== nestedNote.id);
+    //                 setNestedNotes(updatedNestedNotes);
+    //                 setIsNestedMode(false);
+    //                 setInfo('Nested note deleted');
+    //             }
+    //         } catch (error) {
+    //             console.log(error);
+    //         }
+    //     }
+    // };
 
     const handleRedo = () => {
         if (isNestedMode) {
@@ -346,10 +388,8 @@ export default function NoteGUI(props) {
 
         if (isEditMode || isTrash) {
             if (initialMode === 'create' && noteCreateRef.current && !noteCreateRef.current.contains(event.target)) {
-
                 handleNote();
             } else if (noteEditRef.current && !noteEditRef.current.contains(event.target)) {
-
                 handleNote();
             }
         }
@@ -417,7 +457,7 @@ export default function NoteGUI(props) {
                     <NoteBody
                         content={content}
                         handleContentChange={handleContentChange}
-                        initialMode={initialMode}  // Fixed the formatting here
+                        initialMode={initialMode} 
                         isEditMode={isEditMode}
                         isNestedMode={isNestedMode}
                         isViewMode={isViewMode}
@@ -434,6 +474,7 @@ export default function NoteGUI(props) {
                 <NoteFooter
                     contentArray={contentArray}
                     handleNestedNote={handleNestedNote}
+                    handleUndoDeletedNestedNote={handleUndoDeletedNestedNote}
                     handleRedo={handleRedo}
                     handleUndo={handleUndo}
                     initialMode={initialMode}
@@ -444,6 +485,7 @@ export default function NoteGUI(props) {
                     isNoteOptionsMenuOpen={isNoteOptionsMenuOpen}
                     isNoteReminderMenuOpen={isNoteReminderMenuOpen}
                     isTrash={isTrash}
+                    isUndoNote={isUndoNote}
                     mode={props.mode}
                     nestedContentArray={nestedContentArray}
                     noteOptionsMenuRef={noteOptionsMenuRef}
@@ -456,6 +498,7 @@ export default function NoteGUI(props) {
                     toggleArchive={toggleArchive}
                     toggleDelete={toggleDelete}
                     handleDeleteNote={handleDeleteNote}
+                    handleDeleteNestedNote={handleDeleteNestedNote}
                 />
             </Box >
         </div>

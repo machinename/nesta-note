@@ -1,7 +1,7 @@
 'use client';
 
 import { TextField } from '@mui/material';
-import styles from "./noteStyles.module.css"
+import styles from "./Note.module.css"
 
 export default function NoteHeader({
     handleTitleChange,
@@ -37,7 +37,8 @@ export default function NoteHeader({
                         inputProps={{
                             autoComplete: 'off',
                             readOnly: readOnlyMode,
-                            style: { fontSize: 20 },
+                            style: { fontSize: 20 ,
+                                fontFamily: 'monospace'},
                         }}
                         className={styles.textField}
                         multiline

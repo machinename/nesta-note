@@ -1,26 +1,146 @@
-.content {
+.input {
+    color: gray;
+    font-size: large;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border: none;
+    outline: none;
+    border-bottom: 0.5px solid lightgrey;
+    background-color: transparent;
+}
+
+.input:focus {
+    border-bottom: 0.5px solid black;
+}
+
+.inputContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Login Screen */
+.loginButton {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: black;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    font: large monospace;
+    color: #000;
+}
+
+.loginButton:disabled {
+    background-color: #f0f0f0;
+    color: darkgrey;
+    border: none;
+    cursor: not-allowed;
+}
+
+.loginContainer {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
+    padding: 1rem;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    background-color: white;
+    gap: 1rem;
+}
+
+.loginContainerBody {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    /* padding: 1rem; */
+    width: 100%;
+}
+
+.loginContent {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background-color: aliceblue;
+    min-height: 800px;
+    padding-right: 1rem;
+    padding-left: 1rem;
 }
 
-.container {
-    width: 380px;
+.loginForm,
+.loginProviders {
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
-    padding: 1rem;
+    gap: 1rem;
+    width: 100%;
 }
 
+.loginProviders {
+    justify-content: center;
+}
 
-
-.form {
+.providerButton {
     display: flex;
-    flex-direction: column;
-    /* align-items: center; */
-    gap: 0.75rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+    border: 0.5px solid #000;
+    justify-content: space-between;
+    font: large monospace;
+    transition: background-color 0.3s, transform 0.1s;
 }
 
+.providerButton div {
+    width: 100%;
+}
+
+.providerButton:hover {
+    background-color: #f0f0f0;
+}
+
+.providerButton:active {
+    background-color: #e0e0e0;
+    transform: scale(0.98);
+}
+
+.termsText {
+    font-size: small;
+    color: gray;
+}
+
+.textButton {
+    font-size: large;
+    border: none;
+    color: inherit;
+    background-color: inherit;
+    cursor: pointer;
+}
+
+.textButton:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+@media screen and (max-width: 720px) {
+    .loginContent {
+        justify-content: flex-start;
+    }
+    .loginContainer {
+        margin-top: 6rem;
+    }
+    .loginContainerBody {
+        flex-direction: column;
+    }
+}

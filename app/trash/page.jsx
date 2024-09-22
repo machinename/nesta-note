@@ -8,8 +8,6 @@ export default function Trash() {
     const { notes } = useAppContext();
     const trashNotes = notes.filter(note => note.isTrash);
 
-    const trashBinItems = '';
-
     return (
         <div className={styles.content}>
             {trashNotes.length === 0 ? (

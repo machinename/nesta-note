@@ -1,7 +1,7 @@
 'use client';
 
 import { TextField } from '@mui/material';
-import styles from "./noteStyles.module.css"
+import styles from "./Note.module.css"
 
 export default function NoteBody({
     content,
@@ -36,7 +36,9 @@ export default function NoteBody({
                         inputProps={{
                             autoComplete: 'off',
                             readOnly: readOnlyMode,
-                            style: { fontSize: 16 },
+                            style: { fontSize: 16 ,
+                                fontFamily: 'monospace'
+                            },
                         }}
                         className={styles.textField}
                         multiline

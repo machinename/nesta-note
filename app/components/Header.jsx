@@ -11,13 +11,13 @@ import { IconButton } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
-import styles from "./header.module.css";
+import styles from "./Header.module.css";
 import { useAppContext } from '../providers/AppProvider';
 import { useAuthContext } from '../providers/AuthProvider';
 
 export default function Header() {
   const { user, logOut } = useAuthContext();
-  const { searchTerm, handleSearch, handleCloseSearch, isSearch, setIsSearch } = useAppContext();
+  const { searchTerm, handleSearch, handleCloseSearch, setNotes } = useAppContext();
   const [title, setTitle] = useState('');
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
@@ -46,6 +46,7 @@ export default function Header() {
   const handleLogOut = async () => {
     try {
       await logOut();
+      setNotes([]);
       setIsAccountMenuOpen(false);
     } catch (error) {
       console.log(error);
@@ -133,10 +134,10 @@ export default function Header() {
 
   return (
     <>
-      <nav className={isScrolled ? styles.navBarScrolled : styles.navBar}>
+      <header className={isScrolled ? styles.headerScrolled : styles.header}>
         {/* Nav Leading */}
         <div
-          className={styles.navBarLeading}
+          className={styles.headerLeading}
         >
           {
             isNavMenuOpen ?
@@ -149,7 +150,7 @@ export default function Header() {
                 </IconButton>
               </>
           }
-          <div className={styles.navBarTitle}>
+          <div className={styles.headerTitle}>
             <p>{title}</p>
           </div>
           {/* Nav Input */}
@@ -160,7 +161,7 @@ export default function Header() {
             <input
               autoComplete="off"
               className={styles.searchInput}
-              id='navbarInput'
+              id='headerInput'
               type="text"
               placeholder='Search'
               value={searchTerm}
@@ -179,7 +180,7 @@ export default function Header() {
         </div>
         {/* Nav Trailing*/}
         <div
-          className={styles.navBarTrailing}>
+          className={styles.headerTrailing}>
           <IconButton>
             <SettingsOutlined />
           </IconButton>
@@ -188,9 +189,9 @@ export default function Header() {
           </IconButton>
         </div>
 
-      </nav>
+      </header>
       {isNavMenuOpen && (
-        <div
+        <nav
           className={styles.navMenu}
           ref={navMenuRef}
         >
@@ -203,10 +204,10 @@ export default function Header() {
           <div onClick={() => { }} className={styles.navLink}>Labels</div>
           <Link className={styles.navLink} href='/settings'>Settings</Link>
           <Link className={styles.navLink} href='/help'>Help</Link> */}
-        </div>
+        </nav>
       )}
       {isAccountMenuOpen && (
-        <div
+        <nav
           className={styles.accountMenu}
           ref={accountMenuRef}
         >
@@ -228,7 +229,7 @@ export default function Header() {
                 Login
               </Link>
           }
-        </div>
+        </nav>
       )}
     </>
   );

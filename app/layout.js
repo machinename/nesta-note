@@ -37,13 +37,6 @@ export default function RootLayout({ children }) {
           {children}
           <Information />
         </ ProviderWrapper>
-        <footer>
-          <div>
-            <p>
-              © 2024 Machine Name LLC. All Rights Reserved.
-            </p>
-          </div>
-        </footer>
       </body>
     </html>
   );

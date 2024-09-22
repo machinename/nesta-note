@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import { useAuthContext } from './AuthProvider';
+import {useCookieContext} from './CookieProvider';
 import { collection, doc, getDocs, setDoc, query, where, runTransaction } from "firebase/firestore";
 import { firestore } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,13 +11,14 @@ import { v4 as uuidv4 } from 'uuid';
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  const { user } = useAuthContext();
   const [notes, setNotes] = useState([]);
   const [filteredNotes, setFilteredNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [infoContent, setInfoContent] = useState('');
   const [info, setInfo] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
-  const { user } = useAuthContext();
+  
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -37,7 +39,7 @@ export const AppProvider = ({ children }) => {
       }
     } catch (error) {
       console.log('Error fetching notes:', error);
-      // Consider user feedback here
+      setNotes([]);
     }
   }, [user, setNotes]);
 

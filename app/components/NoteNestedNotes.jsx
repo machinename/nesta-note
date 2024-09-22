@@ -3,7 +3,7 @@
 import { IconButton } from "@mui/material";
 import { NoteOutlined } from "@mui/icons-material";
 import CustomTooltip from "./CustomTooltip";
-import styles from "./noteStyles.module.css"
+import styles from "./Note.module.css"
 
 export default function NoteNestedNotes({
     isNestedMode,

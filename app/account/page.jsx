@@ -1,10 +1,10 @@
 'use client'
 
-import accountStyles from "./accountStyles.module.css";
+import styles from "../page.module.css";
 import { useAuthContext } from "../providers/AuthProvider";
 import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
 import { Divider } from "@mui/material";
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export default function Account() {
     const { user } = useAuthContext();
@@ -27,14 +27,14 @@ export default function Account() {
     }
 
     return (
-        <main className={accountStyles.content}>
-            <div className={accountStyles.container}>
-                <div className={accountStyles.containerHeader}>
+        <main className={styles.content}>
+            <div className={styles.container}>
+                <div className={styles.containerHeader}>
                     <h2>Personal Info</h2>
                 </div>
                 <Divider />
-                <div className={accountStyles.containerItem} onClick={pushToEmail}>
-                    <div className={accountStyles.containerItemLeading}>
+                <div className={styles.containerItem} onClick={pushToEmail}>
+                    <div className={styles.containerItemLeading}>
                         <p>Email</p>
                         {user?.email ? <p>{user.email}</p> : null}
                     </div>
@@ -43,8 +43,8 @@ export default function Account() {
                     }} />
                 </div>
                 {/* <Divider />
-                <div className={accountStyles.containerItem}>
-                    <div className={accountStyles.containerItemLeading}>
+                <div className={styles.containerItem}>
+                    <div className={styles.containerItemLeading}>
                         <p>Phone</p>
                         {user?.phoneNumber ? <p>{user.phoneNumber}</p> : null}
                     </div>
@@ -53,8 +53,8 @@ export default function Account() {
                     }} />
                 </div>
                 <Divider />
-                <div className={accountStyles.containerItem}>
-                    <div className={accountStyles.containerItemLeading}>
+                <div className={styles.containerItem}>
+                    <div className={styles.containerItemLeading}>
                         <p>Display Name</p>
                         {user?.displayName ? <p>{user.displayName}</p> : null}
                     </div>
@@ -64,13 +64,13 @@ export default function Account() {
                 </div> */}
             </div>
 
-            <div className={accountStyles.container}>
-                <div className={accountStyles.containerHeader}>
+            <div className={styles.container}>
+                <div className={styles.containerHeader}>
                     <h2>Data & Security Info</h2>
                 </div>
                 <Divider />
-                <div className={accountStyles.containerItem} onClick={pushToPassword}>
-                    <div className={accountStyles.containerItemLeading}>
+                <div className={styles.containerItem} onClick={pushToPassword}>
+                    <div className={styles.containerItemLeading}>
                         <p>Password</p>
                     </div>
                     <ArrowForwardIos style={{
@@ -78,8 +78,8 @@ export default function Account() {
                     }} />
                 </div>
                 <Divider />
-                {/* <div className={accountStyles.containerItem}>
-                    <div className={accountStyles.containerItemLeading}>
+                {/* <div className={styles.containerItem}>
+                    <div className={styles.containerItemLeading}>
                         <p>Download Data</p>
                         {user?.phoneNumber ? <p>{user.phoneNumber}</p> : null}
                     </div>
@@ -88,8 +88,8 @@ export default function Account() {
                     }} />
                 </div>
                 <Divider /> */}
-                <div className={accountStyles.containerItem}>
-                    <div className={accountStyles.containerItemLeading}>
+                <div className={styles.containerItem}>
+                    <div className={styles.containerItemLeading}>
                         <p>Delete Account</p>
                         {user?.displayName ? <p>{user.displayName}</p> : null}
                     </div>

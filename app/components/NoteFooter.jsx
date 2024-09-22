@@ -11,14 +11,17 @@ import {
     NoteAddOutlined,
     RedoOutlined,
     UndoOutlined,
-    RestoreFromTrashOutlined
+    RestoreFromTrashOutlined,
+    RestoreOutlined
 } from '@mui/icons-material';
-import { Button, IconButton, MenuItem } from '@mui/material';
-import styles from "./noteStyles.module.css"
+import { IconButton } from '@mui/material';
+import styles from "./Note.module.css"
 
 export default function NoteFooter({
     contentArray,
     handleDeleteNote,
+    handleDeleteNestedNote,
+    handleUndoDeletedNestedNote,
     handleNestedNote,
     handleRedo,
     handleUndo,
@@ -30,6 +33,7 @@ export default function NoteFooter({
     isNoteOptionsMenuOpen,
     isNoteReminderMenuOpen,
     isTrash,
+    isUndoNote,
     mode,
     nestedContentArray,
     noteOptionsMenuRef,
@@ -48,10 +52,10 @@ export default function NoteFooter({
                 <div className={styles.footerWrapper}>
                     <div className={styles.footerContainer}>
                         <div>
-                            <IconButton aria-label="Delete forever" onClick={()=> handleDeleteNote()}>
+                            <IconButton aria-label="Delete note forever" onClick={() => handleDeleteNote()}>
                                 <DeleteForeverOutlined />
                             </IconButton>
-                            <IconButton aria-label="Restore from trash" onClick={()=> toggleDelete()}>
+                            <IconButton aria-label="Restore from trash" onClick={() => toggleDelete()}>
                                 <RestoreFromTrashOutlined />
                             </IconButton>
                         </div>
@@ -115,6 +119,12 @@ export default function NoteFooter({
                                             >
                                                 <RedoOutlined />
                                             </IconButton>
+                                            <IconButton
+                                                aria-label="Delete nested note forever"
+                                                onClick={handleDeleteNestedNote}
+                                            >
+                                                <DeleteForeverOutlined />
+                                            </IconButton>
                                         </>
                                     ) : (
                                         <>
@@ -132,6 +142,16 @@ export default function NoteFooter({
                                             >
                                                 <RedoOutlined />
                                             </IconButton>
+                                            {
+                                                isUndoNote && (
+                                                    <IconButton
+                                                        aria-label="Undo Deleted Nested Note"
+                                                        onClick={handleUndoDeletedNestedNote}
+                                                    >
+                                                        <RestoreOutlined />
+                                                    </IconButton>
+                                                )
+                                            }
                                         </>
                                     )}
                                 </>
@@ -139,22 +159,22 @@ export default function NoteFooter({
                         </div>
 
                         {isEditMode && (
-                            <Button type="submit">
+                            <button className={styles.closeBtn} type="submit">
                                 Close
-                            </Button>
+                            </button>
                         )}
 
                         {isNoteReminderMenuOpen && (
                             <div className={styles.noteReminderMenu} ref={noteReminderMenuRef}>
-                                <MenuItem>Later Today</MenuItem>
-                                <MenuItem>Tomorrow</MenuItem>
-                                <MenuItem>Next Week</MenuItem>
+                                <div className={styles.menuItem}>Later Today</div>
+                                <div className={styles.menuItem}>Tomorrow</div>
+                                <div className={styles.menuItem}>Next Week</div>
                             </div>
                         )}
 
                         {isNoteOptionsMenuOpen && (
                             <div className={styles.noteOptionsMenu} ref={noteOptionsMenuRef}>
-                                <MenuItem onClick={toggleDelete}>Delete Note</MenuItem>
+                                <div className={styles.menuItem} onClick={toggleDelete}>Delete Note</div>
                             </div>
                         )}
                     </div>
