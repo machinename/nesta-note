@@ -3,35 +3,41 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Divider from '@mui/material/Divider';
-import styles from './login.module.css';
-import { useRouter } from 'next/navigation'
+import styles from './page.module.css';
+import { useRouter } from 'next/navigation';
 import { useAuthContext } from './providers/AuthProvider';
-import { Google, Policy } from '@mui/icons-material';
+import { Google, Policy, VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
+import IconButton from '@mui/material/IconButton';
+import CircularProgress from '@mui/material/CircularProgress';
 
-export default function Page() {
 
-  const { createAccount, login } = useAuthContext();
+export default function Login() {
   const router = useRouter();
+  const { authError, createAccount, login } = useAuthContext();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [windowWidth, setWindowWidth] = useState();
   const [errors, setErrors] = useState({
     email: '',
     password: '',
     confirmPassword: '',
   });
 
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const isLoginButtonEnabled = () => {
+    return email.trim() !== '' && password.trim() !== '' && (isLogin || confirmPassword.trim() !== '');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    setErrors({
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
+    setErrors({ email: '', password: '', confirmPassword: '' });
 
     let hasErrors = false;
     const newErrors = {};
@@ -47,7 +53,7 @@ export default function Page() {
     if (!password) {
       newErrors.password = 'Password is required';
       hasErrors = true;
-    } else if (password.length < 6) {
+    } else if (!isLogin && password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
       hasErrors = true;
     }
@@ -68,117 +74,152 @@ export default function Page() {
     }
 
     try {
+      let result;
+
       if (isLogin) {
-        await login(email, password);
-        router.push('/notes');
+        result = await login(email, password);     
       } else {
-        await createAccount(email, password);
+        result = await createAccount(email, password);
+        alert('Account created successfully. Please verify your email address to access all the available features.');  
+      }
+      if (result) {
         router.push('/notes');
       }
     } catch (error) {
-      setErrors({ ...newErrors, api: error.message });
+      setErrors((prev) => ({ ...prev, api: error.message }));
     }
   };
 
   const handleSwitch = () => {
     setIsLogin((prev) => !prev);
-    if (!isLogin) {
-      setConfirmPassword('');
-    }
-    setErrors({
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
+    setConfirmPassword('');
+    setErrors({ email: '', password: '', confirmPassword: '', api: '' });
   };
-
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      setIsMobile(window.innerWidth <= 720);
     };
 
-    if (windowWidth <= 720) {
-      setIsMobile(true);
-    } else {
-      setIsMobile(false);
-    }
-
     window.addEventListener('resize', handleResize);
+    handleResize();
 
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [windowWidth]);
+  }, []);
 
-  useEffect(() => {
-    if (windowWidth < 720) {
-      setIsMobile(true);
-    } else {
-      setIsMobile(false);
-    }
-  }, [windowWidth]);
-
+  // if (user) {
+  //   router.push('/notes');
+  //   return (
+  //     <div className={styles.page}>
+  //       <CircularProgress />
+  //     </div>
+  //   )
+  // }
   return (
-    <div className={styles.loginContent}>
+    <div className={styles.login}>
+      <div style={{
+        height: '1rem',
+      }} />
       <div className={styles.loginContainer}>
-        {isLogin ? <h1>Log into Nesta Note</h1> : <h1>Create an account</h1>}
+        <h1>{isLogin ? 'Log into Nesta Note' : 'Create an account'}</h1>
         <div className={styles.loginContainerBody}>
-          <div className={styles.loginForm}>
+          <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputContainer}>
-              <input className={styles.input} type="text" id="email"
+              <input
+                className={styles.input}
+                type="email"
+                id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder='Email' />
-              <p>{!!errors.email}</p>
+                placeholder='Email'
+                aria-invalid={!!errors.email}
+              />
             </div>
+            {
+              errors.email ? <p aria-live="polite" className={styles.errorText}>{errors.email}</p> : null
+            }
             <div className={styles.inputContainer}>
-              <input className={styles.input} type="password" id="password"
+              <input
+                className={styles.visiblityInput}
+                type={showPassword ? 'text' : 'password'}
+                id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder='Password' />
-              <p>{!!errors.password}</p>
+                placeholder='Password'
+                aria-invalid={!!errors.password}
+              />
+              <IconButton onClick={handleClickShowPassword} className={styles.visiblityIcon}>
+                {
+                  showPassword
+                    ?
+                    <VisibilityOffOutlined />
+                    :
+                    <VisibilityOutlined />
+                }
+              </IconButton>
             </div>
+            {
+              errors.password ? <p aria-live="polite" className={styles.errorText}>{errors.password}</p> : null
+            }
+            {
+              authError
+                ?
+                <p className={styles.textError} aria-live="polite">{authError}</p>
+                :
+                null
+            }
             {!isLogin && (
               <div className={styles.inputContainer}>
-                <input className={styles.input} type="password" id="confirmPassword"
+                <input
+                  className={styles.visiblityInput}
+                  type={showPassword ? 'text' : 'password'}
+                  id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder='Confirm Password' />
-                <p>{!!errors.password}</p>
+                  placeholder='Confirm Password'
+                  aria-invalid={!!errors.confirmPassword}
+                />
+                <p aria-live="polite" className={styles.errorText}>{errors.confirmPassword}</p>
               </div>
             )}
-            <button className={styles.loginButton} disabled={true}>
+            <button className={styles.formButton} disabled={!isLoginButtonEnabled()} type="submit">
               {isLogin ? 'Login' : 'Create Account'}
             </button>
-          </div>
+          </form>
           <Divider orientation={isMobile ? "horizontal" : "vertical"} flexItem sx={{ color: 'gray' }}>
             OR
           </Divider>
-          <div className={styles.loginProviders}>
+          <div className={styles.form}>
             <button className={styles.providerButton}>
-              <Google className={styles.providerButtonIcon} />
-              <div>
-                Continue with Google
-              </div>
+              <Google />
+              <div>Continue with Google</div>
             </button>
             <button className={styles.providerButton} onClick={() => router.push('/notes')}>
-              <Policy className={styles.providerButtonIcon} />
-              <div>
-                Continue without account
-              </div>
+              <Policy />
+              <div>Continue without account</div>
             </button>
           </div>
         </div>
-        {isLogin && (<p className={styles.termsText}>By creating an account, you agree to our <Link href={'/'} className={styles.termsText}>Terms of Service</Link> & <Link href={'/'} className={styles.termsText}>Privacy Policy</Link>.</p>)}
-        <p className={styles.termsText}>Secure Login with reCAPTCHA subject to Google <Link className={styles.termsText} href={"https://policies.google.com/terms?hl=en"}>Terms of Service</Link> & <Link className={styles.termsText} href={"https://policies.google.com/privacy?hl=en"}>Privacy Policy</Link>.</p>
-        <button className={styles.textButton}>
-          FORGOT PASSWORD?
-        </button>
-        <button className={styles.textButton} onClick={handleSwitch}>
-          {isLogin ? 'CREATE ACCOUNT' : 'LOGIN'}
-        </button>
+        {isLogin && (
+          <p className={styles.termsText}>
+            By creating an account, you agree to our <Link href={'/'} className={styles.termsText}>Terms of Service</Link> & <Link href={'/'} className={styles.termsText}>Privacy Policy</Link>.
+          </p>
+        )}
+        <p className={styles.termsText}>
+          Secure Login with reCAPTCHA subject to Google <Link className={styles.termsText} href={"https://policies.google.com/terms?hl=en"}>Terms of Service</Link> & <Link className={styles.termsText} href={"https://policies.google.com/privacy?hl=en"}>Privacy Policy</Link>.
+        </p>
+        <div className={styles.textButtonContainer}>
+          <button className={styles.textButton}>
+            FORGOT PASSWORD?
+          </button>
+          <button className={styles.textButton} onClick={handleSwitch}>
+            {isLogin ? 'CREATE ACCOUNT' : 'LOGIN'}
+          </button>
+        </div>
       </div>
     </div>
   );
+
 }

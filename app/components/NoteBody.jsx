@@ -8,6 +8,7 @@ export default function NoteBody({
     handleContentChange,
     initialMode,
     isEditMode,
+    isDarkMode,
     isNestedMode,
     isViewMode,
     nestedContent,
@@ -36,11 +37,15 @@ export default function NoteBody({
                         inputProps={{
                             autoComplete: 'off',
                             readOnly: readOnlyMode,
-                            style: { fontSize: 16 ,
-                                fontFamily: 'monospace'
+                            style: 
+                            { 
+                                fontSize: 'large',
+                                fontWeight: 'lighter',
+                                fontFamily: 'monospace',
+                                color: isDarkMode ? '#fff' : '#000',
+                                cursor: 'default',
                             },
                         }}
-                        className={styles.textField}
                         multiline
                         onChange={handleContentChange}
                         onClick={handleClick}

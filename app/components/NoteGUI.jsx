@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import { useCallback,  useEffect, useState, useRef } from 'react';
 import { useAppContext } from '../providers/AppProvider';
 import { useAuthContext } from '../providers/AuthProvider';
+import { useThemeContext } from '../providers/ThemeProvider';
 import NoteBody from './NoteBody';
 import NoteHeader from './NoteHeader';
 import NoteFooter from './NoteFooter';
@@ -11,12 +12,13 @@ import NoteNestedNotes from './NoteNestedNotes';
 import styles from "./Note.module.css"
 
 
-export default function NoteGUI(props) {
+export default function NoteGUI({mode, note}) {
     const { user } = useAuthContext();
     const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes, setInfo, notes } = useAppContext();
+    const { isDarkMode } = useThemeContext();
 
     // State for edit modes and UI elements
-    const initialMode = props.mode;
+    const initialMode = mode;
     const [isViewMode, setIsViewMode] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [isNestedMode, setIsNestedMode] = useState(false);
@@ -29,7 +31,7 @@ export default function NoteGUI(props) {
     const [actionToConfirm, setActionToConfirm] = useState(null);
 
     // State for managing content arrays
-    const [contentArray, setContentArray] = useState([props.note.content]);
+    const [contentArray, setContentArray] = useState([note.content]);
     const [nestedContentArray, setNestedContentArray] = useState(['']);
 
     // State for nested note management
@@ -38,12 +40,12 @@ export default function NoteGUI(props) {
     const [nestedTitle, setNestedTitle] = useState('');
 
     // State for note properties
-    const isArchived = props.note.isArchived;
-    const isPinned = props.note.isPinned;
-    const isTrash = props.note.isTrash;
-    const [title, setTitle] = useState(props.note.title);
-    const [content, setContent] = useState(props.note.content);
-    const [nestedNotes, setNestedNotes] = useState(props.note.nestedNotes);
+    const isArchived = note.isArchived;
+    const isPinned = note.isPinned;
+    const isTrash = note.isTrash;
+    const [title, setTitle] = useState(note.title);
+    const [content, setContent] = useState(note.content);
+    const [nestedNotes, setNestedNotes] = useState(note.nestedNotes);
     const [prevNestedNotes, setPrevNestedNotes] = useState([]);
 
     // Refs for DOM elements and indexes
@@ -65,22 +67,37 @@ export default function NoteGUI(props) {
         } else {
             setInfo('Note archived')
         }
+
+        const updatedNote = {
+            content: content,
+            createdAt: note.createdAt,
+            isArchived: !isArchived,
+            isPinned: isPinned,
+            nestedNotes: nestedNotes,
+            title: title,
+            id: note.id,
+        };
+
         setNotes(notes.map(note =>
-            note.id === props.note.id ? { ...note, isArchived: !note.isArchived } : note
+            note.id === updatedNote.id ? { ...note, isArchived: !note.isArchived } : note
         ));
+        if (user) {
+            updateNote(updatedNote);
+            console.log("Note Archived");
+        }
     };
 
     const toggleEditModeTrue = () => {
         if (isTrash) {
             setInfoGeneral('Cannot edit note in trash');
-        } else if (props.mode === 'read') {
+        } else if (mode === 'read') {
             setIsEditMode(true);
             setIsViewMode(true);
 
         } else {
             setIsEditMode(true);
         }
-        console.log(props.note);
+        console.log(note);
     }
 
     const toggleDelete = () => {
@@ -94,12 +111,12 @@ export default function NoteGUI(props) {
                 setInfo('Note moved to trash');
             }
             const updatedNotes = notes.map(note =>
-                note.id === props.note.id ? { ...note, isTrash: !note.isTrash } : note
+                note.id === note.id ? { ...note, isTrash: !note.isTrash } : note
             );
             setNotes(updatedNotes);
-            const updatedNote = updatedNotes.find(note => note.id === props.note.id);
+            const updatedNote = updatedNotes.find(note => note.id === note.id);
             if (user) {
-                updateNote(props.note.id, { isTrash: updatedNote.isTrash });
+                updateNote(note.id, { isTrash: updatedNote.isTrash });
             }
         }
         setIsNoteOptionsMenu(false);
@@ -240,7 +257,8 @@ export default function NoteGUI(props) {
         return updatedNestedNotes;
     }, [createNewNestedNote, hasNoteContentChanged, updateNestedNote, addNestedNote, resetNestedNoteForm, nestedNotes, nestedNote, wasNestedEdited]);
 
-    const handleUndo = () => {
+    const handleUndo = (event) => {
+        event.preventDefault();
         if (isNestedMode) {
             if (nestedIndex.current > 0) {
                 nestedIndex.current = nestedIndex.current - 1;
@@ -254,11 +272,26 @@ export default function NoteGUI(props) {
         }
     };
 
+    const handleRedo = (event) => {
+        event.preventDefault();
+        if (isNestedMode) {
+            if (nestedIndex.current < nestedContentArray.length - 1) {
+                nestedIndex.current = nestedIndex.current + 1;
+                setNestedContent(nestedContentArray[nestedIndex.current]);
+            }
+        } else {
+            if (index.current < contentArray.length - 1) {
+                index.current = index.current + 1;
+                setContent(contentArray[index.current]);
+            }
+        }
+    };
+
     const handleDeleteNote = async() => {
         // setActionToConfirm('deleteNote');
         // setShowDialog(true);
         try {
-            await deleteNote(props.note.id);
+            await deleteNote(note.id);
             setInfo('Note deleted');
         } catch (error) {
             console.log(error);
@@ -282,46 +315,12 @@ export default function NoteGUI(props) {
         setPrevNestedNotes([]);
     }
 
-    // const handleConfirm = async (confirmed) => {
-    //     setShowDialog(false);
-    //     if (confirmed) {
-    //         try {
-    //             if (actionToConfirm === 'deleteNote') {
-    //                 await deleteNote(props.note.id);
-    //                 setInfo('Note deleted');
-    //             } else if (actionToConfirm === 'deleteNestedNote') {
-    //                 const updatedNestedNotes = nestedNotes.filter(note => note.id !== nestedNote.id);
-    //                 setNestedNotes(updatedNestedNotes);
-    //                 setIsNestedMode(false);
-    //                 setInfo('Nested note deleted');
-    //             }
-    //         } catch (error) {
-    //             console.log(error);
-    //         }
-    //     }
-    // };
-
-    const handleRedo = () => {
-        if (isNestedMode) {
-            if (nestedIndex.current < nestedContentArray.length - 1) {
-                nestedIndex.current = nestedIndex.current + 1;
-                setNestedContent(nestedContentArray[nestedIndex.current]);
-            }
-        } else {
-            if (index.current < contentArray.length - 1) {
-                index.current = index.current + 1;
-                setContent(contentArray[index.current]);
-            }
-        }
-    };
 
     const handleNote = useCallback(() => {
-
         if (isTrash) {
             // handleResetNote();
             return;
         }
-
         let newNestedNotes = nestedNotes;
 
         console.log("Is Nested Mode? " + isNestedMode);
@@ -330,39 +329,33 @@ export default function NoteGUI(props) {
             newNestedNotes = handleNestedNote();
         }
 
-        const note = {
-            title: title,
+        const currrentNote = {
             content: content,
+            createdAt: note.createdAt,
             isArchived: isArchived,
             isPinned: isPinned,
-            nestedNotes: newNestedNotes
+            nestedNotes: newNestedNotes,
+            title: title,
+            id: note.id,
         };
 
-        const prevNote = props.note;
+        const prevNote = note;
 
         if (initialMode === 'create') {
-            if (note.title !== prevNote.title || note.content !== prevNote.content || note.nestedNotes.length > 0) {
-                createNote(note);
+            if (currrentNote.title !== prevNote.title || currrentNote.content !== prevNote.content || currrentNote.nestedNotes.length > 0) {
+                createNote(currrentNote);
             } else {
                 console.log("No Note Created");
             }
         } else {
             let nestedNotesChanged = compareNestedNotesDifferent(newNestedNotes, prevNote.nestedNotes);
-            console.log("note.title.trim() - " + note.title.trim());
-            console.log("note.content.trim() - " + note.content.trim());
-            console.log("note.nestedNotes.length - " + note.nestedNotes.length);
 
-            if (note.title.trim().length === 0 && note.content.trim().length === 0 && note.nestedNotes.length === 0) {
-                deleteNote(props.note.id);
-                console.log("Deleted Note");
-            }
-
-            if (note.title.trim().length === 0 && note.content.trim().length === 0 && note.nestedNotes.length === 0) {
-                deleteNote(props.note.id);
+            if (currrentNote.title.trim().length === 0 && currrentNote.content.trim().length === 0 && currrentNote.nestedNotes.length === 0) {
+                deleteNote(note.id);
                 console.log("Deleted Note");
             } else {
-                if (note.title !== prevNote.title || note.content !== prevNote.content || nestedNotesChanged || note.isArchived !== prevNote.isArchived) {
-                    updateNote(note);
+                if (currrentNote.title !== prevNote.title || currrentNote.content !== prevNote.content || nestedNotesChanged || currrentNote.isArchived !== prevNote.isArchived) {
+                    updateNote(currrentNote);
                     console.log("Updated Note");
                 } else {
                     console.log("No Note Updated");
@@ -371,7 +364,7 @@ export default function NoteGUI(props) {
         }
 
         handleResetNote();
-    }, [isTrash, nestedNotes, isNestedMode, title, content, isArchived, isPinned, props.note, initialMode, handleResetNote, handleNestedNote, createNote, deleteNote, updateNote]);
+    }, [isTrash, nestedNotes, isNestedMode, title, content, isArchived, isPinned, note, initialMode, handleResetNote, handleNestedNote, createNote, deleteNote, updateNote]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -436,7 +429,8 @@ export default function NoteGUI(props) {
 
     return (
         <div className={!isViewMode ? styles.container : styles.containerModal}>
-            <Box component="form"
+            <form
+                id={isDarkMode ? "NoteGUIDark" : "NoteGUI"}
                 className={!isViewMode ? (initialMode === 'create' ? styles.noteCreate : styles.noteRead) : styles.noteEdit}
                 onSubmit={handleSubmit} ref={initialMode === 'create' ? noteCreateRef : noteEditRef}>
                 <div
@@ -447,6 +441,7 @@ export default function NoteGUI(props) {
                         handleTitleChange={handleTitleChange}
                         initialMode={initialMode}
                         isEditMode={isEditMode}
+                        isDarkMode={isDarkMode}
                         isNestedMode={isNestedMode}
                         isViewMode={isViewMode}
                         nestedTitle={nestedTitle}
@@ -459,6 +454,7 @@ export default function NoteGUI(props) {
                         handleContentChange={handleContentChange}
                         initialMode={initialMode} 
                         isEditMode={isEditMode}
+                        isDarkMode={isDarkMode}
                         isNestedMode={isNestedMode}
                         isViewMode={isViewMode}
                         nestedContent={nestedContent}
@@ -486,7 +482,7 @@ export default function NoteGUI(props) {
                     isNoteReminderMenuOpen={isNoteReminderMenuOpen}
                     isTrash={isTrash}
                     isUndoNote={isUndoNote}
-                    mode={props.mode}
+                    mode={mode}
                     nestedContentArray={nestedContentArray}
                     noteOptionsMenuRef={noteOptionsMenuRef}
                     noteOptionsMenuRefButton={noteOptionsMenuRefButton}
@@ -500,7 +496,7 @@ export default function NoteGUI(props) {
                     handleDeleteNote={handleDeleteNote}
                     handleDeleteNestedNote={handleDeleteNestedNote}
                 />
-            </Box >
+            </form >
         </div>
     );
 }

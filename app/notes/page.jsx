@@ -26,13 +26,13 @@ export default function Notes() {
     );
 
     return (
-        <div className={styles.content}>
+        <div className={styles.page}>
             <NoteGUI mode={'create'} note={newNote} />
             {activeNotes.length === 0 ? (
                 <>
-                    <h2>
+                    <h1>
                         Notes you add appear here
-                    </h2>
+                    </h1>
                     <p>--------------------</p>
                     <h3>
                         Features Coming Soon

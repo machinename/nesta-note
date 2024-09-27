@@ -7,6 +7,7 @@ export default function NoteHeader({
     handleTitleChange,
     initialMode,
     isEditMode,
+    isDarkMode,
     isNestedMode,
     isViewMode,
     nestedTitle,
@@ -37,8 +38,14 @@ export default function NoteHeader({
                         inputProps={{
                             autoComplete: 'off',
                             readOnly: readOnlyMode,
-                            style: { fontSize: 20 ,
-                                fontFamily: 'monospace'},
+                            style:
+                            {
+                                fontSize: 'x-large',
+                                fontWeight: 'lighter',
+                                fontFamily: 'monospace',
+                                color: isDarkMode ? '#fff' : '#000',
+                                cursor: 'default',
+                            },
                         }}
                         className={styles.textField}
                         multiline

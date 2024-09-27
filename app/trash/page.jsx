@@ -9,9 +9,9 @@ export default function Trash() {
     const trashNotes = notes.filter(note => note.isTrash);
 
     return (
-        <div className={styles.content}>
+        <div className={styles.page}>
             {trashNotes.length === 0 ? (
-                <h3>Empty Trash</h3>
+                <h1>Empty Trash</h1>
             ) : (
                 trashNotes.map(note => (
                     <NoteGUI note={note} mode='read' key={note.id} />

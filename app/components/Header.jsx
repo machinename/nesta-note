@@ -2,10 +2,19 @@
 
 import {
   AccountBoxOutlined, AlarmOutlined, ArchiveOutlined,
-  CircleOutlined, Close, DeleteOutlined, GridViewOutlined,
+  CircleOutlined, Close, DarkMode, DeleteOutlined, GridViewOutlined,
   LoginOutlined, LogoutOutlined, MenuOpen, NotesOutlined,
-  NotificationsOutlined, Refresh, Search, SettingsOutlined
+  NotificationsOutlined, Refresh, Search, SettingsOutlined,
+  LightModeOutlined, DarkModeOutlined,
+  ArchiveRounded,
+  Archive,
+  Notes,
+  Note,
+  NoteOutlined,
+  Delete
 } from '@mui/icons-material';
+
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { IconButton } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation'
@@ -14,10 +23,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from "./Header.module.css";
 import { useAppContext } from '../providers/AppProvider';
 import { useAuthContext } from '../providers/AuthProvider';
+import { useThemeContext } from '../providers/ThemeProvider';
 
 export default function Header() {
-  const { user, logOut } = useAuthContext();
-  const { searchTerm, handleSearch, handleCloseSearch, setNotes } = useAppContext();
+  const { isAuthLoading, user, logOut } = useAuthContext();
+  const { searchTerm, handleSearch, handleCloseSearch, isAppLoading, fetchNotes, setNotes } = useAppContext();
+
   const [title, setTitle] = useState('');
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
@@ -29,14 +40,13 @@ export default function Header() {
   const archiveRef = useRef(null);
   const homeRef = useRef(null);
   const inputRef = useRef(null);
-  const imageRef = useRef(null);
   const loginRef = useRef(null);
   const logOutRef = useRef(null);
   const navMenuRef = useRef(null);
   const trashRef = useRef(null);
 
   const handleOnFocusSearch = () => {
-    router.push('/search');
+      router.push('/search');
   }
   const handleSearchButton = () => {
     router.push('/search');
@@ -77,7 +87,6 @@ export default function Header() {
     };
   }, []);
 
-
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -108,21 +117,12 @@ export default function Header() {
       case ('/search'):
         setTitle('Search');
         break;
-      // case '/reminders':
-      //   setTitle('Reminders');
-      //   break;
       case '/archive':
         setTitle('Archive');
         break;
-      // case '/settings':
-      //   setTitle('Settings');
-      //   break;
       case '/trash':
         setTitle('Trash');
         break;
-      // case '/help':
-      //   setTitle('Help');
-      //   break;
       default:
         setTitle('');
     }
@@ -133,104 +133,117 @@ export default function Header() {
   }
 
   return (
-    <>
-      <header className={isScrolled ? styles.headerScrolled : styles.header}>
-        {/* Nav Leading */}
-        <div
-          className={styles.headerLeading}
-        >
-          {
-            isNavMenuOpen ?
-              <IconButton onClick={() => setIsNavMenuOpen(false)}><Close /></IconButton>
-              :
-              <>
-                <IconButton
-                  onClick={() => setIsNavMenuOpen(true)}>
-                  <MenuOpen />
-                </IconButton>
-              </>
-          }
-          <div className={styles.headerTitle}>
-            <p>{title}</p>
-          </div>
-          {/* Nav Input */}
-          <div className={styles.searchInputContainer}>
-            <IconButton onClick={() => handleSearchButton()}>
-              <Search />
+    <header className={isScrolled ? styles.headerScrolled : styles.header}>
+      {/* Nav Leading */}
+      <div
+        className={styles.headerLeading}
+      >
+        <div className={styles.headerAnchorLeading}>
+        {
+          isNavMenuOpen ?
+            <IconButton onClick={() => setIsNavMenuOpen(false)}>
+              <Close className={styles.icon} />
             </IconButton>
-            <input
-              autoComplete="off"
-              className={styles.searchInput}
-              id='headerInput'
-              type="text"
-              placeholder='Search'
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              onFocus={() => handleOnFocusSearch()}
-              ref={inputRef}
-            />
-            {
-              pathname === '/search' && (
-                <IconButton onClick={() => handleCloseButton()}>
-                  <Close />
-                </IconButton>
-              )
-            }
-          </div>
-        </div>
-        {/* Nav Trailing*/}
-        <div
-          className={styles.headerTrailing}>
-          <IconButton>
-            <SettingsOutlined />
-          </IconButton>
-          <IconButton onClick={() => setIsAccountMenuOpen(prevState => !prevState)}>
-            <CircleOutlined />
-          </IconButton>
-        </div>
-
-      </header>
-      {isNavMenuOpen && (
-        <nav
-          className={styles.navMenu}
-          ref={navMenuRef}
-        >
-          <Link className={pathname === '/notes' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/notes'><NotesOutlined />Notes</Link>
-
-          {/* <Link className={pathname === '/reminders' ? styles.navLinkActive : styles.navLink} ref={mediaRef} href='/reminders'><NotificationsOutlined />Reminders</Link> */}
-          <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive'><ArchiveOutlined />Archive</Link>
-          <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash'><DeleteOutlined />Trash</Link>
-          {/*
-          <div onClick={() => { }} className={styles.navLink}>Labels</div>
-          <Link className={styles.navLink} href='/settings'>Settings</Link>
-          <Link className={styles.navLink} href='/help'>Help</Link> */}
-        </nav>
-      )}
-      {isAccountMenuOpen && (
-        <nav
-          className={styles.accountMenu}
-          ref={accountMenuRef}
-        >
-          {user ?
-            <Link className={styles.navLink} ref={archiveRef} onClick={() => setIsAccountMenuOpen(false)} href='/account'><AccountBoxOutlined />Account</Link>
             :
-            null
-          }
+            <IconButton onClick={() => setIsNavMenuOpen(true)}>
+              <MenuOpen className={styles.icon} />
+            </IconButton>
+        }
+          {isNavMenuOpen && (
+            <nav
+              className={styles.navMenu}
+              ref={navMenuRef}
+            >
+              <Link className={pathname === '/notes' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/notes'>{pathname === '/notes' ? <Note/> : <NoteOutlined />}Notes</Link>
+              <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive'>{pathname === '/archive' ? <Archive/> : <ArchiveOutlined />}Archive</Link>
+              <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash'>{pathname === '/trash' ? <Delete/> : <DeleteOutlined />}Trash</Link>
+            </nav>
+          )}
+        </div>
+        <div className={styles.headerTitle}>
+          <p>{title}</p>
+        </div>
+        {/* Nav Input */}
+        <div className={styles.searchInputContainer}>
+          <IconButton onClick={() => handleSearchButton()}>
+            <Search />
+          </IconButton>
+          <input
+            autoComplete="off"
+            className={styles.searchInput}
+            id='headerInput'
+            type="text"
+            placeholder='Search...'
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            onFocus={() => handleOnFocusSearch()}
+            ref={inputRef}
+          />
           {
-            user
-              ?
-              <Link className={styles.navLink} ref={logOutRef} onClick={handleLogOut} href='/'>
-                <LogoutOutlined />
-                Log Out
-              </Link>
-              :
-              <Link className={styles.navLink} ref={loginRef} onClick={() => setIsAccountMenuOpen(false)} href='/'>
-                <LoginOutlined />
-                Login
-              </Link>
+            pathname === '/search' && (
+              <IconButton onClick={() => handleCloseButton()}>
+                <Close />
+              </IconButton>
+            )
           }
-        </nav>
-      )}
-    </>
+        </div>
+      </div>
+      {/* Nav Trailing*/}
+      <div className={styles.headerTrailing}>
+        {
+          (isAppLoading || isAuthLoading)
+            ?
+            <IconButton>
+              <CircularProgress size={20} />
+            </IconButton>
+            :
+            <IconButton onClick={fetchNotes}>
+              <Refresh />
+            </IconButton>
+        }
+        {/* {
+            isDarkMode ?
+              <IconButton onClick={() => setIsDarkMode(false)}>
+                <LightModeOutlined />
+              </IconButton> :
+              <IconButton onClick={() => setIsDarkMode(true)}>
+                <DarkModeOutlined />
+              </IconButton>
+          } */}
+        <IconButton>
+          <SettingsOutlined />
+        </IconButton>
+        <div className={styles.headerAnchorTrailing}>
+        <IconButton onClick={() => setIsAccountMenuOpen(prevState => !prevState)}>
+          <CircleOutlined />
+        </IconButton>
+        {isAccountMenuOpen && (
+          <nav
+            className={styles.accountMenu}
+            ref={accountMenuRef}
+          >
+            {user ?
+              <Link className={styles.navLink} ref={archiveRef} onClick={() => setIsAccountMenuOpen(false)} href='/account'><AccountBoxOutlined />Account</Link>
+              :
+              null
+            }
+            {
+              user
+                ?
+                <Link className={styles.navLink} ref={logOutRef} onClick={handleLogOut} href='/'>
+                  <LogoutOutlined />
+                  Log Out
+                </Link>
+                :
+                <Link className={styles.navLink} ref={loginRef} onClick={() => setIsAccountMenuOpen(false)} href='/'>
+                  <LoginOutlined />
+                  Login
+                </Link>
+            }
+          </nav>
+        )}
+        </div>
+      </div>
+    </header>
   );
 }

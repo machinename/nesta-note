@@ -6,16 +6,15 @@ const ThemeContext = createContext(undefined);
 export const ThemeProvider = ({ children }) => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     
-    useEffect(() => {
-        if(isDarkMode){
-            document.body.className = 'dark';
-        } else {
-            document.body.className = 'light';
-        }
-      
-    }, [isDarkMode]);
+    // useEffect(() => {
+    //     if (isDarkMode) {
+    //         document.body.className = 'dark';
+    //     } else {
+    //         document.body.className = '';
+    //     }
+    // }, [isDarkMode]);
 
-    const contextValue = useMemo(() => ({ setIsDarkMode }), [setIsDarkMode]);
+    const contextValue = useMemo(() => ({ isDarkMode, setIsDarkMode }), [isDarkMode, setIsDarkMode]);
 
     return (
         <ThemeContext.Provider value={contextValue}>

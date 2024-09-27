@@ -9,6 +9,7 @@
   width: 100%;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
   background-color: white;
   z-index: 1;
 }
@@ -34,15 +35,29 @@
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
-
-.headerTitle {
-  width: 12rem;
+.headerAnchorLeading,
+.headerAnchorTrailing {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-decoration: none;
 }
 
-.headerTitle p  {
-  font-weight: 300;
-  font-size: 20px;
+.headerAnchorLeading {
+    justify-content: flex-start;
+}
+
+.headerAnchorTrailing {
+    justify-content: flex-end;
+}
+
+.headerTitle {
+  width: 200px;
+}
+
+.headerTitle p {
   color: gray;
+  font-size: x-large;
 }
 
 @media screen and (max-width: 600px) {
@@ -52,7 +67,8 @@
 }
 
 /* Search Input Container Styles */
-.searchInputContainer {
+.searchInputContainer,
+.searchInputContainerDark {
   display: flex;
   max-width: 600px;
   width: 100%;
@@ -62,29 +78,36 @@
   padding-bottom: 0.25rem;
   padding-right: 0.5rem;
   align-items: center;
-  background-color: #f4f4f4;
   box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
 }
 
-.searchInputContainer:hover {
+.searchInputContainer {
+  background-color: #f4f4f4;
+}
+
+.searchInputContainerDark {
+  background-color: #888888;
+}
+
+.searchInputContainer:hover,
+.searchInputContainerDark:hover {
   box-shadow: 0 4px 8px rgba(0.2, 0.2, 0.2, 0.2);
 }
 
-.searchInput {
+.searchInput,
+.searchInputDark {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   background-color: transparent;
   outline: none;
   border: none;
   width: 100%;
-  font-size: 16px;
   z-index: 2;
 }
 
-.searchInput::placeholder {
-  font-size: 1rem;
-  color: #888;
-}
+/* .searchIcon {
+  color: gray;
+} */
 
 /* Menu Styles */
 .accountMenu,
@@ -92,20 +115,13 @@
   background-color: white;
   display: flex;
   flex-direction: column;
-  top: 68px;
+  top: 4.5rem;
   position: fixed;
   z-index: 3;
   box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
 }
 
-.accountMenu {
-  right: 0;
-  margin-right: 0.5rem;
-}
-
-.navMenu {
-  margin-left: 0.5rem;
-}
+/*  */
 
 /* Navigation Link Styles */
 .navLink,
@@ -113,14 +129,13 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  font-size: x-large;
   gap: 1rem;
   color: gray;
   padding: 0.5rem;
   text-decoration: none;
   transition: transform 0.05s ease;
   z-index: 3;
-  font-weight: 300;
-  font-size: 20px;
 }
 
 @media screen and (min-width: 720px) {
@@ -140,4 +155,8 @@
 /* Link Title Text Styles */
 .linkTitleText {
   cursor: default;
+}
+
+.icon {
+  color: gray;
 }

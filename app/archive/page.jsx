@@ -9,9 +9,9 @@ export default function Archive() {
     const archivedNotes = notes.filter(note => note.isArchived && !note.isTrash);
 
     return (
-        <div className={styles.content}>
+        <div className={styles.page}>
             {archivedNotes.length === 0 ? (
-                <h3>Empty Archive</h3>
+                <h1>Empty Archive</h1>
             ) : (
                 archivedNotes.map(note => (
                     <NoteGUI note={note} mode='read' key={note.id} />

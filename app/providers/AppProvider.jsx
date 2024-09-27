@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import { useAuthContext } from './AuthProvider';
-import {useCookieContext} from './CookieProvider';
 import { collection, doc, getDocs, setDoc, query, where, runTransaction } from "firebase/firestore";
 import { firestore } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,13 +17,25 @@ export const AppProvider = ({ children }) => {
   const [infoContent, setInfoContent] = useState('');
   const [info, setInfo] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
-  
+  const [isAppLoading, setIsAppLoading] = useState(false);
 
+  const resetAppProviderData = () => {
+    setNotes([]);
+    setFilteredNotes([]);
+    setSearchTerm('');
+    setInfoContent('');
+    setInfo('');
+    setInfoTitle('');
+    setIsAppLoading(false);
+  }
+  
   const fetchNotes = useCallback(async () => {
     try {
+      setIsAppLoading(true);
       if (user) {
+
         const notesRef = collection(firestore, "users", user.uid, "notes");
-        const q = query(notesRef); // Order by createdAt
+        const q = query(notesRef);
         const querySnapshot = await getDocs(q);
 
         const notesArray = querySnapshot.docs.map(doc => ({
@@ -33,90 +44,89 @@ export const AppProvider = ({ children }) => {
         }));
 
         setNotes(notesArray);
-        console.log("Notes fetched successfully", notesArray);
+        console.log("Notes fetched successfully");
       } else {
-        console.log("No user is logged in. Cannot fetch notes.");
+        console.log("No user is logged in, fetching notes from local storage");
       }
     } catch (error) {
       console.log('Error fetching notes:', error);
       setNotes([]);
+    } finally {
+      setIsAppLoading(false);
     }
   }, [user, setNotes]);
 
-  // Call fetchNotes when appropriate, such as on component mount or after adding a note
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
 
   const createNote = useCallback(async (newNote) => {
+    const noteWithId = {
+      ...newNote,
+      createdAt: Date.now(),
+      id: user ? uuidv4() : Date.now().toString()
+    };
+    setNotes(prevNotes => [...prevNotes, noteWithId]);
     try {
       if (user) {
         const notesRef = collection(firestore, "users", user.uid, "notes");
-        const noteID = uuidv4(); 
-        const docRef = doc(notesRef, noteID);
+        const docRef = doc(notesRef, noteWithId.id);
+
+        await runTransaction(firestore, async (transaction) => {
+          const docSnapshot = await transaction.get(docRef);
+          if (docSnapshot.exists()) {
+            throw new Error("Note ID collision detected");
+          } else {
+            transaction.set(docRef, noteWithId);
+            console.log("Note created in Firestore");
+          }
+        });
+        await fetchNotes(); 
+      } 
+    } catch (error) {
+      console.error('Error creating note: ', error);
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteWithId.id));
+    }
+  }, [user, fetchNotes]);
+
+  const updateNote = useCallback(async (updatedNote) => {
+    const originalNote = notes.find(note => note.id === updatedNote.id);
+    setNotes(prevNotes =>
+      prevNotes.map(note =>
+        note.id === updatedNote.id ? { ...note, ...updatedNote } : note
+      )
+    );
+    try {
+      if (user) {
+        const notesRef = collection(firestore, "users", user.uid, "notes");
+        const docRef = doc(notesRef, updatedNote.id);
 
         await runTransaction(firestore, async (transaction) => {
           const docSnapshot = await transaction.get(docRef);
           if (!docSnapshot.exists()) {
-            const note = {
-              ...newNote,
-              createdAt: Date.now(),
-              id: noteID
-            };
-
-            transaction.set(docRef, note);
-            console.log("Note created successfully");
-          } else {
-            throw new Error("Note ID collision detected"); // Handle collision
-          }
-        });
-
-        await fetchNotes();
-      } else {
-        const noteWithId = {
-          ...newNote,
-          createdAt: Date.now(),
-          id: Date.now().toString()
-        };
-        console.log(noteWithId);
-        setNotes(prevNotes => [...prevNotes, noteWithId]);
-        console.log("Note created successfully");
-      }
-    } catch (error) {
-      console.log('Error creating note:', error);
-    }
-  }, [user, fetchNotes]);
-
-  const updateNote = useCallback(async (id, updatedNote) => {
-    try {
-      if (user) {
-        const noteRef = doc(firestore, "users", user.uid, "notes", id);
-        await runTransaction(firestore, async (transaction) => {
-          const docSnapshot = await transaction.get(noteRef);
-          if (docSnapshot.exists()) {
-            transaction.update(noteRef, updatedNote);
-            console.log("Note updated successfully");
-          } else {
             throw new Error("Note does not exist");
+          } else {
+            transaction.update(docRef, updatedNote);
+            console.log("Note updated in Firestore");
           }
         });
+
         await fetchNotes();
-      } else {
-        const updatedNotes = notes.map(note => {
-          if (note.id === id) {
-            return { ...note, ...updatedNote };
-          }
-          return note;
-        });
-        setNotes(updatedNotes);
-        console.log("Note updated successfully");
       }
     } catch (error) {
-      console.log('Error updating note:', error);
+      console.error('Error updating note: ', error);
+      setNotes(prevNotes =>
+        prevNotes.map(note =>
+          note.id === updatedNote.id ? originalNote : note
+        )
+      );
     }
   }, [notes, user, fetchNotes]);
 
   const deleteNote = useCallback(async (id) => {
+    const noteToDelete = notes.find(note => note.id === id);
+    const updatedNotes = notes.filter(note => note.id !== id);
+    setNotes(updatedNotes);
     try {
       if (user) {
         const noteRef = doc(firestore, "users", user.uid, "notes", id);
@@ -124,22 +134,18 @@ export const AppProvider = ({ children }) => {
           const docSnapshot = await transaction.get(noteRef);
           if (docSnapshot.exists()) {
             transaction.delete(noteRef);
-            console.log("Note deleted successfully");
+            console.log("Note deleted in Firestore");
           } else {
             throw new Error("Note does not exist");
           }
         });
         await fetchNotes();
-      } else {
-        const updatedNotes = notes.filter(note => note.id !== id);
-        setNotes(updatedNotes);
-        console.log("Note deleted successfully");
-      }
+      }  
     } catch (error) {
-      console.log('Error deleting note:', error);
+      console.log('Error deleting note: ', error);
+      setNotes(prevNotes => [...prevNotes, noteToDelete]);
     }
   }, [notes, user, fetchNotes]);
-
 
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
@@ -165,10 +171,12 @@ export const AppProvider = ({ children }) => {
     infoContent,
     info,
     infoTitle,
+    isAppLoading,
     notes,
     filteredNotes,
     searchTerm,
     createNote,
+    fetchNotes,
     updateNote,
     deleteNote,
     handleSearch,
@@ -178,8 +186,8 @@ export const AppProvider = ({ children }) => {
     setInfoTitle,
     setNotes,
   }), [
-    infoContent, info, infoTitle, notes, filteredNotes, searchTerm,
-    createNote, updateNote, deleteNote, handleSearch, handleCloseSearch
+    infoContent, info, infoTitle, isAppLoading, notes, filteredNotes, searchTerm,
+    createNote, fetchNotes, updateNote, deleteNote, handleSearch, handleCloseSearch
   ]);
 
   return (
