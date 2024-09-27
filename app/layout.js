@@ -2,6 +2,7 @@ import Header from "./components/Header";
 import Information from "./components/Information";
 import ProviderWrapper from "./providers/ProviderWrapper";
 import "./globals.css";
+import LoginModal from "./components/LoginModal";
 
 export const metadata = {
   metadataBase: new URL("https://www.nestanote.com"),
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
       <body>
         <ProviderWrapper>
           <Header />
+          <LoginModal />
           {children}
           <Information />
         </ ProviderWrapper>

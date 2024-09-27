@@ -24,10 +24,11 @@ import styles from "./Header.module.css";
 import { useAppContext } from '../providers/AppProvider';
 import { useAuthContext } from '../providers/AuthProvider';
 import { useThemeContext } from '../providers/ThemeProvider';
+import LoginModal from './LoginModal';
 
 export default function Header() {
   const { isAuthLoading, user, logOut } = useAuthContext();
-  const { searchTerm, handleSearch, handleCloseSearch, isAppLoading, fetchNotes, setNotes } = useAppContext();
+  const { searchTerm, handleSearch, handleCloseSearch, isAppLoading, isLoginModalOpen, setIsLoginModalOpen, fetchNotes, setNotes } = useAppContext();
 
   const [title, setTitle] = useState('');
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
@@ -53,6 +54,10 @@ export default function Header() {
     inputRef.current.focus();
   };
 
+  const handleLogin = () => {
+    setIsLoginModalOpen(true);
+    setIsAccountMenuOpen(false);
+  }
   const handleLogOut = async () => {
     try {
       await logOut();
@@ -105,9 +110,12 @@ export default function Header() {
   useEffect(() => {
     handleCloseSearch();
     switch (pathname) {
-      case ('/notes'):
+      case ('/'):
         setTitle('Nesta Notes');
         break;
+      // case ('/notes'):
+      //   setTitle('Nesta Notes');
+      //   break;
       case ('/account'):
         setTitle('Account');
         break;
@@ -128,7 +136,7 @@ export default function Header() {
     }
   }, [handleCloseSearch, pathname]);
 
-  if (pathname === '/') {
+  if (isLoginModalOpen) {
     return null;
   }
 
@@ -154,7 +162,7 @@ export default function Header() {
               className={styles.navMenu}
               ref={navMenuRef}
             >
-              <Link className={pathname === '/notes' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/notes'>{pathname === '/notes' ? <Note/> : <NoteOutlined />}Notes</Link>
+              <Link className={pathname === '/' ? styles.navLinkActive : styles.navLink} ref={homeRef} href='/'>{pathname === '/' ? <Note/> : <NoteOutlined />}Notes</Link>
               <Link className={pathname === '/archive' ? styles.navLinkActive : styles.navLink} ref={archiveRef} href='/archive'>{pathname === '/archive' ? <Archive/> : <ArchiveOutlined />}Archive</Link>
               <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash'>{pathname === '/trash' ? <Delete/> : <DeleteOutlined />}Trash</Link>
             </nav>
@@ -230,20 +238,21 @@ export default function Header() {
             {
               user
                 ?
-                <Link className={styles.navLink} ref={logOutRef} onClick={handleLogOut} href='/'>
+                <button className={styles.navButton} ref={logOutRef} onClick={handleLogOut}>
                   <LogoutOutlined />
                   Log Out
-                </Link>
+                </button>
                 :
-                <Link className={styles.navLink} ref={loginRef} onClick={() => setIsAccountMenuOpen(false)} href='/'>
+                <button className={styles.navButton} ref={loginRef} onClick={handleLogin}>
                   <LoginOutlined />
                   Login
-                </Link>
+                </button>
             }
           </nav>
         )}
         </div>
       </div>
     </header>
+  
   );
 }

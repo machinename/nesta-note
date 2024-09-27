@@ -13,7 +13,7 @@ import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
  * @param {string} props.method - The method of re-authentication ('email' or 'password').
  * @returns {JSX.Element|null} The rendered modal or null if not open.
  */
-const AccounthModal = ({ isOpen, onClose, method }) => {
+const AccountModal = ({ isOpen, onClose, method }) => {
     const [deleteAccount, setDeleteAccount] = useState('');
     const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
@@ -263,4 +263,4 @@ const AccounthModal = ({ isOpen, onClose, method }) => {
     );
 }
 
-export default AccounthModal;
+export default AccountModal;

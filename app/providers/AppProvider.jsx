@@ -12,8 +12,10 @@ const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const { user } = useAuthContext();
   const [notes, setNotes] = useState([]);
+
   const [filteredNotes, setFilteredNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [infoContent, setInfoContent] = useState('');
   const [info, setInfo] = useState('');
   const [infoTitle, setInfoTitle] = useState('');
@@ -56,15 +58,24 @@ export const AppProvider = ({ children }) => {
     }
   }, [user, setNotes]);
 
+  // useEffect(() => {
+  //   fetchNotes();
+  // }, [fetchNotes]);
+
   useEffect(() => {
-    fetchNotes();
-  }, [fetchNotes]);
+    if (user) {
+      fetchNotes();
+    } else {
+      setNotes([]);
+    }
+  }, [user, fetchNotes]);
+
 
   const createNote = useCallback(async (newNote) => {
     const noteWithId = {
       ...newNote,
       createdAt: Date.now(),
-      id: user ? uuidv4() : Date.now().toString()
+      id: uuidv4()
     };
     setNotes(prevNotes => [...prevNotes, noteWithId]);
     try {
@@ -147,6 +158,8 @@ export const AppProvider = ({ children }) => {
     }
   }, [notes, user, fetchNotes]);
 
+
+
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
     if (term.trim() === '') {
@@ -172,6 +185,7 @@ export const AppProvider = ({ children }) => {
     info,
     infoTitle,
     isAppLoading,
+    isLoginModalOpen,
     notes,
     filteredNotes,
     searchTerm,
@@ -181,12 +195,13 @@ export const AppProvider = ({ children }) => {
     deleteNote,
     handleSearch,
     handleCloseSearch,
+    setIsLoginModalOpen,
     setInfoContent,
     setInfo,
     setInfoTitle,
     setNotes,
   }), [
-    infoContent, info, infoTitle, isAppLoading, notes, filteredNotes, searchTerm,
+    infoContent, info, infoTitle, isAppLoading, isLoginModalOpen, notes, filteredNotes, searchTerm,
     createNote, fetchNotes, updateNote, deleteNote, handleSearch, handleCloseSearch
   ]);
 

@@ -124,6 +124,7 @@
 /*  */
 
 /* Navigation Link Styles */
+.navButton,
 .navLink,
 .navLinkActive {
   display: flex;
@@ -136,14 +137,22 @@
   text-decoration: none;
   transition: transform 0.05s ease;
   z-index: 3;
+  cursor: pointer;
 }
 
-@media screen and (min-width: 720px) {
+.navButton {
+  margin: 0;
+  outline: none;
+  border: none;
+  background-color: inherit ;
+}
+
+@media screen and (min-width: 600px) {
   .navLinkMobile {
     display: none;
   }
 }
-
+.navButton:hover,
 .navLink:hover {
   background-color: rgba(0.2, 0.2, 0.2, 0.2);
 }
