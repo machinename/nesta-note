@@ -38,36 +38,11 @@ export const AuthProvider = ({ children }) => {
 
     const handleAuthError = useCallback((error) => { 
         switch (error.code) {
-            case 'auth/email-already-in-use':
-                setAuthError("Email already in use.");
-                break;
-            case 'auth/invalid-email':
-                setAuthError("Invalid email.");
-                break;
-            case 'auth/invalid-credential':
-                setAuthError("Invalid credentials.");
-                break;
-            case 'auth/weak-password':
-                setAuthError("Password is too weak.");
-                break;
-            case 'auth/user-not-found':
-                setAuthError("User not found.");
-                break;
-            case 'auth/wrong-password':
-                setAuthError("Incorrect password.");
-                break;
-            case 'auth/too-many-requests':
-                setAuthError("Too many requests. Try again later.");
-                break;
             default:
                 setAuthError("An error occurred. Try again later.");
                 break;;
         }
-
-        console.log("AuthError - " + authError);
-        console.log("Error Code - " + error.code);
-        console.log("Error Message - " + error.message);
-    }, [authError]);
+    }, []);
 
     const createAccount = useCallback(async (email, password) => {
         setAuthError(null);
@@ -76,7 +51,7 @@ export const AuthProvider = ({ children }) => {
             setUser(userCredential.user);
             // Define ActionCodeSettings
             const actionCodeSettings = {
-                url: 'http://localhost:3000/notes',
+                url: 'http://nestanote.com/notes',
                 // iOS: {
                 //     bundleId: 'com.example.ios', // Replace with your iOS bundle ID
                 // },
