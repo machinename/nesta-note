@@ -8,8 +8,8 @@ import { useAppContext } from "./providers/AppProvider";
 
 export default function Notes() {
 
-  const { user } = useAuthContext();
-  const { notes } = useAppContext();
+
+  const { notes, isAppLoading } = useAppContext();
   const activeNotes = notes.filter(note => !note.isArchived && !note.isTrash);
 
   // Creating a new Note instance with empty strings for id, title, and content,
@@ -28,14 +28,13 @@ export default function Notes() {
   );
 
   return (
-    <div className={styles.page}>
+    <main className={styles.page}>
       <NoteGUI mode={'create'} note={newNote} />
       {activeNotes.length === 0 ? (
         <>
-          {!user && (<>
-          <h1>Login save your notes!</h1>
-            <p>--------------------</p>
-          </>)}
+          <h1>
+            Welcome To Nesta Notes
+          </h1>
           <h2>
             Notes you add appear here
           </h2>
@@ -70,6 +69,6 @@ export default function Notes() {
           <NoteGUI key={note.id} mode={'read'} note={note} />
         ))
       )}
-    </div>
+    </main>
   );
 }

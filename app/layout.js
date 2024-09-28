@@ -7,10 +7,10 @@ import LoginModal from "./components/LoginModal";
 export const metadata = {
   metadataBase: new URL("https://www.nestanote.com"),
   title: 'Nesta Note',
-  description: 'A note-taking app inspired by Google Keep with the ability to create notes within notes.',
+  description: 'An easy to use note-taking app with the ability to create notes within notes.',
   openGraph: {
     title: 'Nesta Note',
-    description: 'A note-taking app inspired by Google Keep with the ability to create notes within notes.',
+    description: 'An easy to note-taking app with the ability to create notes within notes.',
     url: 'https://www.nestanote.com',
     siteName: 'Nesta Note',
     locale: 'en_US',
@@ -39,6 +39,9 @@ export default function RootLayout({ children }) {
           {children}
           <Information />
         </ ProviderWrapper>
+        <footer>
+          <p>&copy; {new Date().getFullYear()} Machine Name. All rights reserved.</p>
+        </footer>
       </body>
     </html>
   );

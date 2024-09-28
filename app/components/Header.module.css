@@ -35,19 +35,23 @@
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
-.headerAnchorLeading,
-.headerAnchorTrailing {
+
+.accountAnchor,
+.navAnchor,
+.settingsAnchor {
   display: flex;
   flex-direction: row;
   align-items: center;
   text-decoration: none;
 }
 
-.headerAnchorLeading {
+.navAnchor {
     justify-content: flex-start;
 }
 
-.headerAnchorTrailing {
+
+.accountAnchor,
+.settingsAnchor {
     justify-content: flex-end;
 }
 
@@ -110,8 +114,7 @@
 } */
 
 /* Menu Styles */
-.accountMenu,
-.navMenu {
+.menu {
   background-color: white;
   display: flex;
   flex-direction: column;
@@ -131,6 +134,7 @@
   flex-direction: row;
   align-items: center;
   font-size: x-large;
+  font-weight: lighter;
   gap: 1rem;
   color: gray;
   padding: 0.5rem;

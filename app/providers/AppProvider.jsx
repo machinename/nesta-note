@@ -134,31 +134,31 @@ export const AppProvider = ({ children }) => {
     }
   }, [notes, user, fetchNotes]);
 
-  const deleteNote = useCallback(async (id) => {
-    const noteToDelete = notes.find(note => note.id === id);
-    const updatedNotes = notes.filter(note => note.id !== id);
-    setNotes(updatedNotes);
+  const deleteNote = useCallback(async (noteId) => {
+    const noteToDelete = notes.find(note => note.id === noteId);
+    setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
     try {
       if (user) {
-        const noteRef = doc(firestore, "users", user.uid, "notes", id);
+        const notesRef = collection(firestore, "users", user.uid, "notes");
+        const docRef = doc(notesRef, noteId);
+
         await runTransaction(firestore, async (transaction) => {
-          const docSnapshot = await transaction.get(noteRef);
-          if (docSnapshot.exists()) {
-            transaction.delete(noteRef);
-            console.log("Note deleted in Firestore");
-          } else {
+          const docSnapshot = await transaction.get(docRef);
+          if (!docSnapshot.exists()) {
             throw new Error("Note does not exist");
+          } else {
+            transaction.delete(docRef);
+            console.log("Note deleted in Firestore");
           }
         });
+
         await fetchNotes();
-      }  
+      }
     } catch (error) {
-      console.log('Error deleting note: ', error);
+      console.error('Error deleting note: ', error);
       setNotes(prevNotes => [...prevNotes, noteToDelete]);
     }
-  }, [notes, user, fetchNotes]);
-
-
+  } , [notes, user, fetchNotes]);
 
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);

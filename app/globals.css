@@ -4,7 +4,6 @@ body {
   margin: 0;
   padding: 0;
   min-width: 380px;
-  height: 100%;
   min-height: 100vh;
   -ms-user-select: none;
   -moz-user-select: none;
@@ -14,7 +13,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: white;
-  /* color: #000000; */
 }
 
 /* Typography */
@@ -33,7 +31,19 @@ p {
 button,
 input,
 p {
-  font-size: large;
+  font-size: normal;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background-color: white;
 }
 
 /* Scrollbar Styles */
@@ -49,6 +59,7 @@ p {
 .noScroll {
   overflow: hidden;
 }
+
 
 /* Dark Mode Styles */
 @media (prefers-color-scheme: dark) {

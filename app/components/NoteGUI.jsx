@@ -110,8 +110,8 @@ export default function NoteGUI({mode, note}) {
             } else {
                 setInfo('Note moved to trash');
             }
-            const updatedNotes = notes.map(note =>
-                note.id === note.id ? { ...note, isTrash: !note.isTrash } : note
+            const updatedNotes = notes.map(existingNote =>
+                existingNote.id === note.id ? { ...existingNote, isTrash: !existingNote.isTrash } : existingNote
             );
             setNotes(updatedNotes);
             const updatedNote = updatedNotes.find(note => note.id === note.id);

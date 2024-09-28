@@ -1,33 +1,47 @@
-.account,
-.login,
 .page {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding-left: 1rem;
     padding-right: 1rem;
-}
-
-.account {
-    gap: 1rem;
-}
-
-.login {
-    justify-content: center;
     height: 100%;
 }
 
-.account,
 .page {
     padding-top: 6rem;
+    padding-bottom: 4rem;
 }
 
-.accountContainer {
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.accountContainer,
+.helpContainer {
     width: 100%;
     max-width: 600px;
     display: flex;
     flex-direction: column;
-    /* padding-left: 2rem; */
+    
+}
+
+.helpHeader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.helpContainer {
+    gap: 1rem;
+}
+
+.accountContainer {
     box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);
 }
 
