@@ -9,7 +9,7 @@ export const metadata = {
   description: 'An easy to use note-taking app with the ability to create notes within notes.',
   openGraph: {
     title: 'Nesta Note',
-    description: 'An easy to note-taking app with the ability to create notes within notes.',
+    description: 'An easy to use note-taking app with the ability to create notes within notes.',
     url: 'https://www.nestanote.com',
     siteName: 'Nesta Note',
     locale: 'en_US',
