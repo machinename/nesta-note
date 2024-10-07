@@ -1,10 +1,7 @@
 'use client';
 
-import { Box } from '@mui/material';
-import { useCallback,  useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useAppContext } from '../providers/AppProvider';
-import { useAuthContext } from '../providers/AuthProvider';
-import { useThemeContext } from '../providers/ThemeProvider';
 import NoteBody from './NoteBody';
 import NoteHeader from './NoteHeader';
 import NoteFooter from './NoteFooter';
@@ -12,23 +9,17 @@ import NoteNestedNotes from './NoteNestedNotes';
 import styles from "./Note.module.css"
 
 
-export default function NoteGUI({mode, note}) {
-    const { user } = useAuthContext();
+export default function NoteGUI({ mode, note }) {
     const { createNote, deleteNote, updateNote, setInfoContent, setInfoTitle, setNotes, setInfo, notes } = useAppContext();
-    const { isDarkMode } = useThemeContext();
 
     // State for edit modes and UI elements
     const initialMode = mode;
     const [isViewMode, setIsViewMode] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [isNestedMode, setIsNestedMode] = useState(false);
-    const [isNoteReminderMenuOpen, setIsNoteReminderMenu] = useState(false);
     const [isNoteOptionsMenuOpen, setIsNoteOptionsMenu] = useState(false);
     const [isInfoScroll, setIsInfoScroll] = useState(false);
     const [wasNestedEdited, setWasNestedEdited] = useState(false);
-
-    const [showDialog, setShowDialog] = useState(false);
-    const [actionToConfirm, setActionToConfirm] = useState(null);
 
     // State for managing content arrays
     const [contentArray, setContentArray] = useState([note.content]);
@@ -54,7 +45,6 @@ export default function NoteGUI({mode, note}) {
     // const dialogRef = useRef(null);
     const noteCreateRef = useRef(null);
     const noteEditRef = useRef(null);
-    const noteReminderMenuRef = useRef(null);
     const noteOptionsMenuRef = useRef(null);
     const noteOptionsMenuRefButton = useRef(null);
     const infoContainerRef = useRef(null);
@@ -81,10 +71,8 @@ export default function NoteGUI({mode, note}) {
         setNotes(notes.map(note =>
             note.id === updatedNote.id ? { ...note, isArchived: !note.isArchived } : note
         ));
-        if (user) {
             updateNote(updatedNote);
             console.log("Note Archived");
-        }
     };
 
     const toggleEditModeTrue = () => {
@@ -115,9 +103,7 @@ export default function NoteGUI({mode, note}) {
             );
             setNotes(updatedNotes);
             const updatedNote = updatedNotes.find(note => note.id === note.id);
-            if (user) {
-                updateNote(note.id, { isTrash: updatedNote.isTrash });
-            }
+            updateNote(note.id, { isTrash: updatedNote.isTrash });
         }
         setIsNoteOptionsMenu(false);
     };
@@ -287,7 +273,7 @@ export default function NoteGUI({mode, note}) {
         }
     };
 
-    const handleDeleteNote = async() => {
+    const handleDeleteNote = async () => {
         // setActionToConfirm('deleteNote');
         // setShowDialog(true);
         try {
@@ -430,7 +416,6 @@ export default function NoteGUI({mode, note}) {
     return (
         <div className={!isViewMode ? styles.container : styles.containerModal}>
             <form
-                id={isDarkMode ? "NoteGUIDark" : "NoteGUI"}
                 className={!isViewMode ? (initialMode === 'create' ? styles.noteCreate : styles.noteRead) : styles.noteEdit}
                 onSubmit={handleSubmit} ref={initialMode === 'create' ? noteCreateRef : noteEditRef}>
                 <div
@@ -441,7 +426,6 @@ export default function NoteGUI({mode, note}) {
                         handleTitleChange={handleTitleChange}
                         initialMode={initialMode}
                         isEditMode={isEditMode}
-                        isDarkMode={isDarkMode}
                         isNestedMode={isNestedMode}
                         isViewMode={isViewMode}
                         nestedTitle={nestedTitle}
@@ -452,9 +436,8 @@ export default function NoteGUI({mode, note}) {
                     <NoteBody
                         content={content}
                         handleContentChange={handleContentChange}
-                        initialMode={initialMode} 
+                        initialMode={initialMode}
                         isEditMode={isEditMode}
-                        isDarkMode={isDarkMode}
                         isNestedMode={isNestedMode}
                         isViewMode={isViewMode}
                         nestedContent={nestedContent}
@@ -479,14 +462,12 @@ export default function NoteGUI({mode, note}) {
                     isInfoScroll={isInfoScroll}
                     isNestedMode={isNestedMode}
                     isNoteOptionsMenuOpen={isNoteOptionsMenuOpen}
-                    isNoteReminderMenuOpen={isNoteReminderMenuOpen}
                     isTrash={isTrash}
                     isUndoNote={isUndoNote}
                     mode={mode}
                     nestedContentArray={nestedContentArray}
                     noteOptionsMenuRef={noteOptionsMenuRef}
                     noteOptionsMenuRefButton={noteOptionsMenuRefButton}
-                    noteReminderMenuRef={noteReminderMenuRef}
                     nestedIndex={nestedIndex}
                     index={index}
                     setIsNestedMode={setIsNestedMode}

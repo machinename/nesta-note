@@ -8,7 +8,6 @@ export default function NoteBody({
     handleContentChange,
     initialMode,
     isEditMode,
-    isDarkMode,
     isNestedMode,
     isViewMode,
     nestedContent,
@@ -42,7 +41,7 @@ export default function NoteBody({
                                 fontSize: 'large',
                                 fontWeight: 'lighter',
                                 fontFamily: 'monospace',
-                                color: isDarkMode ? '#fff' : '#000',
+                                color: 'inherit',
                                 cursor: 'default',
                             },
                         }}

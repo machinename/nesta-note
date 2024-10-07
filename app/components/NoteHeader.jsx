@@ -7,7 +7,6 @@ export default function NoteHeader({
     handleTitleChange,
     initialMode,
     isEditMode,
-    isDarkMode,
     isNestedMode,
     isViewMode,
     nestedTitle,
@@ -43,7 +42,7 @@ export default function NoteHeader({
                                 fontSize: 'x-large',
                                 fontWeight: 'lighter',
                                 fontFamily: 'monospace',
-                                color: isDarkMode ? '#fff' : '#000',
+                                color: 'inherit',
                                 cursor: 'default',
                             },
                         }}

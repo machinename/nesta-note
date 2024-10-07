@@ -1,19 +1,16 @@
 'use client';
 
 import {
-    AlarmOutlined,
     Archive,
     ArchiveOutlined,
     ChevronLeft,
     DeleteForeverOutlined,
-    ImageOutlined,
     MoreVert,
     NoteAddOutlined,
     RedoOutlined,
     UndoOutlined,
     RestoreFromTrashOutlined,
     RestoreOutlined,
-    DeleteOutline
 } from '@mui/icons-material';
 import { Button, IconButton } from '@mui/material';
 import styles from "./Note.module.css"
@@ -31,17 +28,14 @@ export default function NoteFooter({
     initialMode,
     isArchived,
     isEditMode,
-    isInfoScroll,
     isNestedMode,
     isNoteOptionsMenuOpen,
-    isNoteReminderMenuOpen,
     isTrash,
     isUndoNote,
     mode,
     nestedContentArray,
     noteOptionsMenuRef,
     noteOptionsMenuRefButton,
-    noteReminderMenuRef,
     nestedIndex,
     index,
     setIsNestedMode,

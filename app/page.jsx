@@ -3,13 +3,11 @@
 import styles from "./page.module.css";
 import NoteGUI from "./components/NoteGUI";
 import { Note } from "./models/note";
-import { useAuthContext } from "./providers/AuthProvider";
 import { useAppContext } from "./providers/AppProvider";
+import Link from "next/link";
 
 export default function Notes() {
-
-
-  const { notes, isAppLoading } = useAppContext();
+  const { notes } = useAppContext();
   const activeNotes = notes.filter(note => !note.isArchived && !note.isTrash);
 
   // Creating a new Note instance with empty strings for id, title, and content,
@@ -31,39 +29,25 @@ export default function Notes() {
     <main className={styles.page}>
       <NoteGUI mode={'create'} note={newNote} />
       {activeNotes.length === 0 ? (
-        <>
+        <div style={{
+          gap: '1rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
           <h1>
-            Welcome To Nesta Notes
+            Welcome To Nesta Notes, It&apos;s a POC for <Link style={{
+              color: 'black',
+              textDecoration: 'underline'
+            }} href={'https://papertake.io'}
+              target="_blank"
+              rel="noopener noreferrer"
+            >Paper Take</Link>
           </h1>
-          <h2>
-            Notes you add appear here
-          </h2>
-          <p>--------------------</p>
-          <h2>
-            Features Coming Soon
-          </h2>
           <p>
-            Merge Offline Notes
+            If you like the concept of Nesta Notes, please try Paper Take. It allows you to create an account and save your notes. Paper Take includes more features such as account management, project creation, task management, and more.
           </p>
-          <p>
-            Application Settings
-          </p>
-          <p>
-            Offline Mode
-          </p>
-          <p>
-            Drawing & Background Options
-          </p>
-          <p>
-            Grid Layouts
-          </p>
-          <p>
-            Reminder Functionality
-          </p>
-          <p>
-            Help & Feedback Page
-          </p>
-        </>
+        </div>
       ) : (
         activeNotes.map(note => (
           <NoteGUI key={note.id} mode={'read'} note={note} />

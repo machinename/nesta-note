@@ -4,27 +4,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { IconButton } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
 import {
-  AccountBoxOutlined, ArchiveOutlined, CircleOutlined, Close, DeleteOutlined, LoginOutlined,
-  LogoutOutlined, MenuOpen, Refresh, Search, SettingsOutlined, Archive, Note, NoteOutlined, Delete,
-  Help,
-  HelpOutlined,
+  ArchiveOutlined, Close, DeleteOutlined,
+  MenuOpen, Search, Archive, Note, NoteOutlined, Delete,
   HelpCenter,
   HelpCenterOutlined
 } from '@mui/icons-material';
 
 import { useAppContext } from '../providers/AppProvider';
-import { useAuthContext } from '../providers/AuthProvider';
-import { useThemeContext } from '../providers/ThemeProvider';
 import styles from "./Header.module.css";
 
 export default function Header() {
   // Contexts
-  const { isAuthLoading, logOut, user } = useAuthContext();
   const {
-    searchTerm, handleSearch, handleCloseSearch, isAppLoading,
-    isLoginModalOpen, setIsLoginModalOpen, fetchNotes, setNotes
+    searchTerm, handleSearch, handleCloseSearch,
+    isLoginModalOpen,
   } = useAppContext();
 
   // State Variables
@@ -43,8 +37,6 @@ export default function Header() {
   const helpRef = useRef(null);
   const homeRef = useRef(null);
   const inputRef = useRef(null);
-  const loginRef = useRef(null);
-  const logOutRef = useRef(null);
   const navMenuRef = useRef(null);
   const trashRef = useRef(null);
   const settingsButtonRef = useRef(null);
@@ -56,19 +48,7 @@ export default function Header() {
     router.push('/search');
     inputRef.current.focus();
   };
-  const handleLogin = () => {
-    setIsLoginModalOpen(true);
-    setIsAccountMenuOpen(false);
-  };
-  const handleLogOut = async () => {
-    try {
-      await logOut();
-      setNotes([]);
-      setIsAccountMenuOpen(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   const handleCloseButton = () => {
     router.back();
     handleCloseSearch();
@@ -87,7 +67,7 @@ export default function Header() {
         }
       }
       if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target)) {
-        if(!settingsButtonRef.current.contains(event.target)) {
+        if (!settingsButtonRef.current.contains(event.target)) {
           setIsSettingsMenuOpen(false);
         }
       }
@@ -116,9 +96,6 @@ export default function Header() {
       case '/':
         setTitle('Nesta Notes');
         break;
-      case '/account':
-        setTitle('Account');
-        break;
       case '/search':
         setTitle('Search');
         break;
@@ -127,9 +104,6 @@ export default function Header() {
         break;
       case '/trash':
         setTitle('Trash');
-        break;
-      case '/help':
-        setTitle('Help');
         break;
       default:
         setTitle('');
@@ -159,9 +133,6 @@ export default function Header() {
               <Link className={pathname === '/trash' ? styles.navLinkActive : styles.navLink} ref={trashRef} href='/trash'>
                 {pathname === '/trash' ? <Delete /> : <DeleteOutlined />} Trash
               </Link>
-              <Link className={pathname === '/help' ? styles.navLinkActive : styles.navLink} ref={helpRef} href='/help'>
-                {pathname === '/help' ? <HelpCenter /> : <HelpCenterOutlined />} Help
-              </Link>
             </nav>
           )}
         </div>
@@ -188,59 +159,6 @@ export default function Header() {
             <IconButton onClick={handleCloseButton}>
               <Close />
             </IconButton>
-          )}
-        </div>
-      </div>
-      {/* Nav Trailing */}
-      <div className={styles.headerTrailing}>
-        {(isAppLoading || isAuthLoading) ? (
-          <IconButton>
-            <CircularProgress size={20} />
-          </IconButton>
-        ) : (
-          <IconButton onClick={fetchNotes}>
-            <Refresh />
-          </IconButton>
-        )}
-        <div className={styles.settingsAnchor}>
-          <IconButton ref={settingsButtonRef} onClick={() => setIsSettingsMenuOpen(prev => !prev)}>
-            <SettingsOutlined />
-          </IconButton>
-          {isSettingsMenuOpen && (
-            <nav className={styles.menu} ref={settingsMenuRef}>
-              <div className={styles.navLink}>
-                Todo - Theme
-              </div>
-              <div className={styles.navLink}>
-                Todo - Enable Sharing
-              </div>
-              <div className={styles.navLink}>
-                Todo - Reminder Defaults
-              </div>
-            </nav>
-          )}
-        </div>
-        <div className={styles.accountAnchor}>
-          <IconButton ref={accountButtonRef} onClick={() => setIsAccountMenuOpen(prev => !prev)}>
-            <CircleOutlined />
-          </IconButton>
-          {isAccountMenuOpen && (
-            <nav className={styles.menu} ref={accountMenuRef}>
-              {user && (
-                <Link className={styles.navLink} ref={archiveRef} onClick={() => setIsAccountMenuOpen(false)} href='/account'>
-                  <AccountBoxOutlined /> Account
-                </Link>
-              )}
-              {user ? (
-                <div className={styles.navLink} ref={logOutRef} onClick={handleLogOut}>
-                  <LogoutOutlined /> Log Out
-                </div>
-              ) : (
-                <div className={styles.navLink} ref={loginRef} onClick={handleLogin}>
-                  <LoginOutlined /> Login
-                </div>
-              )}
-            </nav>
           )}
         </div>
       </div>

@@ -12,7 +12,6 @@
     padding-bottom: 4rem;
 }
 
-
 .wrapper {
     display: flex;
     flex-direction: column;
@@ -65,13 +64,11 @@
     transition: transform 0.2s ease-in-out;
 }
 
-
 .accountContainerItemLeading,
 .accountContainerItemTrailing {
     display: flex;
     flex-direction: row;
     align-items: center;
-    /* background-color: khaki; */
 }
 
 .accountContainerItemLeading {
@@ -91,7 +88,6 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    /* padding: 1rem; */
     align-items: center;
     width: 100%;
     max-width: 800px;
@@ -149,11 +145,8 @@
 
 .formButton:active {
     background-color: #333;
-    /* Darker shade of black */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    /* Add a shadow effect */
     transform: scale(0.98);
-    /* Slightly scale down the button */
 }
 
 .input,
